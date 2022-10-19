@@ -62,7 +62,7 @@ async def commands(ctx):
     embed=discord.Embed(title=f'Lizard Commands!', description='To use a command, enter: `!{command}`',color=0x14AB49)
     embed.add_field(name='🎲 **Games**', value='`roll (#)` `game` `battle (under construction)`', inline=False)
     embed.add_field(name='📰 **Message Management**', value='`timed (#)` `selfdelete`', inline=False)
-    embed.add_field(name='🙃 **Fluff**', value='`test` `greet` ~~`blahaj`~~', inline=False)
+    embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` ~~`blahaj`~~', inline=False)
     embed.add_field(name='👓 **Mod/Admin**', value='`admin`', inline=False)
     await ctx.reply(embed=embed)
 
@@ -77,10 +77,15 @@ async def history(ctx):
 
 @client.command() #!change
 async def change(ctx):
-    myname = "Server Li" + ("z" * random.randint(1,13)) + "ard"
-    for guild in client.guilds:
-        await guild.me.edit(nick=myname)
-    await ctx.send(f"Changed name to {myname}!")
+    roll = random.randint(1, 10)
+    if roll != 1:
+        myname = "Server Li" + ("z" * random.randint(1,13)) + "ard"
+        await ctx.send(f"Changed name to {myname}!")
+    else:
+        myname = ""
+        await ctx.send(f"Stop changing my name! 😠")
+    await ctx.guild.me.edit(nick=myname)
+    
 
 @client.command() #!greet
 async def greet(ctx):
@@ -91,7 +96,7 @@ async def greet(ctx):
         return m.content == 'hello' and m.channel == channel
 
     try:
-        msg = await client.wait_for('message', timeout=10, check=check)
+        msg = await client.wait_for('message', timeout=20, check=check)
     except asyncio.TimeoutError:
         await mymsg.edit(content='Timed out!')
     else:
@@ -108,7 +113,7 @@ async def game(ctx):
     view.add_item(item=button1)
     view.add_item(item=button2)
     view.add_item(item=button3)
-    embed=discord.Embed(title=f'Pick your choice!', color=0xFF5733)
+    embed=discord.Embed(title=f'Pick your choice!', color=0xaacbeb)
     msg = await ctx.reply(embed=embed, view=view)
 
     def check(m):
@@ -141,35 +146,31 @@ async def game(ctx):
         
         if (playerChoice == computerChoice):
             title = 'It\'s a tie!'
-            text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-            color = 0x0000FF
-        elif (playerChoice == 0):
-            if (computerChoice == 1):
-                title = 'You win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0x00FF00
-            else:
-                title = 'I win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0xFF5733
-        elif (playerChoice == 1):
-            if (computerChoice == 0):
-                title = 'I win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0xFF5733
-            else:
-                title = 'You win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0x00FF00
+            color = 0xaacbeb
+            text = f'Both of us chose {choices[playerChoice]}!'
         else:
-            if (computerChoice == 0):
-                title = 'You win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0x00FF00
+            text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
+            if (playerChoice == 0):
+                if (computerChoice == 1):
+                    title = 'You win!'
+                    color = 0x00FF00
+                else:
+                    title = 'I win!'
+                    color = 0xFF5733
+            elif (playerChoice == 1):
+                if (computerChoice == 0):
+                    title = 'I win!'
+                    color = 0xFF5733
+                else:
+                    title = 'You win!'
+                    color = 0x00FF00
             else:
-                title = 'I win!'
-                text = f'You chose {choices[playerChoice]} and I chose {choices[computerChoice]}!'
-                color = 0xFF5733
+                if (computerChoice == 0):
+                    title = 'You win!'
+                    color = 0x00FF00
+                else:
+                    title = 'I win!'
+                    color = 0xFF5733
                 
         await channel.send(embed=discord.Embed(title=title,description=text, color=color))
 
@@ -181,46 +182,145 @@ async def battle(ctx):
         getOpponentId = int(getOpponentId.replace('>',''))
         getUser = await client.fetch_user(getOpponentId)
         if ctx.guild.get_member(getOpponentId) is not None:
-            channel = ctx.channel
-            view = discord.ui.View()
-            button1 = discord.ui.Button(label="Accept", style=ButtonStyle.green, custom_id='accept')
-            button2 = discord.ui.Button(label="Decline", style=ButtonStyle.red, custom_id='decline')
-            view.add_item(item=button1)
-            view.add_item(item=button2)
-            mymsg = await ctx.reply(content=f'{getOpponentPing}, {ctx.author.display_name} wants to battle! ✂📰🗿', view=view)
-
-            def checkButton(m):
-                return m.message == mymsg and m.user.id == getOpponentId
-
-            try:
-                interacted = await client.wait_for('interaction', timeout=120, check=checkButton)
-            except asyncio.TimeoutError:
-                button1.disabled = True
-                button2.disabled = True
-                await mymsg.edit(content='Timed out!', view=view)
-            else:
-                await interacted.response.defer()
-                button1.disabled = True
-                button2.disabled = True
-                await mymsg.edit(view=view)
-                button1 = discord.ui.Button(label="Scissors ✂", style=ButtonStyle.grey, custom_id='scissors')
-                button2 = discord.ui.Button(label="Paper 📰", style=ButtonStyle.grey, custom_id='paper')
-                button3 = discord.ui.Button(label="Stone 🗿", style=ButtonStyle.grey, custom_id='stone')
-                view.clear_items()
+            if getUser != ctx.author:
+                channel = ctx.channel
+                view = discord.ui.View()
+                button1 = discord.ui.Button(label="Accept", style=ButtonStyle.green, custom_id='accept')
+                button2 = discord.ui.Button(label="Decline", style=ButtonStyle.red, custom_id='decline')
                 view.add_item(item=button1)
                 view.add_item(item=button2)
-                view.add_item(item=button3)
-                embed = discord.Embed(title='**Battle Commencing!**', description=f'Waiting for players to pick:',color=0x00FF00)
-                embed.add_field(name="Player 1", value=f'> {ctx.author.display_name}', inline=True)
-                embed.add_field(name="Player 2", value=f'> {getUser.display_name}', inline=True)
-                msg2 = await ctx.channel.send(embed=embed, view=view)
+                mymsg = await ctx.reply(content=f'{getOpponentPing}, {ctx.author.display_name} wants to battle! ✂📰🗿', view=view)
 
+                def checkButton(m):
+                    return m.message == mymsg and m.user.id == getOpponentId
+
+                try:
+                    interacted = await client.wait_for('interaction', timeout=120, check=checkButton)
+                except asyncio.TimeoutError:
+                    button1.disabled = True
+                    button2.disabled = True
+                    await mymsg.edit(content='Timed out!', view=view)
+                else:
+                    if interacted.data['custom_id'] == 'accept':
+                        await interacted.response.defer()
+                        button1.disabled = True
+                        button2.disabled = True
+                        await mymsg.edit(view=view)
+                        button1 = discord.ui.Button(label="Scissors ✂", style=ButtonStyle.grey, custom_id='scissors')
+                        button2 = discord.ui.Button(label="Paper 📰", style=ButtonStyle.grey, custom_id='paper')
+                        button3 = discord.ui.Button(label="Stone 🗿", style=ButtonStyle.grey, custom_id='stone')
+                        view.clear_items()
+                        view.add_item(item=button1)
+                        view.add_item(item=button2)
+                        view.add_item(item=button3)
+                        embed = discord.Embed(title='**Battle Commencing!**', description=f'Waiting for players to pick:',color=0x00FF00)
+                        embed.add_field(name="Player 1", value=f'> {ctx.author.display_name}', inline=True)
+                        embed.add_field(name="Player 2", value=f'> {getUser.display_name}', inline=True)
+                        msg2 = await ctx.channel.send(embed=embed, view=view)
+
+                        def checkPlayer(m):
+                            return m.message == msg2 and (m.user == ctx.author or m.user == getUser)
+
+                        def checkPlayer2(m):
+                            return m.message == msg2 and m.user == remainingPlayer
+
+                        try:
+                            interacted = await client.wait_for('interaction', timeout=120, check=checkPlayer)
+                        except asyncio.TimeoutError:
+                            button1.disabled = True
+                            button2.disabled = True
+                            button3.disabled = True
+                            await msg2.edit(content='Timed out!', view=view)
+                        else:
+                            await interacted.response.defer()
+                            if interacted.user == ctx.author:
+                                remainingPlayer = getUser
+                                if interacted.data['custom_id'] == 'scissors':
+                                    player1Choice = 0
+                                elif interacted.data['custom_id'] == 'paper':
+                                    player1Choice = 1
+                                elif interacted.data['custom_id'] == 'stone':
+                                    player1Choice = 2
+                                embed.set_field_at(index=0, name="Player 1", value=f'> {ctx.author.display_name} ✅', inline=True)
+                            elif interacted.user == getUser:
+                                remainingPlayer = ctx.author
+                                if interacted.data['custom_id'] == 'scissors':
+                                    player2Choice = 0
+                                elif interacted.data['custom_id'] == 'paper':
+                                    player2Choice = 1
+                                elif interacted.data['custom_id'] == 'stone':
+                                    player2Choice = 2
+                                embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.display_name} ✅', inline=True)
+                            await msg2.edit(embed=embed)
+
+                            try:
+                                interacted = await client.wait_for('interaction', timeout=120, check=checkPlayer2)
+                            except asyncio.TimeoutError:
+                                button1.disabled = True
+                                button2.disabled = True
+                                button3.disabled = True
+                                await msg2.edit(content='Timed out!', view=view)
+                            else:
+                                await interacted.response.defer()
+
+                                button1.disabled = True
+                                button2.disabled = True
+                                button3.disabled = True
+                                await msg2.edit(view=view)
+                                
+                                if interacted.user == getUser:
+                                    if interacted.data['custom_id'] == 'scissors':
+                                        player2Choice = 0
+                                    elif interacted.data['custom_id'] == 'paper':
+                                        player2Choice = 1
+                                    elif interacted.data['custom_id'] == 'stone':
+                                        player2Choice = 2
+                                    embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.display_name} ✅', inline=True)
+                                elif interacted.user == ctx.author:
+                                    if interacted.data['custom_id'] == 'scissors':
+                                        player1Choice = 0
+                                    elif interacted.data['custom_id'] == 'paper':
+                                        player1Choice = 1
+                                    elif interacted.data['custom_id'] == 'stone':
+                                        player1Choice = 2
+                                    embed.set_field_at(index=0, name="Player 1", value=f'> {ctx.author.display_name} ✅', inline=True)
+                                await msg2.edit(embed=embed)
+
+                                choices = ['Scissors', 'Paper', 'Stone']
+                                if (player1Choice == player2Choice):
+                                    title = 'It\'s a tie!'
+                                    text = f'Both players chose {choices[player1Choice]}!'
+                                else:
+                                    text = f'{ctx.author.display_name} chose {choices[player1Choice]} and {getUser.display_name} chose {choices[player2Choice]}!'
+                                    if (player1Choice == 0):
+                                        if (player2Choice == 1):
+                                            title = f'{ctx.author.display_name} wins!'
+                                        else:
+                                            title = f'{getUser.display_name} wins!'
+                                    elif (player1Choice == 1):
+                                        if (player2Choice == 0):
+                                            title = f'{getUser.display_name} wins!'
+                                        else:
+                                            title = f'{ctx.author.display_name} wins!'
+                                    else:
+                                        if (player2Choice == 0):
+                                            title = f'{ctx.author.display_name} wins!'
+                                        else:
+                                            title = f'{getUser.display_name} wins!'
+
+                                await channel.send(embed=discord.Embed(title=title,description=text, color=0x00FF00))
+                    else:
+                        await interacted.response.defer()
+                        button1.disabled = True
+                        button2.disabled = True
+                        await mymsg.edit(view=view)
+                        await mymsg.reply(content='Battle declined.')
+            else:
+                await ctx.reply('You cannot battle yourself!')
         else:
-            await ctx.reply('2Invalid syntax! Please use `!battle {@user}`')
-    except Exception as e:
+            await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
+    except:
         await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
-        print(e)
-        traceback.print_tb(e)
         
 '''                        
 @client.command() #!blahaj
@@ -378,7 +478,7 @@ async def bulkdelete(ctx):
 
                                         view.add_item(item=button1)
                                         view.add_item(item=button2)
-                                        embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
+                                        embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
                                         embed.add_field(name="Date", value=f"> **Start**: " + dateStart.strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + dateEnd.strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
                                         msg6 = await ctx.author.send(embed=embed, view=view)
 
@@ -521,7 +621,7 @@ async def selfdelete(ctx):
 
                                         view.add_item(item=button1)
                                         view.add_item(item=button2)
-                                        embed=discord.Embed(title=f"Delete {counter} messages?", description="(Search Limit: 3000 messages)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
+                                        embed=discord.Embed(title=f"Delete {counter} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
                                         embed.add_field(name="Date", value=f"> **Start**: " + dateStart.strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + dateEnd.strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
                                         await msg6.edit(embed=embed, view=view)
 
