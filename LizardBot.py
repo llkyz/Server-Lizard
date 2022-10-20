@@ -60,7 +60,7 @@ async def admin(ctx):
 @client.command(aliases=['command']) #!commands            
 async def commands(ctx):
     embed=discord.Embed(title=f'Lizard Commands!', description='To use a command, enter: `!{command}`',color=0x14AB49)
-    embed.add_field(name='🎲 **Games**', value='`roll (#)` `game` `battle (under construction)`', inline=False)
+    embed.add_field(name='🎲 **Games**', value='`roll (#)` `game` `battle (@user)`', inline=False)
     embed.add_field(name='📰 **Message Management**', value='`timed (#)` `selfdelete`', inline=False)
     embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` ~~`blahaj`~~', inline=False)
     embed.add_field(name='👓 **Mod/Admin**', value='`admin`', inline=False)
@@ -79,7 +79,7 @@ async def history(ctx):
 async def change(ctx):
     roll = random.randint(1, 10)
     if roll != 1:
-        myname = "Server Li" + ("z" * random.randint(1,13)) + "ard"
+        myname = "Server Li" + ("z" * random.randint(0,13)) + "ard"
         await ctx.send(f"Changed name to {myname}!")
     else:
         myname = ""
@@ -177,19 +177,19 @@ async def game(ctx):
 @client.command() #!battle
 async def battle(ctx):
     try:
-        getOpponentPing = ctx.message.content.replace('!battle ','')
-        getOpponentId = getOpponentPing.replace('<@','')
+        getOpponentId = ctx.message.content.replace('!battle <@','')
         getOpponentId = int(getOpponentId.replace('>',''))
-        getUser = await client.fetch_user(getOpponentId)
+        guild = await client.fetch_guild(ctx.guild.id)
+        getUser = await guild.fetch_member(getOpponentId)
         if ctx.guild.get_member(getOpponentId) is not None:
-            if getUser != ctx.author:
+            if getUser != ctx.author and getUser.id != 1032276665092538489:
                 channel = ctx.channel
                 view = discord.ui.View()
                 button1 = discord.ui.Button(label="Accept", style=ButtonStyle.green, custom_id='accept')
                 button2 = discord.ui.Button(label="Decline", style=ButtonStyle.red, custom_id='decline')
                 view.add_item(item=button1)
                 view.add_item(item=button2)
-                mymsg = await ctx.reply(content=f'{getOpponentPing}, {ctx.author.display_name} wants to battle! ✂📰🗿', view=view)
+                mymsg = await ctx.reply(content=f'{getUser.mention}, {ctx.author.display_name} wants to battle! ✂📰🗿', view=view)
 
                 def checkButton(m):
                     return m.message == mymsg and m.user.id == getOpponentId
@@ -215,7 +215,7 @@ async def battle(ctx):
                         view.add_item(item=button3)
                         embed = discord.Embed(title='**Battle Commencing!**', description=f'Waiting for players to pick:',color=0x00FF00)
                         embed.add_field(name="Player 1", value=f'> {ctx.author.display_name}', inline=True)
-                        embed.add_field(name="Player 2", value=f'> {getUser.display_name}', inline=True)
+                        embed.add_field(name="Player 2", value=f'> {getUser.nick}', inline=True)
                         msg2 = await ctx.channel.send(embed=embed, view=view)
 
                         def checkPlayer(m):
@@ -250,7 +250,7 @@ async def battle(ctx):
                                     player2Choice = 1
                                 elif interacted.data['custom_id'] == 'stone':
                                     player2Choice = 2
-                                embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.display_name} ✅', inline=True)
+                                embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.nick} ✅', inline=True)
                             await msg2.edit(embed=embed)
 
                             try:
@@ -275,7 +275,7 @@ async def battle(ctx):
                                         player2Choice = 1
                                     elif interacted.data['custom_id'] == 'stone':
                                         player2Choice = 2
-                                    embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.display_name} ✅', inline=True)
+                                    embed.set_field_at(index=1, name="Player 2", value=f'> {getUser.nick} ✅', inline=True)
                                 elif interacted.user == ctx.author:
                                     if interacted.data['custom_id'] == 'scissors':
                                         player1Choice = 0
@@ -291,22 +291,22 @@ async def battle(ctx):
                                     title = 'It\'s a tie!'
                                     text = f'Both players chose {choices[player1Choice]}!'
                                 else:
-                                    text = f'{ctx.author.display_name} chose {choices[player1Choice]} and {getUser.display_name} chose {choices[player2Choice]}!'
+                                    text = f'{ctx.author.display_name} chose {choices[player1Choice]} and {getUser.nick} chose {choices[player2Choice]}!'
                                     if (player1Choice == 0):
                                         if (player2Choice == 1):
                                             title = f'{ctx.author.display_name} wins!'
                                         else:
-                                            title = f'{getUser.display_name} wins!'
+                                            title = f'{getUser.nick} wins!'
                                     elif (player1Choice == 1):
                                         if (player2Choice == 0):
-                                            title = f'{getUser.display_name} wins!'
+                                            title = f'{getUser.nick} wins!'
                                         else:
                                             title = f'{ctx.author.display_name} wins!'
                                     else:
                                         if (player2Choice == 0):
                                             title = f'{ctx.author.display_name} wins!'
                                         else:
-                                            title = f'{getUser.display_name} wins!'
+                                            title = f'{getUser.nick} wins!'
 
                                 await channel.send(embed=discord.Embed(title=title,description=text, color=0x00FF00))
                     else:
@@ -315,6 +315,9 @@ async def battle(ctx):
                         button2.disabled = True
                         await mymsg.edit(view=view)
                         await mymsg.reply(content='Battle declined.')
+
+            elif getUser.id == 1032276665092538489:
+                await ctx.reply('Use !game to battle me!')
             else:
                 await ctx.reply('You cannot battle yourself!')
         else:
@@ -685,6 +688,17 @@ async def on_message(message):
     else:
         prefix = str(message.guild) + " #" + str(message.channel)
     print(f"[{prefix}] " + str(message.author) + ": " + str(message.content))
+
+    if '<@1032276665092538489>' in message.content and '!battle' not in message.content:
+        roll = random.randint(1, 10)
+        if roll > 4:
+            await message.channel.send('*slithers by*')
+        elif roll == 3:
+            await message.channel.send('*blends into the surroundings*')
+        elif roll == 2:
+            await message.channel.send('*munches on some bread*')
+        elif roll == 1:
+            await message.reply('*bonks you* <:bonk:687841666182414413>')
     await client.process_commands(message)
 
 '''    
