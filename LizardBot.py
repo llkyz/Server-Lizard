@@ -33,6 +33,13 @@ blahajFlat = ["https://i.redd.it/vg3vjkroytq71.jpg",
               "https://i.redd.it/fxckzsfrivq71.png",
               "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg"]
 '''
+
+
+# Universal Functions
+def timeConvert(originalTime): #converts UTC to GMT+8
+    newTime = originalTime + timedelta(hours=8)
+    return newTime
+
 # Bot Coding
 @client.event
 async def on_ready():
@@ -48,6 +55,7 @@ async def on_ready():
     #members = '\n - '.join([member.name for member in guild.members])
     #print(f'Guild Members:\n - {members}')
 
+
 @client.command() #!admin
 async def admin(ctx):
     for r in ctx.author.roles:
@@ -57,13 +65,15 @@ async def admin(ctx):
             embed.add_field(name='📰 **Message Management**', value='`bulkdelete`', inline=False)
             await ctx.author.send(embed=embed)
             
-@client.command(aliases=['command']) #!commands            
+client.remove_command('help')
+@client.command(aliases=['command','help']) #!commands            
 async def commands(ctx):
-    embed=discord.Embed(title=f'Lizard Commands!', description='To use a command, enter: `!{command}`',color=0x14AB49)
-    embed.add_field(name='🎲 **Games**', value='`roll (#)` `game` `battle (@user)`', inline=False)
-    embed.add_field(name='📰 **Message Management**', value='`timed (#)` `selfdelete`', inline=False)
+    embed=discord.Embed(title=f'Lizard Commands!', description='Use !help or !commands to show this list.\nTo use a command, enter: `!{command}`',color=0x14AB49)
+    embed.add_field(name='🎲 **Games**', value='`roll` `game` `battle`', inline=False)
+    embed.add_field(name='📰 **Message Management**', value='`timed` `selfdelete`', inline=False)
     embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` ~~`blahaj`~~', inline=False)
-    embed.add_field(name='👓 **Mod/Admin**', value='`admin`', inline=False)
+    embed.add_field(name='👓 **Mod/Admin Use**', value='`admin`', inline=False)
+    embed.add_field(name='**Additional Features**', value='Starboard / ~~Post Reporting~~ / ~~Mod Pings~~', inline=False)
     await ctx.reply(embed=embed)
 
 @client.command() #!test
@@ -436,8 +446,8 @@ async def bulkdelete(ctx):
                             embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
                             await ctx.author.send(embed=embed)
                         else:
-                            embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + fetched.created_at.strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                            embed.add_field(name="Message Link", value=f"> {fetched.jump_url}", inline=False)
+                            embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                            embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
                             embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
                             await ctx.author.send(embed=embed)
                             embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
@@ -465,8 +475,8 @@ async def bulkdelete(ctx):
                                         embed=discord.Embed(title=f'Error, this message belongs to a different channel', description=f'Bulk delete cancelled', color=0xFF5733)
                                         await ctx.author.send(embed=embed)
                                     else:
-                                        embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + fetched2.created_at.strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                                        embed.add_field(name="Message Link", value=f"> {fetched2.jump_url}", inline=False)
+                                        embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
                                         embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
                                         await ctx.author.send(embed=embed)
 
@@ -482,7 +492,7 @@ async def bulkdelete(ctx):
                                         view.add_item(item=button1)
                                         view.add_item(item=button2)
                                         embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
-                                        embed.add_field(name="Date", value=f"> **Start**: " + dateStart.strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + dateEnd.strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                                        embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
                                         msg6 = await ctx.author.send(embed=embed, view=view)
 
                                         def checkButton2(m):
@@ -567,8 +577,8 @@ async def selfdelete(ctx):
                     if fetched.author != ctx.author:
                         await ctx.author.send("Error, this message does not belong to you.")
                     else:
-                        embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Time**: " + fetched.created_at.strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                        embed.add_field(name="Message Link", value=f"> {fetched.jump_url}", inline=False)
+                        embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
                         embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
                         await ctx.author.send(embed=embed)
                         embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
@@ -600,8 +610,8 @@ async def selfdelete(ctx):
                                         embed=discord.Embed(title=f'Error, this message does not belong to you', description=f'Bulk delete cancelled', color=0xFF5733)
                                         await ctx.author.send(embed=embed)
                                     else:
-                                        embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel2) + "\n**Time**: " + fetched2.created_at.strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                                        embed.add_field(name="Message Link", value=f"> {fetched2.jump_url}", inline=False)
+                                        embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel2) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
                                         embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
                                         await ctx.author.send(embed=embed)
 
@@ -625,7 +635,7 @@ async def selfdelete(ctx):
                                         view.add_item(item=button1)
                                         view.add_item(item=button2)
                                         embed=discord.Embed(title=f"Delete {counter} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
-                                        embed.add_field(name="Date", value=f"> **Start**: " + dateStart.strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + dateEnd.strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                                        embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
                                         await msg6.edit(embed=embed, view=view)
 
                                         def checkButton2(m):
@@ -703,64 +713,125 @@ async def on_message(message):
 
 '''    
 #@mod
-    if '<@&423458739656458243>' in message.content and str(message.author) != 'Server Lizard#7004':
+    if '<@&423458739656458243>' in message.content and message.author.id != 1032276665092538489:
         reportChannel = discord.utils.get(message.guild.channels, name='reports')
-        embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"{message.jump_url}", color=0x00FF00)
+        embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"[\[Link\]]({message.jump_url})", color=0x00FF00)
         await reportChannel.send(embed=embed)
 '''
     
-'''            
+          
 @client.event
 async def on_reaction_add(reaction,user):
+    if reaction.emoji == '⭐': #nsfw-starboard
+        reaction = discord.utils.get(reaction.message.reactions, emoji='⭐')
+        if (reaction.message.channel.id == 407561378564407297 or reaction.message.channel.id == 407561306162331674 or reaction.message.channel.id == 526226411866947585) and reaction.count >= 5:
+            doNotAdd = 0
+            async for user in reaction.users():
+                if user.id == 1032276665092538489:
+                    doNotAdd = 1
+                    break
+            if doNotAdd == 0:
+                await reaction.message.add_reaction('⭐')
+                starChannel = discord.utils.get(reaction.message.guild.channels, name='nsfw-starboard')
+                embed=discord.Embed(title=f'⭐ {reaction.message.author.display_name} ⭐', description=f'{reaction.message.content}\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
+                if reaction.message.attachments:
+                    embed.set_image(url=reaction.message.attachments[0].url)
+                await starChannel.send(content=f'<#{reaction.message.channel.id}>', embed=embed)
+ 
     if (str(reaction.emoji) == "<:report:1030128257980440576>"):
         await reaction.clear()
+        restricted = False
+        for r in user.roles:
+            if r.id == 123456789056458243: #change according to restricted role id
+                restricted = True
+                await user.send('You are currently restricted from using this function.')
+                
+        if restricted == False:
+            reportedUser = reaction.message.author
+            messageLink = reaction.message.jump_url
+            messageContent = reaction.message.content
+            reportingUser = user
 
-        reportedUser = reaction.message.author
-        messageLink = reaction.message.jump_url
-        messageContent = reaction.message.content
-        reportingUser = user
+            view = discord.ui.View()
+            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+            view.add_item(item=button1)
+            view.add_item(item=button2)
+            embed=discord.Embed(title=f'__**You are attempting to report a post by {str(reportedUser)} ({reportedUser.display_name})**__', description=f'**Server**: {str(reaction.message.guild)}\n**Channel**: #{str(reaction.message.channel)}\n**Time**: ' + timeConvert(reaction.message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({reaction.message.jump_url})', color=0xFF5733)
+            embed.add_field(name="Message Content", value=f"> `{reaction.message.content}`", inline=False)
+            mymsg = await user.send(embed=embed, view=view)
 
-        if (len(reaction.message.content) > 100):
-            shortMessage = reaction.message.content[0:100] + "..."
-        else:
-            shortMessage = reaction.message.content
-        
-        mymsg = await user.send(f'It seems that you wish to report a post by {reaction.message.author.display_name}.\nMessage: "{shortMessage}"\n\nDo you wish to proceed?')
-        await mymsg.add_reaction("✅")
-        await mymsg.add_reaction("❌")
-        def check(reaction,user):
-            return (str(reaction.emoji) == '✅' or str(reaction.emoji) == '❌') and reaction.message == mymsg
-        
-        try:
-            msg, user = await client.wait_for('reaction_add', timeout=60, check=check)
-        except asyncio.TimeoutError:
-            await mymsg.edit(content='Timed out!')
-        else:
-            if (str(msg.emoji) == '✅'):
-                mymsg2 = await user.send('Please provide details below on why this post was reported.')
+            def checkButton(m):
+                return m.message == mymsg and m.user == user
 
-                def check2(m):
-                    return m.channel.type is discord.ChannelType.private and m.author == user
+            try:
+                interacted = await client.wait_for('interaction', timeout=600, check=checkButton)
+            except asyncio.TimeoutError:
+                view.clear_items()
+                await mymsg.edit(content='Timed out!', view=view)
+            else:
+                await interacted.response.defer()
+                view.clear_items()
+                await mymsg.edit(view=view)
 
-                try:
-                    details = await client.wait_for('message', timeout=600, check=check2)
-                except asyncio.TimeoutError:
-                    await mymsg2.edit(content='Timed out!')
-                else:
-                    mymsg3 = await user.send('Thank you. Please include any additional supporting links or posts if any. Otherwise, type N/A.')
+                if interacted.data['custom_id'] == 'confirm':
+                    embed = discord.Embed(title=f'Please provide details below on why this post was reported', color=0xFF5733)
+                    mymsg2 = await user.send(embed=embed)
+
+                    def check2(m):
+                        return m.channel.type is discord.ChannelType.private and m.author == user
+
                     try:
-                        additional = await client.wait_for('message', timeout=600, check=check2)
+                        details = await client.wait_for('message', timeout=600, check=check2)
                     except asyncio.TimeoutError:
-                        await mymsg3.edit(content='Timed out!')
+                        await mymsg2.edit(content='Timed out!')
                     else:
-                        await user.send('Thank you for your report! A copy has been sent to a moderator for further review.')
-                        reportChannel = discord.utils.get(reaction.message.guild.channels, name='reports')
-                        embed=discord.Embed(title=f"Post report sent by {reportingUser.display_name}", description=f"**Reported User**: {reportedUser.display_name}\n**Message Link**: {messageLink}\n**Message Content**: {shortMessage}", color=0xFF5733)
-                        embed.add_field(name="Reporting Details", value=f"> {details.content}", inline=False)
-                        embed.add_field(name="Additional Info", value=f"> {additional.content}", inline=False)
-                        await reportChannel.send(embed=embed)
-                    
-            elif (str(msg.emoji) == '❌'):
-                await user.send('Report cancelled!')
-'''                        
+                        embed = discord.Embed(title=f'Thank you. Please include any additional supporting links or posts if any. Otherwise, type N/A.', color=0xFF5733)
+                        mymsg3 = await user.send(embed=embed)
+                        try:
+                            additional = await client.wait_for('message', timeout=600, check=check2)
+                        except asyncio.TimeoutError:
+                            await mymsg3.edit(content='Timed out!')
+                        else:
+                            embedReport=discord.Embed(title=f'__**Post report by {user} ({user.display_name})**__', description=f'**Reported User**: {str(reportedUser)} ({reportedUser.display_name})\n**Channel**: #{str(reaction.message.channel)}\n**Time**: ' + timeConvert(reaction.message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({reaction.message.jump_url})', color=0xFF5733)
+                            embedReport.add_field(name="Message Content", value=f"> `{reaction.message.content}`", inline=False)
+                            embedReport.add_field(name="Reporting Details", value=f"> {details.content}", inline=False)
+                            embedReport.add_field(name="Additional Info", value=f"> {additional.content}", inline=False)
+                            await user.send(embed=embedReport)
+
+                            view = discord.ui.View()
+                            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+                            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+                            view.add_item(item=button1)
+                            view.add_item(item=button2)
+                            embed=discord.Embed(title=f'Do you wish to send this report?', color=0xFF5733)
+                            mymsg4 = await user.send(embed=embed, view=view)
+                            
+                            def checkButton2(m):
+                                return m.message == mymsg4 and m.user == user
+
+                            try:
+                                interacted = await client.wait_for('interaction', timeout=600, check=checkButton2)
+                            except asyncio.TimeoutError:
+                                view.clear_items()
+                                await mymsg4.edit(content='Timed out!', view=view)
+                            else:
+                                await interacted.response.defer()
+                                view.clear_items()
+                                await mymsg4.edit(view=view)
+
+                                if interacted.data['custom_id'] == 'confirm':
+                                    embed = discord.Embed(title=f'Thank you for your report. A copy has been sent to a moderator for further review.', color=0x00FF00)
+                                    await user.send(embed=embed)
+                                    reportChannel = discord.utils.get(reaction.message.guild.channels, name='reports')
+                                    await reportChannel.send(embed=embedReport)
+                                elif interacted.data['custom_id'] == 'cancel':
+                                    embed = discord.Embed(title=f'Report cancelled!', color=0xFF5733)
+                                    await user.send(embed=embed)
+                            
+                        
+                elif interacted.data['custom_id'] == 'cancel':
+                    embed = discord.Embed(title=f'Report cancelled!', color=0xFF5733)
+                    await user.send(embed=embed)
+            
 client.run(TOKEN)
