@@ -73,7 +73,7 @@ async def commands(ctx):
     embed.add_field(name='📰 **Message Management**', value='`timed` `selfdelete`', inline=False)
     embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` ~~`blahaj`~~', inline=False)
     embed.add_field(name='👓 **Mod/Admin Use**', value='`admin`', inline=False)
-    embed.add_field(name='**Additional Features**', value='Starboard / ~~Post Reporting~~ / ~~Mod Pings~~', inline=False)
+    embed.add_field(name='**Additional Features**', value='Starboard', inline=False)
     await ctx.reply(embed=embed)
 
 @client.command() #!test
@@ -721,10 +721,10 @@ async def on_message(message):
     
           
 @client.event
-async def on_reaction_add(reaction,user):
+async def on_raw_reaction_add(reaction):
     if reaction.emoji == '⭐': #nsfw-starboard
         reaction = discord.utils.get(reaction.message.reactions, emoji='⭐')
-        if (reaction.message.channel.id == 407561378564407297 or reaction.message.channel.id == 407561306162331674 or reaction.message.channel.id == 526226411866947585) and reaction.count >= 5:
+        if (reaction.message.channel.id == 407561378564407297 or reaction.message.channel.id == 407561306162331674) and reaction.count >= 5:
             doNotAdd = 0
             async for user in reaction.users():
                 if user.id == 1032276665092538489:
@@ -733,13 +733,15 @@ async def on_reaction_add(reaction,user):
             if doNotAdd == 0:
                 await reaction.message.add_reaction('⭐')
                 starChannel = discord.utils.get(reaction.message.guild.channels, name='nsfw-starboard')
-                embed=discord.Embed(title=f'⭐ {reaction.message.author.display_name} ⭐', description=f'{reaction.message.content}\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
+                embed=discord.Embed(description=f'{reaction.message.content}\n\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
+                embed.set_footer(text=f'brought to you by degens at #{ctx.channel}')
+                embed.set_author(name=f'⭐{reaction.message.author.display_name}⭐', icon_url=ctx.author.display_avatar)
                 if reaction.message.attachments:
                     embed.set_image(url=reaction.message.attachments[0].url)
-                await starChannel.send(content=f'<#{reaction.message.channel.id}>', embed=embed)
+                await starChannel.send(embed=embed)
  
     if (str(reaction.emoji) == "<:report:1030128257980440576>"):
-        await reaction.clear()
+        await reaction.emoji.id.clear()
         restricted = False
         for r in user.roles:
             if r.id == 123456789056458243: #change according to restricted role id
