@@ -87,16 +87,21 @@ async def history(ctx):
 
 @client.command() #!change
 async def change(ctx):
-    roll = random.randint(1, 10)
-    if roll != 1:
+    roll = random.randint(1, 20)
+    if roll > 4:
         myname = "Server Li" + ("z" * random.randint(0,13)) + "ard"
         await ctx.send(f"Changed name to {myname}!")
-    else:
+    elif roll == 4:
+        myname = "L̶̨͐͋i̵̙̳̹̾͒͝z̷͓̰̗̃̇a̸͕̒ŕ̸͍̙̣͘d̤̙͖"
+        await ctx.send(f"₵Ⱨ₳₦₲ɆĐ ₦₳₥Ɇ ₮Ø ₴ɆⱤVɆⱤ {myname}")
+    elif roll == 3:
+        myname = "🤖🦎"
+        await ctx.send(f"** **📝🔄➡🤖🦎")
+    elif roll <= 2:
         myname = ""
         await ctx.send(f"Stop changing my name! 😠")
     await ctx.guild.me.edit(nick=myname)
     
-
 @client.command() #!greet
 async def greet(ctx):
     channel = ctx.channel
@@ -709,19 +714,45 @@ async def on_message(message):
             await message.channel.send('*munches on some bread*')
         elif roll == 1:
             await message.reply('*bonks you* <:bonk:687841666182414413>')
+ 
+#@mod
+    if ('<@&423458739656458243>' in message.content or '<@&1030144135560167464>' in message.content) and message.author.id != 1032276665092538489:
+        reportChannel = discord.utils.get(message.guild.channels, name='infractions')
+        embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"[\[Link\]]({message.jump_url})", color=0x00FF00)
+        embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
+        await reportChannel.send(embed=embed)
+        await message.reply('Mods pinged!')
+
     await client.process_commands(message)
 
-'''    
-#@mod
-    if '<@&423458739656458243>' in message.content and message.author.id != 1032276665092538489:
-        reportChannel = discord.utils.get(message.guild.channels, name='reports')
-        embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"[\[Link\]]({message.jump_url})", color=0x00FF00)
-        await reportChannel.send(embed=embed)
-'''
-    
-          
+class ReportModal(discord.ui.Modal):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.add_item(discord.ui.InputText(label="Details on why this post was reported", style=discord.InputTextStyle.long))
+        self.add_item(discord.ui.InputText(label="Additional supporting links/messages", style=discord.InputTextStyle.long, required=False))
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.send_message('Report received.', ephemeral=True, delete_after=30)
+
+@client.message_command(name="Report Message")
+async def report(ctx: discord.ApplicationContext, message: discord.Message):
+    report = ReportModal(title="Report Form")
+    await ctx.send_modal(report)
+    await report.wait()
+    embed = discord.Embed(title=f'__**Post report by {ctx.user.display_name} ({ctx.user})**__', description=f'**Reported User**: {str(message.author.display_name)} ({message.author})\n**Channel**: #{str(message.channel)}\n**Time**: ' + timeConvert(message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({message.jump_url})', color=0xFF5733)
+    embed.add_field(name="Message Content", value=f"> `{message.content}`", inline=False)
+    embed.add_field(name="Reporting Details", value=report.children[0].value, inline=False)
+    if report.children[1].value != "":
+        additionalInfo = report.children[1].value
+    else:
+        additionalInfo = 'N/A'
+    embed.add_field(name="Additional Info", value=additionalInfo, inline=False)
+    reportChannel = discord.utils.get(ctx.guild.channels, name='infractions')
+    await reportChannel.send(embed=embed)
+  
 @client.event
-async def on_raw_reaction_add(reaction):
+async def on_reaction_add(reaction,user):
     if reaction.emoji == '⭐': #nsfw-starboard
         reaction = discord.utils.get(reaction.message.reactions, emoji='⭐')
         if (reaction.message.channel.id == 407561378564407297 or reaction.message.channel.id == 407561306162331674) and reaction.count >= 5:
@@ -734,106 +765,10 @@ async def on_raw_reaction_add(reaction):
                 await reaction.message.add_reaction('⭐')
                 starChannel = discord.utils.get(reaction.message.guild.channels, name='nsfw-starboard')
                 embed=discord.Embed(description=f'{reaction.message.content}\n\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
-                embed.set_footer(text=f'brought to you by degens at #{ctx.channel}')
-                embed.set_author(name=f'⭐{reaction.message.author.display_name}⭐', icon_url=ctx.author.display_avatar)
+                embed.set_footer(text=f'brought to you by degens at #{reaction.message.channel}')
+                embed.set_author(name=f'⭐⭐{reaction.message.author.display_name}⭐⭐', icon_url=reaction.message.author.display_avatar)
                 if reaction.message.attachments:
                     embed.set_image(url=reaction.message.attachments[0].url)
                 await starChannel.send(embed=embed)
- 
-    if (str(reaction.emoji) == "<:report:1030128257980440576>"):
-        await reaction.emoji.id.clear()
-        restricted = False
-        for r in user.roles:
-            if r.id == 123456789056458243: #change according to restricted role id
-                restricted = True
-                await user.send('You are currently restricted from using this function.')
-                
-        if restricted == False:
-            reportedUser = reaction.message.author
-            messageLink = reaction.message.jump_url
-            messageContent = reaction.message.content
-            reportingUser = user
 
-            view = discord.ui.View()
-            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-            view.add_item(item=button1)
-            view.add_item(item=button2)
-            embed=discord.Embed(title=f'__**You are attempting to report a post by {str(reportedUser)} ({reportedUser.display_name})**__', description=f'**Server**: {str(reaction.message.guild)}\n**Channel**: #{str(reaction.message.channel)}\n**Time**: ' + timeConvert(reaction.message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({reaction.message.jump_url})', color=0xFF5733)
-            embed.add_field(name="Message Content", value=f"> `{reaction.message.content}`", inline=False)
-            mymsg = await user.send(embed=embed, view=view)
-
-            def checkButton(m):
-                return m.message == mymsg and m.user == user
-
-            try:
-                interacted = await client.wait_for('interaction', timeout=600, check=checkButton)
-            except asyncio.TimeoutError:
-                view.clear_items()
-                await mymsg.edit(content='Timed out!', view=view)
-            else:
-                await interacted.response.defer()
-                view.clear_items()
-                await mymsg.edit(view=view)
-
-                if interacted.data['custom_id'] == 'confirm':
-                    embed = discord.Embed(title=f'Please provide details below on why this post was reported', color=0xFF5733)
-                    mymsg2 = await user.send(embed=embed)
-
-                    def check2(m):
-                        return m.channel.type is discord.ChannelType.private and m.author == user
-
-                    try:
-                        details = await client.wait_for('message', timeout=600, check=check2)
-                    except asyncio.TimeoutError:
-                        await mymsg2.edit(content='Timed out!')
-                    else:
-                        embed = discord.Embed(title=f'Thank you. Please include any additional supporting links or posts if any. Otherwise, type N/A.', color=0xFF5733)
-                        mymsg3 = await user.send(embed=embed)
-                        try:
-                            additional = await client.wait_for('message', timeout=600, check=check2)
-                        except asyncio.TimeoutError:
-                            await mymsg3.edit(content='Timed out!')
-                        else:
-                            embedReport=discord.Embed(title=f'__**Post report by {user} ({user.display_name})**__', description=f'**Reported User**: {str(reportedUser)} ({reportedUser.display_name})\n**Channel**: #{str(reaction.message.channel)}\n**Time**: ' + timeConvert(reaction.message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({reaction.message.jump_url})', color=0xFF5733)
-                            embedReport.add_field(name="Message Content", value=f"> `{reaction.message.content}`", inline=False)
-                            embedReport.add_field(name="Reporting Details", value=f"> {details.content}", inline=False)
-                            embedReport.add_field(name="Additional Info", value=f"> {additional.content}", inline=False)
-                            await user.send(embed=embedReport)
-
-                            view = discord.ui.View()
-                            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-                            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-                            view.add_item(item=button1)
-                            view.add_item(item=button2)
-                            embed=discord.Embed(title=f'Do you wish to send this report?', color=0xFF5733)
-                            mymsg4 = await user.send(embed=embed, view=view)
-                            
-                            def checkButton2(m):
-                                return m.message == mymsg4 and m.user == user
-
-                            try:
-                                interacted = await client.wait_for('interaction', timeout=600, check=checkButton2)
-                            except asyncio.TimeoutError:
-                                view.clear_items()
-                                await mymsg4.edit(content='Timed out!', view=view)
-                            else:
-                                await interacted.response.defer()
-                                view.clear_items()
-                                await mymsg4.edit(view=view)
-
-                                if interacted.data['custom_id'] == 'confirm':
-                                    embed = discord.Embed(title=f'Thank you for your report. A copy has been sent to a moderator for further review.', color=0x00FF00)
-                                    await user.send(embed=embed)
-                                    reportChannel = discord.utils.get(reaction.message.guild.channels, name='reports')
-                                    await reportChannel.send(embed=embedReport)
-                                elif interacted.data['custom_id'] == 'cancel':
-                                    embed = discord.Embed(title=f'Report cancelled!', color=0xFF5733)
-                                    await user.send(embed=embed)
-                            
-                        
-                elif interacted.data['custom_id'] == 'cancel':
-                    embed = discord.Embed(title=f'Report cancelled!', color=0xFF5733)
-                    await user.send(embed=embed)
-            
 client.run(TOKEN)
