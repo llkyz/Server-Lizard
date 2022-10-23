@@ -6,12 +6,9 @@ from discord import Button, ButtonStyle
 from dotenv import load_dotenv
 import random
 import asyncio
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+import requests
+import json
 from datetime import datetime, timedelta
-import traceback
 
 # Bot Settings
 load_dotenv()
@@ -20,20 +17,6 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!', intents=intents)
-
-'''
-# [BlahajCheck] Web Scraper Settings
-options = FirefoxOptions()
-options.add_argument("--headless")
-driver = webdriver.Firefox(options=options, executable_path=r'/geckodriver') #comment out to disable webdriver loading
-blahajURL = "https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/"
-minihajURL = "https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/"
-blahajFlat = ["https://i.redd.it/vg3vjkroytq71.jpg",
-              "https://i.redd.it/2f72lz7qufm81.jpg",
-              "https://i.redd.it/fxckzsfrivq71.png",
-              "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg"]
-'''
-
 
 # Universal Functions
 def timeConvert(originalTime): #converts UTC to GMT+8
@@ -55,7 +38,6 @@ async def on_ready():
     #members = '\n - '.join([member.name for member in guild.members])
     #print(f'Guild Members:\n - {members}')
 
-
 @client.command() #!admin
 async def admin(ctx):
     for r in ctx.author.roles:
@@ -71,7 +53,7 @@ async def commands(ctx):
     embed=discord.Embed(title=f'Lizard Commands!', description='Use !help or !commands to show this list.\nTo use a command, enter: `!{command}`',color=0x14AB49)
     embed.add_field(name='🎲 **Games**', value='`roll` `game` `battle`', inline=False)
     embed.add_field(name='📰 **Message Management**', value='`timed` `selfdelete`', inline=False)
-    embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` ~~`blahaj`~~', inline=False)
+    embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` `blahaj`', inline=False)
     embed.add_field(name='👓 **Mod/Admin Use**', value='`admin`', inline=False)
     embed.add_field(name='**Additional Features**', value='Starboard', inline=False)
     await ctx.reply(embed=embed)
@@ -340,54 +322,58 @@ async def battle(ctx):
     except:
         await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
         
-'''                        
 @client.command() #!blahaj
 async def blahaj(ctx):
+    storeList = ['Tampines', 'Alexandra', 'Jurong', 'Online']
 
-    def searchStore(storeNo):
-        mySearch = driver.find_element(By.XPATH, storeNo)
-        myResult = mySearch.find_element(By.CLASS_NAME, 'pip-stockcheck__store-text')
-        return myResult
+    url = 'https://api.ingka.ikea.com/cia/availabilities/ru/sg?itemNos=10373589&expand=StoresList,Restocks,SalesLocations'
+    session = requests.Session()
+    headers = {'authority': 'api.ingka.ikea.com',
+    'method': 'GET',
+    'path': '/cia/availabilities/ru/sg?itemNos=10373589&expand=StoresList,Restocks,SalesLocations',
+    'scheme': 'https',
+    'accept': 'application/json;version=2',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'en-US,en;q=0.9,ja;q=0.8',
+    'dnt': '1',
+    'origin': 'https://www.ikea.com',
+    'referer': 'https://www.ikea.com/',
+    'sec-ch-ua': '"Chromium";v="106", "Microsoft Edge";v="106", "Not;A=Brand";v="99"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': "Windows",
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-site',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52',
+    'x-client-id': 'b6c117e5-ae61-4ef5-b4cc-e0b1e37f0631',
+    }
 
-    def cleanUpText(mytext):
-        if (mytext == "Store - Out of stock."):
-            return("Out of Stock")
-        else:
-            return(mytext)
+    response = requests.get(url, headers=headers)
+    mydict = json.loads(response.content.decode('utf-8'))
 
-    def cleanUpTextOnline(mytext):
-        if (mytext == "Currently unavailable"):
-            return("Unavailable")
-        else:
-            return(mytext)
+    blahajStock = {}
+    for x in range(3):
+        blahajStock[storeList[x]] = mydict['availabilities'][x]['buyingOption']['cashCarry']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
+    blahajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
 
-    def findShark(myURL):
-        driver.get(myURL)
-        driver.execute_script("document.querySelector('.hnf-banner__container').style.display = 'none';") #hide cookies banner
+    url2 = 'https://api.ingka.ikea.com/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
+    headers['path'] = '/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
+
+    response = requests.get(url, headers=headers)
+    mydict = json.loads(response.content.decode('utf-8'))
 
 
-        p_element = driver.find_element(By.CLASS_NAME, 'pip-delivery__text')
-        wait = WebDriverWait(driver, 10)
-        try:
-            wait.until(lambda d: 'pip-delivery__text--grey' not in p_element.get_attribute('class'))
-        except:
-            print("Derped")
-            pass
-
-        p_element = driver.find_element(By.CLASS_NAME, 'pip-delivery__text')
-        p_element = cleanUpTextOnline(p_element.text)
-        driver.find_element(By.CLASS_NAME, 'pip-stockcheck__text').click()
-
-        alexandra = cleanUpText(searchStore('//label[@for="store_045"]').text)
-        jurong = cleanUpText(searchStore('//label[@for="store_650"]').text)
-        tampines = cleanUpText(searchStore('//label[@for="store_022"]').text)
-        return(p_element, alexandra, jurong, tampines)
-
-    blahajAvail = {}
-    minihajAvail = {}
-    blahajAvail["online"], blahajAvail["alexandra"], blahajAvail["jurong"], blahajAvail["tampines"] = findShark(blahajURL)
-    minihajAvail["online"], minihajAvail["alexandra"], minihajAvail["jurong"], minihajAvail["tampines"] = findShark(minihajURL)
-    if (blahajAvail["alexandra"] == blahajAvail["jurong"] == blahajAvail["tampines"] == minihajAvail["alexandra"] == minihajAvail["jurong"] == minihajAvail["tampines"] == "Out of Stock" and blahajAvail["online"] == minihajAvail["online"] == "Unavailable"):
+    minihajStock = {}
+    for x in range(3):
+        minihajStock[storeList[x]] = mydict['availabilities'][x]['buyingOption']['cashCarry']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
+    minihajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
+    
+    blahajFlat = ["https://i.redd.it/vg3vjkroytq71.jpg",
+              "https://i.redd.it/2f72lz7qufm81.jpg",
+              "https://i.redd.it/fxckzsfrivq71.png",
+              "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg"]
+    
+    if (blahajStock['Tampines'] == blahajStock['Alexandra'] == blahajStock['Jurong'] == blahajStock['Online'] == minihajStock['Tampines'] == minihajStock['Alexandra'] == minihajStock['Jurong'] == minihajStock['Online'] == "OUT OF STOCK"):
         embedColour = 0xFF5733
         embedImage = blahajFlat[random.randint(0,3)]
     else:
@@ -396,10 +382,12 @@ async def blahaj(ctx):
         
     embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[MINIHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)", color=embedColour)
     embed.set_image(url=embedImage)
-    embed.add_field(name="BLÅHAJ", value="> Online: " + blahajAvail["online"] + "\n> Alexandra: " + blahajAvail["alexandra"] + "\n> Jurong: " + blahajAvail["jurong"] + "\n> Tampines: " + blahajAvail["tampines"], inline=True)
-    embed.add_field(name="MINIHAJ", value="> Online: " + minihajAvail["online"] + "\n> Alexandra: " + minihajAvail["alexandra"] + "\n> Jurong: " + minihajAvail["jurong"] + "\n> Tampines: " + minihajAvail["tampines"], inline=True)
+    embed.add_field(name="BLÅHAJ", value="> Online: " + blahajStock["Online"] + "\n> Alexandra: " + blahajStock["Alexandra"] + "\n> Jurong: " + blahajStock["Jurong"] + "\n> Tampines: " + blahajStock["Tampines"], inline=True)
+    embed.add_field(name="MINIHAJ", value="> Online: " + minihajStock["Online"] + "\n> Alexandra: " + minihajStock["Alexandra"] + "\n> Jurong: " + minihajStock["Jurong"] + "\n> Tampines: " + minihajStock["Tampines"], inline=True)
+    embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
     await ctx.send(embed=embed)
-'''
+
+
 @client.command() #!bulkdelete        
 async def bulkdelete(ctx):
     for r in ctx.author.roles:
@@ -573,9 +561,6 @@ async def selfdelete(ctx):
                     myGuild = client.get_guild(guildId)
                     myChannel = client.get_channel(channelId)
                     fetched = await myChannel.fetch_message(messageId)
-                    # Author: str(fetched.author)
-                    # Message: fetched.content
-                    # Channel: str(fetched.channel)
                 except:
                     await ctx.author.send("Error, could not retrieve message.")
                 else:
@@ -716,7 +701,7 @@ async def on_message(message):
             await message.reply('*bonks you* <:bonk:687841666182414413>')
  
 #@mod
-    if ('<@&423458739656458243>' in message.content or '<@&1030144135560167464>' in message.content) and message.author.id != 1032276665092538489:
+    if '<@&423458739656458243>' in message.content and message.author.id != 1032276665092538489:
         reportChannel = discord.utils.get(message.guild.channels, name='infractions')
         embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"[\[Link\]]({message.jump_url})", color=0x00FF00)
         embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
@@ -743,6 +728,9 @@ async def report(ctx: discord.ApplicationContext, message: discord.Message):
     embed = discord.Embed(title=f'__**Post report by {ctx.user.display_name} ({ctx.user})**__', description=f'**Reported User**: {str(message.author.display_name)} ({message.author})\n**Channel**: #{str(message.channel)}\n**Time**: ' + timeConvert(message.created_at).strftime("%d %B %Y, %I:%M:%S%p") + f'\n**Message Link**: [\[Link\]]({message.jump_url})', color=0xFF5733)
     embed.add_field(name="Message Content", value=f"> `{message.content}`", inline=False)
     embed.add_field(name="Reporting Details", value=report.children[0].value, inline=False)
+    embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
+    if message.attachments:
+        embed.set_image(url=message.attachments[0].url)
     if report.children[1].value != "":
         additionalInfo = report.children[1].value
     else:
