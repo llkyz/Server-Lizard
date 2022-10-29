@@ -10,9 +10,10 @@ import requests
 import json
 from datetime import datetime, timedelta
 import time
+import math
 #import mysql.connector
 
-# Bot Settings
+#### Bot Settings
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
@@ -20,12 +21,21 @@ GUILD = os.getenv('DISCORD_GUILD')
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!', intents=intents)
 
-# Universal Functions
+#### Global Functions
 def timeConvert(originalTime): #converts UTC to GMT+8
     newTime = originalTime + timedelta(hours=8)
     return newTime
 
-# Bot Coding
+#usage example: checkRoles(ctx.author, [1030144135560167464, 1035245311553196112])
+#returns True if any of the roles in the array matches, else return False
+def checkRoles(member, arr):
+    for x in member.roles:
+        for y in arr:
+            if x.id == y:
+                return True
+    return False
+
+#### Bot Coding
 @client.event
 async def on_ready():
     for guild in client.guilds:
@@ -102,10 +112,11 @@ async def on_member_update(before, after):
     
     > does not activate when member joins server
     '''
-    channel = client.get_channel(1035131570257932318) #the user profiles channel
+    channel = client.get_channel(1035131570257932318) #user profiles channel
     
     await asyncio.sleep(5)
-    if after.guild.get_member(after.id) is not None: #update if member still in server
+
+    if after.guild.get_member(after.id) is not None and checkRoles(after, [454948280825282560]) == False: #update if member still in server, and does not have the new member role
         found = 0
         async for message in channel.history(limit=None): # If member profile is found, update it 
             if message.embeds:
@@ -147,248 +158,240 @@ async def on_member_join(member):
                 mystr = message.embeds[0].description.replace("\n**Infractions**:","")
                 mystr = mystr.split("**User Roles**: ")
                 embed = discord.Embed(title=f'{member.display_name} rejoined the server', description=f'Their roles were: {mystr[1]}')
-                #await channel.send(embed=embed)
                 await reportChannel.send(embed=embed)
+                break
 
 @client.command() #!infraction
 async def infraction(ctx):
-    for r in ctx.author.roles:
-        if r.id == 423458739656458243 or r.id == 407557898638589974:
-            profileChannel = client.get_channel(1035131570257932318)
-            mymsg = ctx.message.content.replace('!infraction ', '')
-            mylist = mymsg.split(' ')
-            if mylist[0] == 'add':
-                try:
-                    user = await client.fetch_user(mylist[1])
-                    view = discord.ui.View()
-                    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-                    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-                    view.add_item(item=button1)
-                    view.add_item(item=button2)
-                    embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
-                    msg1 = await ctx.reply(embed=embed, view=view)
-
-                    def check(m):
-                        return m.message == msg1 and m.user == ctx.author
-                    try:
-                        interacted = await client.wait_for('interaction', timeout=300, check=check)
-                    except asyncio.TimeoutError:
-                        view.remove_item(item=button1)
-                        view.remove_item(item=button2)
-                        await msg1.edit(content='Timed out!', view=view)
-                    else:
-                        await interacted.response.defer()
-                        view.remove_item(item=button1)
-                        view.remove_item(item=button2)
-                        await msg1.edit(view=view)
-                        if interacted.data['custom_id'] == 'confirm':                    
-                            embed = discord.Embed(title=f'Please enter details regarding the infraction below')
-                            msg2 = await ctx.send(embed=embed)
-                            
-                            def checkMessage(m):
-                                return m.channel == ctx.channel and m.author == ctx.author
-
-                            try:
-                                interacted = await client.wait_for('message', timeout=600, check=checkMessage)
-                            except asyncio.TimeoutError:
-                                await msg2.edit(content='Timed out!')
-                            else:
-                                newInfraction = interacted.content
-                                embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
-                                embed.add_field(name='**Infraction**', value=f'> {newInfraction}')
-                                view.add_item(item=button1)
-                                view.add_item(item=button2)
-                                msg3 = await ctx.send(embed=embed, view=view)
-                                
-                                def check2(m):
-                                    return m.message == msg3 and m.user == ctx.author
-                                try:
-                                    interacted = await client.wait_for('interaction', timeout=300, check=check2)
-                                except asyncio.TimeoutError:
-                                    view.remove_item(item=button1)
-                                    view.remove_item(item=button2)
-                                    await msg3.edit(content='Timed out!', view=view)
-                                else:
-                                    await interacted.response.defer()
-                                    view.remove_item(item=button1)
-                                    view.remove_item(item=button2)
-                                    await msg3.edit(view=view)
-                                    if interacted.data['custom_id'] == 'confirm':
-                                        found = 0
-                                        async for message in profileChannel.history(limit=None): # change channel ID later
-                                            if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
-                                                found = 1
-                                                embed = discord.Embed(title=message.embeds[0].title, description=message.embeds[0].description + '\n* ' + newInfraction + ' [' + timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p") + ']')
-                                                embed.set_thumbnail(url=user.display_avatar.url)
-                                                await message.edit(embed=embed)
-                                                embed = discord.Embed(title=f'Infraction added.', description=f'Link to updated profile: [\[Link\]]({message.jump_url})')
-                                                await ctx.send(embed=embed)
-                                                break
-                                        if found == 0:
-                                            embed = discord.Embed(title=f'Profile can\'t be found?! Contact your local lizard support')
-                                            await ctx.send(embed=embed)
-                                            
-                                    elif interacted.data['custom_id'] == 'cancel':
-                                        embed = discord.Embed(title=f'Infraction cancelled')
-                                        await ctx.send(embed=embed)
-                                        
-                        elif interacted.data['custom_id'] == 'cancel':
-                            embed = discord.Embed(title=f'Infraction cancelled')
-                            await ctx.send(embed=embed)
-                            
-                except:
-                    embed = discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction add [userID]` (e.g userID = 1032276665092538489)')
-                    await ctx.reply(embed=embed)
-            elif mylist[0] == 'remove':
-                try:
-                    user = await client.fetch_user(mylist[1])
-                    embed = discord.Embed(title=f'Removing infraction from user {mylist[1]} ({user})')
-                    view = discord.ui.View()
-                    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-                    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-                    view.add_item(item=button1)
-                    view.add_item(item=button2)
-                    msg1 = await ctx.reply(embed=embed, view=view)
-
-                    def check(m):
-                        return m.message == msg1 and m.user == ctx.author
-                    try:
-                        interacted = await client.wait_for('interaction', timeout=300, check=check)
-                    except asyncio.TimeoutError:
-                        view.remove_item(item=button1)
-                        view.remove_item(item=button2)
-                        await msg1.edit(content='Timed out!', view=view)
-                    else:
-                        await interacted.response.defer()
-                        view.remove_item(item=button1)
-                        view.remove_item(item=button2)
-                        await msg1.edit(view=view)
-                        if interacted.data['custom_id'] == 'confirm':
-                            found = 0
-                            async for message in profileChannel.history(limit=None): # change channel ID later
-                                if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
-                                    found = 1
-                                    mystr = message.embeds[0].description.split('**Infractions**:')
-                                    for x in range(len(mystr)):
-                                        if mystr[x] == '':
-                                            mystr.pop(x)
-                                    if len(mystr) > 1:
-                                        infractions = mystr[1].split('\n* ')
-                                        embed = discord.Embed(title=f'Current infractions')
-                                        infractions.pop(0)
-                                        count = 1
-                                        for x in infractions:
-                                            embed.add_field(name=f'Infraction #{count}', value=f'> {x}', inline=False)
-                                            count += 1
-                                        await ctx.send(embed=embed)
-
-                                        embed = discord.Embed(title=f'Please enter the infraction number you wish to remove')
-                                        msg2 = await ctx.send(embed=embed)
-
-                                        def checkMessage(m):
-                                            return m.channel == ctx.channel and m.author == ctx.author
-                                        try:
-                                            interacted = await client.wait_for('message', timeout=600, check=checkMessage)
-                                        except asyncio.TimeoutError:
-                                            await msg2.edit(content='Timed out!')
-                                        else:
-                                            try:
-                                                infractionNum = int(interacted.content) - 1
-                                                if infractionNum < 0:
-                                                    embed = discord.Embed(title=f'Invalid number entered. Please start over.')
-                                                    await ctx.send(embed=embed)
-                                                    break
-                                                else:
-                                                    embed = discord.Embed(title=f'Removing infraction', description=f'> {infractions[infractionNum]}')
-                                                    view.add_item(item=button1)
-                                                    view.add_item(item=button2)
-                                                    msg3 = await ctx.send(embed=embed, view=view)
-
-                                                    def check(m):
-                                                        return m.message == msg3 and m.user == ctx.author
-                                                    try:
-                                                        interacted = await client.wait_for('interaction', timeout=300, check=check)
-                                                    except asyncio.TimeoutError:
-                                                        view.remove_item(item=button1)
-                                                        view.remove_item(item=button2)
-                                                        await msg3.edit(content='Timed out!', view=view)
-                                                    else:
-                                                        await interacted.response.defer()
-                                                        view.remove_item(item=button1)
-                                                        view.remove_item(item=button2)
-                                                        await msg3.edit(view=view)
-                                                        if interacted.data['custom_id'] == 'confirm':
-                                                            infractions.pop(infractionNum)
-                                                            revisedInfractions = ""
-                                                            for x in infractions:
-                                                                revisedInfractions += "\n* "
-                                                                revisedInfractions += x
-                                                            embed = discord.Embed(title=message.embeds[0].title, description=mystr[0] + '**Infractions**:' + revisedInfractions)
-                                                            embed.set_thumbnail(url=user.display_avatar.url)
-                                                            await message.edit(embed=embed)
-                                                            embed = discord.Embed(title=f'Infraction removed.', description=f'Link to updated profile: [\[Link\]]({message.jump_url})')
-                                                            await ctx.send(embed=embed)
-                                                            break
-
-                                                        if interacted.data['custom_id'] == 'cancel':
-                                                            embed = discord.Embed(title=f'Infraction removal cancelled')
-                                                            await ctx.send(embed=embed)
-                                                            break
-                                                
-                                            except:
-                                                embed = discord.Embed(title=f'Invalid number entered')
-                                                await ctx.send(embed=embed)
-                                                break
-                                        
-                                    else:
-                                        embed = discord.Embed(title=f'This user has no infractions')
-                                        await ctx.send(embed=embed)
-                                    break
-                            if found == 0:
-                                embed = discord.Embed(title=f'Profile can\'t be found?! Contact your local lizard support')
-                                await ctx.send(embed=embed)
-                    
-
-                        elif interacted.data['custom_id'] == 'cancel':
-                            embed = discord.Embed(title=f'Infraction removal cancelled')
-                            await ctx.send(embed=embed)
-                            
-                except:
-                    embed = discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction remove [userID]` (e.g userID = 1032276665092538489)')
-                    await ctx.reply(embed=embed)
+    if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+        profileChannel = client.get_channel(1035131570257932318)
+        mylist = ctx.message.content.replace('!infraction ', '').split(' ')
+        if mylist[0] == 'add':
+            try:
+                user = await client.fetch_user(mylist[1])
+            except:
+                await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction add [userID]` (e.g userID = 1032276665092538489)'))
             else:
-                embed = discord.Embed(title='Syntax Error', description='Please use `!infraction add [userID]` or `!infraction remove [userID]` (e.g userID = 1032276665092538489)')
+                view = discord.ui.View()
+                button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+                button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+                view.add_item(item=button1)
+                view.add_item(item=button2)
+                embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
+                msg1 = await ctx.reply(embed=embed, view=view)
+
+                def check(m):
+                    return m.message == msg1 and m.user == ctx.author
+                try:
+                    interacted = await client.wait_for('interaction', timeout=300, check=check)
+                except asyncio.TimeoutError:
+                    view.remove_item(item=button1)
+                    view.remove_item(item=button2)
+                    await msg1.edit(content='Timed out!', view=view)
+                else:
+                    await interacted.response.defer()
+                    view.remove_item(item=button1)
+                    view.remove_item(item=button2)
+                    await msg1.edit(view=view)
+                    if interacted.data['custom_id'] == 'confirm':                    
+                        embed = discord.Embed(title=f'Please enter details regarding the infraction below')
+                        msg2 = await ctx.send(embed=embed)
+                        
+                        def checkMessage(m):
+                            return m.channel == ctx.channel and m.author == ctx.author
+
+                        try:
+                            interacted = await client.wait_for('message', timeout=600, check=checkMessage)
+                        except asyncio.TimeoutError:
+                            await msg2.edit(content='Timed out!')
+                        else:
+                            newInfraction = interacted.content
+                            embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
+                            embed.add_field(name='**Infraction**', value=f'> {newInfraction}')
+                            view.add_item(item=button1)
+                            view.add_item(item=button2)
+                            msg3 = await ctx.send(embed=embed, view=view)
+                            
+                            def check2(m):
+                                return m.message == msg3 and m.user == ctx.author
+                            try:
+                                interacted = await client.wait_for('interaction', timeout=300, check=check2)
+                            except asyncio.TimeoutError:
+                                view.remove_item(item=button1)
+                                view.remove_item(item=button2)
+                                await msg3.edit(content='Timed out!', view=view)
+                            else:
+                                await interacted.response.defer()
+                                view.remove_item(item=button1)
+                                view.remove_item(item=button2)
+                                await msg3.edit(view=view)
+                                if interacted.data['custom_id'] == 'confirm':
+                                    found = 0
+                                    async for message in profileChannel.history(limit=None): # change channel ID later
+                                        if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
+                                            found = 1
+                                            embed = discord.Embed(title=message.embeds[0].title, description=message.embeds[0].description + '\n* ' + newInfraction + ' [' + timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p") + ']')
+                                            embed.set_thumbnail(url=user.display_avatar.url)
+                                            await message.edit(embed=embed)
+                                            embed = discord.Embed(title=f'Infraction added.', description=f'Link to updated profile: [\[Link\]]({message.jump_url})')
+                                            await ctx.send(embed=embed)
+                                            break
+                                    if found == 0:
+                                        embed = discord.Embed(title=f'Profile can\'t be found?! Contact your local lizard support')
+                                        await ctx.send(embed=embed)
+                                        
+                                elif interacted.data['custom_id'] == 'cancel':
+                                    embed = discord.Embed(title=f'Infraction cancelled')
+                                    await ctx.send(embed=embed)
+                                    
+                    elif interacted.data['custom_id'] == 'cancel':
+                        embed = discord.Embed(title=f'Infraction cancelled')
+                        await ctx.send(embed=embed)
+                        
+        elif mylist[0] == 'remove':
+            try:
+                user = await client.fetch_user(mylist[1])
+            except:
+                embed = discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction remove [userID]` (e.g userID = 1032276665092538489)')
                 await ctx.reply(embed=embed)
+            else:
+                embed = discord.Embed(title=f'Removing infraction from user {mylist[1]} ({user})')
+                view = discord.ui.View()
+                button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+                button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+                view.add_item(item=button1)
+                view.add_item(item=button2)
+                msg1 = await ctx.reply(embed=embed, view=view)
+
+                def check(m):
+                    return m.message == msg1 and m.user == ctx.author
+                try:
+                    interacted = await client.wait_for('interaction', timeout=300, check=check)
+                except asyncio.TimeoutError:
+                    view.remove_item(item=button1)
+                    view.remove_item(item=button2)
+                    await msg1.edit(content='Timed out!', view=view)
+                else:
+                    await interacted.response.defer()
+                    view.remove_item(item=button1)
+                    view.remove_item(item=button2)
+                    await msg1.edit(view=view)
+                    
+                    if interacted.data['custom_id'] == 'cancel':
+                        await ctx.send(embed=discord.Embed(title=f'Infraction removal cancelled'))
+                        
+                    elif interacted.data['custom_id'] == 'confirm':
+                        found = 0
+                        async for message in profileChannel.history(limit=None):
+                            if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
+                                found = 1
+                                mystr = message.embeds[0].description.split('**Infractions**:')
+                                for x in range(len(mystr)):
+                                    if mystr[x] == '':
+                                        mystr.pop(x)
+                                if len(mystr) > 1:
+                                    infractions = mystr[1].split('\n* ')
+                                    embed = discord.Embed(title=f'Current infractions')
+                                    infractions.pop(0)
+                                    count = 1
+                                    for x in infractions:
+                                        embed.add_field(name=f'Infraction #{count}', value=f'> {x}', inline=False)
+                                        count += 1
+                                    await ctx.send(embed=embed)
+
+                                    embed = discord.Embed(title=f'Please enter the # of the infraction you wish to remove')
+                                    msg2 = await ctx.send(embed=embed)
+
+                                    def checkMessage(m):
+                                        return m.channel == ctx.channel and m.author == ctx.author
+                                    try:
+                                        interacted = await client.wait_for('message', timeout=600, check=checkMessage)
+                                    except asyncio.TimeoutError:
+                                        await msg2.edit(content='Timed out!')
+                                    else:
+                                        try:
+                                            infractionNum = int(interacted.content) - 1
+                                            if infractionNum < 0:
+                                                embed = discord.Embed(title=f'Invalid number entered. Please start over.')
+                                                await ctx.send(embed=embed)
+                                                break
+                                            else:
+                                                embed = discord.Embed(title=f'Removing infraction', description=f'> {infractions[infractionNum]}')
+                                                view.add_item(item=button1)
+                                                view.add_item(item=button2)
+                                                msg3 = await ctx.send(embed=embed, view=view)
+
+                                                def check(m):
+                                                    return m.message == msg3 and m.user == ctx.author
+                                                try:
+                                                    interacted = await client.wait_for('interaction', timeout=300, check=check)
+                                                except asyncio.TimeoutError:
+                                                    view.remove_item(item=button1)
+                                                    view.remove_item(item=button2)
+                                                    await msg3.edit(content='Timed out!', view=view)
+                                                else:
+                                                    await interacted.response.defer()
+                                                    view.remove_item(item=button1)
+                                                    view.remove_item(item=button2)
+                                                    await msg3.edit(view=view)
+                                                    
+                                                    if interacted.data['custom_id'] == 'cancel':
+                                                        await ctx.send(embed=discord.Embed(title=f'Infraction removal cancelled'))
+                                                        break
+                                                    
+                                                    elif interacted.data['custom_id'] == 'confirm':
+                                                        infractions.pop(infractionNum)
+                                                        revisedInfractions = ""
+                                                        for x in infractions:
+                                                            revisedInfractions += "\n* "
+                                                            revisedInfractions += x
+                                                        embed = discord.Embed(title=message.embeds[0].title, description=mystr[0] + '**Infractions**:' + revisedInfractions)
+                                                        embed.set_thumbnail(url=user.display_avatar.url)
+                                                        await message.edit(embed=embed)
+                                                        embed = discord.Embed(title=f'Infraction removed.', description=f'Link to updated profile: [\[Link\]]({message.jump_url})')
+                                                        await ctx.send(embed=embed)
+                                                        break
+
+                                        except:
+                                            await ctx.send(embed=discord.Embed(title=f'Invalid number entered'))
+                                            break
+                                        
+                                else:
+                                    await ctx.send(embed=discord.Embed(title=f'This user has no infractions'))
+                                    break
+                            
+                        if found == 0:
+                            embed = discord.Embed(title=f'Profile can\'t be found?! Contact your local lizard support')
+                            await ctx.send(embed=embed)
+                        
+        else:
+            await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please use `!infraction add [userID]` or `!infraction remove [userID]` (e.g userID = 1032276665092538489)'))
 
 @client.user_command(name="User Profile") #Looks up user's profile in the user profile channel
 async def userProfile(ctx, user):
-    authorized = 0
-    for r in ctx.author.roles:
-        if r.id == 423458739656458243 or r.id == 407557898638589974:
-            authorized = 1
-            found = 0
-            channel = client.get_channel(1035131570257932318)
-            async for message in channel.history(limit=None):
-                if message.embeds:
-                    if message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
-                        await ctx.respond(f'User profile for {user.display_name} found at [\[link]]({message.jump_url})', ephemeral=True,delete_after=300)
-                        found = 1
-                        break
-            if found == 0:
-                await ctx.respond(f'Profile can\'t be found?! Contact your local lizard support', ephemeral=True,delete_after=30)
-    if authorized == 0:
+    if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+        channel = client.get_channel(1035124265411940392)
+        found = 0
+        
+        async for message in channel.history(limit=None):
+            if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
+                await ctx.respond(f'User profile for {user.display_name} found at [\[link]]({message.jump_url})\nUser ID: {user.id}', ephemeral=True,delete_after=300)
+                found = 1
+                break
+        if found == 0:
+            await ctx.respond(f'Profile can\'t be found?! Contact your local lizard support', ephemeral=True,delete_after=30)
+    else:
         await ctx.respond(f'You are not authorized to use this command', ephemeral=True,delete_after=30)
     
 @client.command() #!admin
 async def admin(ctx):
-    for r in ctx.author.roles:
-         if r.id == 423458739656458243 or r.id == 407557898638589974:
-            await ctx.message.delete()
-            embed=discord.Embed(title=f'Admin commands for Server Lizard', description='To use a command, enter: `!{command}`',color=0x14AB49)
-            embed.add_field(name='📰 **Message Management**', value='`bulkdelete`', inline=False)
-            embed.add_field(name='👓 **Administrative**', value='~~`roles`~~', inline=False)
-            embed.add_field(name='❌ **Disciplinary**', value='`infraction add` `infraction remove`', inline=False)
-            await ctx.author.send(embed=embed)
+    if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+        await ctx.message.delete()
+        embed=discord.Embed(title=f'Admin commands for Server Lizard', description='To use a command, enter: `!{command}`',color=0x14AB49)
+        embed.add_field(name='📰 **Message Management**', value='`bulkdelete`', inline=False)
+        embed.add_field(name='👓 **Administrative**', value='~~`roles`~~', inline=False)
+        embed.add_field(name='❌ **Disciplinary**', value='`infraction add` `infraction remove`', inline=False)
+        await ctx.author.send(embed=embed)
             
 client.remove_command('help')
 @client.command(aliases=['command','help']) #!commands            
@@ -405,10 +408,20 @@ async def commands(ctx):
 async def test(ctx):
     await ctx.send("owo")
 
-@client.command() #!history
-async def history(ctx):
-    messages = [str(x.author) + ": " + str(x.content) async for x in ctx.history(limit=123)]
-    print(messages)
+@client.command() #!greet
+async def greet(ctx):
+    channel = ctx.channel
+    mymsg = await ctx.reply('Say hello!')
+
+    def check(m):
+        return m.content == 'hello' and m.channel == channel
+
+    try:
+        msg = await client.wait_for('message', timeout=20, check=check)
+    except asyncio.TimeoutError:
+        await mymsg.edit(content='Timed out!')
+    else:
+        await msg.reply(f'Hello {msg.author.display_name}!')
 
 @client.command() #!change
 async def change(ctx):
@@ -427,21 +440,6 @@ async def change(ctx):
         await ctx.send(f"Stop changing my name! 😠")
     await ctx.guild.me.edit(nick=myname)
     
-@client.command() #!greet
-async def greet(ctx):
-    channel = ctx.channel
-    mymsg = await ctx.reply('Say hello!')
-
-    def check(m):
-        return m.content == 'hello' and m.channel == channel
-
-    try:
-        msg = await client.wait_for('message', timeout=20, check=check)
-    except asyncio.TimeoutError:
-        await mymsg.edit(content='Timed out!')
-    else:
-        await msg.reply(f'Hello {msg.author.display_name}!')
-            
 @client.command() #!game
 async def game(ctx):
     channel = ctx.channel
@@ -521,8 +519,14 @@ async def battle(ctx):
         getOpponentId = int(getOpponentId.replace('>',''))
         guild = await client.fetch_guild(ctx.guild.id)
         getUser = await guild.fetch_member(getOpponentId)
-        if ctx.guild.get_member(getOpponentId) is not None:
-            if getUser != ctx.author and getUser.id != 1032276665092538489:
+        if ctx.guild.get_member(getOpponentId) is None:
+            await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
+        else:
+            if getUser.id == 1032276665092538489:
+                await ctx.reply('Use !game to battle me!')
+            elif getUser != ctx.author:
+                await ctx.reply('You cannot battle yourself!')
+            else:
                 channel = ctx.channel
                 view = discord.ui.View()
                 button1 = discord.ui.Button(label="Accept", style=ButtonStyle.green, custom_id='accept')
@@ -655,13 +659,6 @@ async def battle(ctx):
                         button2.disabled = True
                         await mymsg.edit(view=view)
                         await mymsg.reply(content='Battle declined.')
-
-            elif getUser.id == 1032276665092538489:
-                await ctx.reply('Use !game to battle me!')
-            else:
-                await ctx.reply('You cannot battle yourself!')
-        else:
-            await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
     except:
         await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
         
@@ -733,184 +730,55 @@ async def blahaj(ctx):
 
 @client.command() #!bulkdelete        
 async def bulkdelete(ctx):
-    for r in ctx.author.roles:
-        if r.id == 423458739656458243  or r.id == 407557898638589974: #change according to mod role id
-            await ctx.message.delete()
-            view = discord.ui.View()
-            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-            view.add_item(item=button1)
-            view.add_item(item=button2)
-            embed = discord.Embed(title=f'__**You are attempting to bulk delete a section of messages**__', description=f'Do you wish to proceed?', color=0xFF5733)
-            mymsg = await ctx.author.send(embed=embed, view=view)
+    if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+        await ctx.message.delete()
+        view = discord.ui.View()
+        button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+        button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+        view.add_item(item=button1)
+        view.add_item(item=button2)
+        embed = discord.Embed(title=f'__**You are attempting to bulk delete a section of messages**__', description=f'Do you wish to proceed?', color=0xFF5733)
+        mymsg = await ctx.author.send(embed=embed, view=view)
 
-            def checkButton(m):
-                return m.message == mymsg and m.user == ctx.author
+        def checkButton(m):
+            return m.message == mymsg and m.user == ctx.author
 
-            try:
-                interacted = await client.wait_for('interaction', timeout=60, check=checkButton)
-            except asyncio.TimeoutError:
-                view.clear_items()
-                await mymsg.edit(content='Timed out!', view=view)
-            else:
-                await interacted.response.defer()
-                view.clear_items()
-                await mymsg.edit(view=view)
+        try:
+            interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+        except asyncio.TimeoutError:
+            view.clear_items()
+            await mymsg.edit(content='Timed out!', view=view)
+        else:
+            await interacted.response.defer()
+            view.clear_items()
+            await mymsg.edit(view=view)
 
-                if interacted.data['custom_id'] == 'confirm':
-                    embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-                    msg2 = await ctx.author.send(embed=embed)
+            if interacted.data['custom_id'] == 'confirm':
+                embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+                msg2 = await ctx.author.send(embed=embed)
 
-                    def check(m):
-                        return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
-                    try:
-                        msg3 = await client.wait_for('message', timeout=300, check=check)
-                    except asyncio.TimeoutError:
-                        await msg2.edit(content='Timed out!')
-                    else:
-                        try:
-                            getLink = msg3.content.replace("https://discord.com/channels/","")
-                            idList = getLink.split("/")
-                            guildId = int(idList[0])
-                            channelId = int(idList[1])
-                            messageId = int(idList[2])
-
-                            myGuild = client.get_guild(guildId)
-                            myChannel = client.get_channel(channelId)
-                            fetched = await myChannel.fetch_message(messageId)
-                        except:
-                            embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
-                            await ctx.author.send(embed=embed)
-                        else:
-                            embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                            embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
-                            embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
-                            await ctx.author.send(embed=embed)
-                            embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-                            msg4 = await ctx.author.send(embed=embed)
-
-                            try:
-                                msg5 = await client.wait_for('message', timeout=300, check=check)
-                            except asyncio.TimeoutError:
-                                await msg4.edit(content='Timed out!')
-                            else:
-                                try:
-                                    getLink = msg5.content.replace("https://discord.com/channels/","")
-                                    idList = getLink.split("/")
-                                    guildId2 = int(idList[0])
-                                    channelId2 = int(idList[1])
-                                    messageId2 = int(idList[2])
-
-                                    myChannel2 = client.get_channel(channelId2)
-                                    fetched2 = await myChannel2.fetch_message(messageId2)
-                                except:
-                                    embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
-                                    await ctx.author.send(embed=embed)
-                                else:
-                                    if channelId2 != channelId:
-                                        embed=discord.Embed(title=f'Error, this message belongs to a different channel', description=f'Bulk delete cancelled', color=0xFF5733)
-                                        await ctx.author.send(embed=embed)
-                                    else:
-                                        embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
-                                        embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
-                                        await ctx.author.send(embed=embed)
-
-                                        if fetched.created_at < fetched2.created_at:
-                                            dateStart = fetched.created_at - timedelta(seconds=0.1)
-                                            dateEnd = fetched2.created_at + timedelta(seconds=0.1)
-                                        else:
-                                            dateStart = fetched2.created_at - timedelta(seconds=0.1)
-                                            dateEnd = fetched.created_at + timedelta(seconds=0.1)
-
-                                        messages = [message async for message in myChannel.history(limit=3000, before=dateEnd, after=dateStart)]
-
-                                        view.add_item(item=button1)
-                                        view.add_item(item=button2)
-                                        embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
-                                        embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
-                                        msg6 = await ctx.author.send(embed=embed, view=view)
-
-                                        def checkButton2(m):
-                                            return m.message == msg6 and m.user == ctx.author
-
-                                        try:
-                                            interacted = await client.wait_for('interaction', timeout=60, check=checkButton2)
-                                        except asyncio.TimeoutError:
-                                            view.clear_items()
-                                            await msg6.edit(content='Timed out!', view=view)
-                                        else:
-                                            await interacted.response.defer()
-                                            view.clear_items()
-                                            await msg6.edit(view=view)
-
-                                            if interacted.data['custom_id'] == 'confirm':
-                                                embed=discord.Embed(title=f'Processing...', color=0xFF5733)
-                                                progress = await ctx.author.send(embed=embed)
-                                                deleted = await myChannel.purge(limit=3000, before=dateEnd, after=dateStart)
-                                                await myChannel.send(f'Deleted {len(deleted)} message(s).')
-                                                embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{myChannel} in {myGuild}', color=0x00FF00)
-                                                await progress.edit(embed=embed)
-                                            elif interacted.data['custom_id'] == 'cancel':
-                                                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                                                await ctx.author.send(embed=embed)                                                
-
-                elif interacted.data['custom_id'] == 'cancel':
-                    embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                    await ctx.author.send(embed=embed)
-
-@client.command() #!selfdelete        
-async def selfdelete(ctx):
-    await ctx.message.delete()
-    view = discord.ui.View()
-    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-    view.add_item(item=button1)
-    view.add_item(item=button2)
-    embed = discord.Embed(title=f'__**You are attempting to bulk delete your messages from a channel**__', description=f'Do you wish to proceed?', color=0xFF5733)
-    mymsg = await ctx.author.send(embed=embed, view=view)
-
-    def checkButton(m):
-        return m.message == mymsg and m.user == ctx.author
-
-    try:
-        interacted = await client.wait_for('interaction', timeout=60, check=checkButton)
-    except asyncio.TimeoutError:
-        view.clear_items()
-        await mymsg.edit(content='Timed out!', view=view)
-    else:
-        await interacted.response.defer()
-        view.clear_items()
-        await mymsg.edit(view=view)
-
-        if interacted.data['custom_id'] == 'confirm':
-            embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-            msg2 = await ctx.author.send(embed=embed)
-
-            def check(m):
-                return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
-            try:
-                msg3 = await client.wait_for('message', timeout=300, check=check)
-            except asyncio.TimeoutError:
-                await msg2.edit(content='Timed out!')
-            else:
+                def check(m):
+                    return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
                 try:
-                    getLink = msg3.content.replace("https://discord.com/channels/","")
-                    idList = getLink.split("/")
-                    guildId = int(idList[0])
-                    channelId = int(idList[1])
-                    messageId = int(idList[2])
-
-                    myGuild = client.get_guild(guildId)
-                    myChannel = client.get_channel(channelId)
-                    fetched = await myChannel.fetch_message(messageId)
-                except:
-                    await ctx.author.send("Error, could not retrieve message.")
+                    msg3 = await client.wait_for('message', timeout=300, check=check)
+                except asyncio.TimeoutError:
+                    await msg2.edit(content='Timed out!')
                 else:
-                    if fetched.author != ctx.author:
-                        await ctx.author.send("Error, this message does not belong to you.")
+                    try:
+                        getLink = msg3.content.replace("https://discord.com/channels/","")
+                        idList = getLink.split("/")
+                        guildId = int(idList[0])
+                        channelId = int(idList[1])
+                        messageId = int(idList[2])
+
+                        myGuild = client.get_guild(guildId)
+                        myChannel = client.get_channel(channelId)
+                        fetched = await myChannel.fetch_message(messageId)
+                    except:
+                        embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
+                        await ctx.author.send(embed=embed)
                     else:
-                        embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
                         embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
                         embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
                         await ctx.author.send(embed=embed)
@@ -939,65 +807,325 @@ async def selfdelete(ctx):
                                     embed=discord.Embed(title=f'Error, this message belongs to a different channel', description=f'Bulk delete cancelled', color=0xFF5733)
                                     await ctx.author.send(embed=embed)
                                 else:
-                                    if fetched2.author != ctx.author:
-                                        embed=discord.Embed(title=f'Error, this message does not belong to you', description=f'Bulk delete cancelled', color=0xFF5733)
-                                        await ctx.author.send(embed=embed)
+                                    embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                                    embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
+                                    embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
+                                    await ctx.author.send(embed=embed)
+
+                                    if fetched.created_at < fetched2.created_at:
+                                        dateStart = fetched.created_at - timedelta(seconds=0.1)
+                                        dateEnd = fetched2.created_at + timedelta(seconds=0.1)
                                     else:
-                                        embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel2) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
-                                        embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
-                                        await ctx.author.send(embed=embed)
+                                        dateStart = fetched2.created_at - timedelta(seconds=0.1)
+                                        dateEnd = fetched.created_at + timedelta(seconds=0.1)
 
-                                        embed=discord.Embed(title=f"Calculating...", color=0xFF5733)
-                                        msg6 = await ctx.author.send(embed=embed)
+                                    messages = [message async for message in myChannel.history(limit=3000, before=dateEnd, after=dateStart)]
 
-                                        if fetched.created_at < fetched2.created_at:
-                                            dateStart = fetched.created_at - timedelta(seconds=0.1)
-                                            dateEnd = fetched2.created_at + timedelta(seconds=0.1)
-                                        else:
-                                            dateStart = fetched2.created_at - timedelta(seconds=0.1)
-                                            dateEnd = fetched.created_at + timedelta(seconds=0.1)
-                                        def checkUser(m):
-                                            return m.author == ctx.author
+                                    view.add_item(item=button1)
+                                    view.add_item(item=button2)
+                                    embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
+                                    embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                                    msg6 = await ctx.author.send(embed=embed, view=view)
 
-                                        counter = 0
-                                        async for x in myChannel.history(limit=3000, before=dateEnd, after=dateStart):
-                                            if x.author == ctx.author:
-                                                counter += 1
+                                    def checkButton2(m):
+                                        return m.message == msg6 and m.user == ctx.author
 
-                                        view.add_item(item=button1)
-                                        view.add_item(item=button2)
-                                        embed=discord.Embed(title=f"Delete {counter} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
-                                        embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
-                                        await msg6.edit(embed=embed, view=view)
+                                    try:
+                                        interacted = await client.wait_for('interaction', timeout=300, check=checkButton2)
+                                    except asyncio.TimeoutError:
+                                        view.clear_items()
+                                        await msg6.edit(content='Timed out!', view=view)
+                                    else:
+                                        await interacted.response.defer()
+                                        view.clear_items()
+                                        await msg6.edit(view=view)
 
-                                        def checkButton2(m):
-                                            return m.message == msg6 and m.user == ctx.author
+                                        if interacted.data['custom_id'] == 'confirm':
+                                            embed=discord.Embed(title=f'Processing...', color=0xFF5733)
+                                            progress = await ctx.author.send(embed=embed)
+                                            deleted = await myChannel.purge(limit=3000, before=dateEnd, after=dateStart)
+                                            await myChannel.send(f'Deleted {len(deleted)} message(s).')
+                                            embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{myChannel} in {myGuild}', color=0x00FF00)
+                                            await progress.edit(embed=embed)
+                                        elif interacted.data['custom_id'] == 'cancel':
+                                            embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                                            await ctx.author.send(embed=embed)                                                
 
-                                        try:
-                                            interacted = await client.wait_for('interaction', timeout=60, check=checkButton2)
-                                        except asyncio.TimeoutError:
-                                            view.clear_items()
-                                            await msg6.edit(content='Timed out!', view=view)
-                                        else:
-                                            await interacted.response.defer()
-                                            view.clear_items()
-                                            await msg6.edit(view=view)
+            elif interacted.data['custom_id'] == 'cancel':
+                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                await ctx.author.send(embed=embed)
 
-                                            if interacted.data['custom_id'] == 'confirm':
-                                                embed=discord.Embed(title=f'Processing...', color=0xFF5733)
-                                                progress = await ctx.author.send(embed=embed)
-                                                deleted = await myChannel.purge(limit=3000, before=dateEnd, after=dateStart, check=checkUser)
-                                                embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{myChannel} in {myGuild}', color=0x00FF00)
-                                                await progress.edit(embed=embed)
-                                            elif interacted.data['custom_id'] == 'cancel':
-                                                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                                                await ctx.author.send(embed=embed)
-                        
-        elif interacted.data['custom_id'] == 'cancel':
+@client.command() #!selfdelete        
+async def selfdelete(ctx):
+    try:
+        await ctx.message.delete()
+    except:
+        pass
+    view = discord.ui.View()
+    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+    view.add_item(item=button1)
+    view.add_item(item=button2)
+    embed = discord.Embed(title=f'__**You are attempting to bulk delete your messages from a channel**__', description=f'Do you wish to proceed?', color=0xFF5733)
+    mymsg = await ctx.author.send(embed=embed, view=view)
+
+    def checkButton(m):
+        return m.message == mymsg and m.user == ctx.author
+
+    try:
+        interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+    except asyncio.TimeoutError:
+        view.clear_items()
+        await mymsg.edit(content='Timed out!', view=view)
+    else:
+        await interacted.response.defer()
+        view.clear_items()
+        await mymsg.edit(view=view)
+
+        if interacted.data['custom_id'] == 'cancel':
             embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
             await ctx.author.send(embed=embed)
 
+        elif interacted.data['custom_id'] == 'confirm':
+            embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+            msg2 = await ctx.author.send(embed=embed)
+
+            def check(m):
+                return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
+
+            async def getFirstMessage():
+                try:
+                    msg3 = await client.wait_for('message', timeout=300, check=check)
+                except asyncio.TimeoutError:
+                    await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                    return False, 0
+                else:
+                    try:
+                        getLink = msg3.content.replace("https://discord.com/channels/","")
+                        idList = getLink.split("/")
+                        myChannel = client.get_channel(int(idList[1]))
+                        fetched = await myChannel.fetch_message(int(idList[2]))
+                    except:
+                        await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
+                        checkFirstMessage, fetched = await getFirstMessage()
+                        return checkFirstMessage, fetched
+                    else:
+                        if fetched.author != ctx.author:
+                            await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
+                            checkFirstMessage, fetched = await getFirstMessage()
+                            return checkFirstMessage, fetched
+                        else:
+                            return True, fetched
+
+            checkFirstMessage, fetched = await getFirstMessage()
+
+            if checkFirstMessage == True:
+                embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
+                embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
+                await ctx.author.send(embed=embed)
+                embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+                msg4 = await ctx.author.send(embed=embed)
+
+                async def getSecondMessage():
+                    try:
+                        msg5 = await client.wait_for('message', timeout=300, check=check)
+                    except asyncio.TimeoutError:
+                        await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                        return False, 0
+                    else:
+                        try:
+                            getLink = msg5.content.replace("https://discord.com/channels/","")
+                            idList = getLink.split("/")
+                            myChannel = client.get_channel(int(idList[1]))
+                            fetched2 = await myChannel.fetch_message(idList[2])
+                        except:
+                            await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
+                            checkSecondMessage, fetched2 = await getSecondMessage()
+                            return checkSecondMessage, fetched2
+                        else:
+                            if fetched2.channel.id != fetched.channel.id:
+                                await ctx.author.send(embed=discord.Embed(title="Error, this message belongs to a different channel. Please try again"))
+                                checkSecondMessage, fetched2 = await getSecondMessage()
+                                return checkSecondMessage, fetched2
+                            elif fetched2.author != ctx.author:
+                                await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
+                                checkSecondMessage, fetched2 = await getSecondMessage()
+                                return checkSecondMessage, fetched2
+                            else:
+                                return True, fetched2
+                
+            checkSecondMessage, fetched2 = await getSecondMessage()
+
+            if checkSecondMessage == True:
+                embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
+                embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
+                await ctx.author.send(embed=embed)
+                
+                msg6 = await ctx.author.send(embed=discord.Embed(title=f"Calculating...", color=0xFF5733))
+
+                if fetched.created_at < fetched2.created_at:
+                    dateStart = fetched.created_at - timedelta(seconds=0.1)
+                    dateEnd = fetched2.created_at + timedelta(seconds=0.1)
+                else:
+                    dateStart = fetched2.created_at - timedelta(seconds=0.1)
+                    dateEnd = fetched.created_at + timedelta(seconds=0.1)
+                def checkUser(m):
+                    return m.author.id == ctx.author.id
+
+                messageArray = []
+                messagePreview = ""
+                async for x in fetched.channel.history(limit=3000, before=dateEnd, after=dateStart):
+                    if x.author.id == ctx.author.id:
+                        if len(x.content) > 27:
+                            shortMessage = x.content[:27] + ".."
+                        else:
+                            shortMessage = x.content
+                        messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at).strftime("%d/%m/%y %H:%M:%S")})
+
+                currentPage = 1
+
+                if (len(messageArray) < 20):
+                    maxPage = 1
+                    pageLength = len(messageArray)
+                else:
+                    pageLength = 20
+                    if (len(messageArray) % 20 == 0):
+                        maxPage = len(messageArray) / 20
+                    else:
+                        maxPage = math.ceil((len(messageArray) / 20))
+
+                for x in range(pageLength):
+                    messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                view.add_item(item=button1)
+                view.add_item(item=button2)
+                embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
+                embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
+                await msg6.edit(embed=embedArray, view=view)
+                await msg6.add_reaction('⬅')
+                await msg6.add_reaction('➡')
+
+                def checkButton2(m):
+                    return m.message == msg6 and m.user == ctx.author
+
+                def checkReaction(m,user):
+                    return m.message == msg6 and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
+
+                async def loopMessages(currentPage):
+                    done, pending = await asyncio.wait([
+                        client.loop.create_task(client.wait_for('interaction', check=checkButton2)),
+                        client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
+                        client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
+                        ], timeout=300, return_when=asyncio.FIRST_COMPLETED)
+                    try:
+                        myResult = done.pop().result()
+                    except:
+                        view.clear_items()
+                        await msg6.edit(content='Timed out!', view=view)
+                    else:        
+                        if type(myResult) is discord.interactions.Interaction:
+                            
+                            await myResult.response.defer()
+                            view.clear_items()
+                            await msg6.edit(view=view)
+                            
+                            if myResult.data['custom_id'] == 'confirm':
+                                embed=discord.Embed(title=f'Processing...', color=0xFF5733)
+                                progress = await ctx.author.send(embed=embed)
+                                deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart, check=checkUser)
+                                embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
+                                await progress.edit(embed=embed)
+                            elif myResult.data['custom_id'] == 'cancel':
+                                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                                await ctx.author.send(embed=embed)
+                                
+                        elif type(myResult) is tuple:
+                            if myResult[0].emoji == '⬅':
+                                currentPage -= 1
+                                if currentPage < 1:
+                                    currentPage = maxPage
+                                    
+                            elif myResult[0].emoji == '➡':
+                                currentPage += 1
+                                if currentPage > maxPage:
+                                    currentPage = 1
+                                    
+                            messagePreview = ""
+
+                            startIndex = (currentPage - 1) * 20
+                            if currentPage == maxPage:
+                                endIndex = len(messageArray)
+                            else:
+                                endIndex = currentPage * 20
+                            
+                            for x in range(startIndex, endIndex):
+                                messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                            embed_dict = embedArray.to_dict()
+                            for field in embed_dict["fields"]:
+                                if "Message Preview" in field["name"]:
+                                    field["name"] = f"Message Preview (page {currentPage} of {maxPage})"
+                                    field["value"] = messagePreview
+
+                            embed = discord.Embed.from_dict(embed_dict)
+                            await msg6.edit(embed=embed)
+                            await loopMessages(currentPage)
+                    
+                await loopMessages(currentPage)
+                        
+
+
+'''
+@client.command()
+async def test2(ctx):
+    view = discord.ui.View()
+    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+    view.add_item(item=button1)
+    view.add_item(item=button2)    
+    embed = discord.Embed(title="Testing", description="TESTING!")
+    embed.add_field(name="Field", value="Field's value",inline=False)
+    mymsg = await ctx.author.send(embed=embed,view=view)
+    await mymsg.add_reaction('⬅')
+    await mymsg.add_reaction('➡')
+
+    def checkButton(m):
+        return m.message == mymsg and m.user == ctx.author
+
+    def checkReaction(m,user):
+        return m.message == mymsg and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
+    
+    async def thisloop():
+        done, pending = await asyncio.wait([
+            client.loop.create_task(client.wait_for('interaction', check=checkButton)),
+            client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
+            client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
+            ], timeout=60, return_when=asyncio.FIRST_COMPLETED)
+        try:
+            myResult = done.pop().result()
+        except:
+            view.clear_items()
+            await mymsg.edit(content='Timed out!', view=view)
+        else:        
+            if type(myResult) is discord.interactions.Interaction:
+                await myResult.response.defer()
+                print("Button pressed")
+            elif type(myResult) is tuple:
+                #print(type(myResult[0].emoji))
+                #print(myResult[0].emoji)
+                if myResult[0].emoji == '⬅':
+                    print("Go left")
+                elif myResult[0].emoji == '➡':
+                    print("Go right")
+            await thisloop()
+        
+    await thisloop()
+'''
+
+    
 @client.command() #!timed        
 async def timed(ctx):
     try:
