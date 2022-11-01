@@ -119,24 +119,23 @@ async def on_member_update(before, after):
     if after.guild.get_member(after.id) is not None and checkRoles(after, [454948280825282560]) == False: #update if member still in server, and does not have the new member role
         found = 0
         async for message in channel.history(limit=None): # If member profile is found, update it 
-            if message.embeds:
-                if message.embeds[0].description and f'**User ID**: {after.id}' in message.embeds[0].description:
-                    found = 1
-                    mystr = message.embeds[0].description.split('**Infractions**:')
-                    if len(mystr) > 1:
-                        infractions = mystr[1]
-                    else:
-                        infractions = "" # no infractions
+            if message.embeds and message.embeds[0].description and f'**User ID**: {after.id}' in message.embeds[0].description:
+                found = 1
+                mystr = message.embeds[0].description.split('**Infractions**:')
+                if len(mystr) > 1:
+                    infractions = mystr[1]
+                else:
+                    infractions = "" # no infractions
 
-                    userName = after.name + "#" + after.discriminator
-                    roleList = []
-                    for x in after.roles:
-                        roleList.append(x.name)
+                userName = after.name + "#" + after.discriminator
+                roleList = []
+                for x in after.roles:
+                    roleList.append(x.name)
 
-                    embed = discord.Embed(title=f'{after.display_name} ({userName})', description=f'**User ID**: {after.id}\n**User Roles**: {roleList}\n**Infractions**:{infractions}')
-                    embed.set_thumbnail(url=after.display_avatar.url)
-                    await message.edit(embed=embed)
-                    break
+                embed = discord.Embed(title=f'{after.display_name} ({userName})', description=f'**User ID**: {after.id}\n**User Roles**: {roleList}\n**Infractions**:{infractions}')
+                embed.set_thumbnail(url=after.display_avatar.url)
+                await message.edit(embed=embed)
+                break
 
         if found == 0: #Profile not found, creating new profile
             userName = after.name + "#" + after.discriminator
@@ -148,17 +147,25 @@ async def on_member_update(before, after):
             embed.set_thumbnail(url=after.display_avatar.url)
             await channel.send(embed=embed)
 
+            await asyncio.sleep(5)
+            dupeCount = 0
+            async for message in channel.history(limit=10): # Deletes duplicate profiles if found
+                if message.embeds and message.embeds[0].description and f'**User ID**: {after.id}' in message.embeds[0].description:
+                    dupeCount += 1
+                    if dupeCount > 1:
+                        await message.delete()
+
 @client.event #if a user profile already exists, posts user's previous roles to the notice channel
 async def on_member_join(member):
     profileChannel = client.get_channel(1035131570257932318)
-    reportChannel = client.get_channel(1033289784581427230)
+    newcomerChannel = client.get_channel(535480699981922324)
     async for message in profileChannel.history(limit=None):
         if message.embeds:
             if message.embeds[0].description and f'**User ID**: {member.id}' in message.embeds[0].description:
                 mystr = message.embeds[0].description.replace("\n**Infractions**:","")
                 mystr = mystr.split("**User Roles**: ")
                 embed = discord.Embed(title=f'{member.display_name} rejoined the server', description=f'Their roles were: {mystr[1]}')
-                await reportChannel.send(embed=embed)
+                await newcomerChannel.send(embed=embed)
                 break
 
 @client.command() #!infraction
@@ -727,17 +734,223 @@ async def blahaj(ctx):
     embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
     await ctx.send(embed=embed)
 
-
-@client.command() #!bulkdelete        
+@client.command() #!bulkdelete   
 async def bulkdelete(ctx):
-    if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+    try:
         await ctx.message.delete()
+    except:
+        await ctx.author.send(f'Please use this command in a server channel.')
+    else:
+        if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+            view = discord.ui.View()
+            button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+            button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+            view.add_item(item=button1)
+            view.add_item(item=button2)
+            embed = discord.Embed(title=f'__**You are attempting to bulk delete a section of messages**__', description=f'Do you wish to proceed?', color=0xFF5733)
+            mymsg = await ctx.author.send(embed=embed, view=view)
+
+            def checkButton(m):
+                return m.message == mymsg and m.user == ctx.author
+
+            try:
+                interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+            except asyncio.TimeoutError:
+                view.clear_items()
+                await mymsg.edit(content='Timed out!', view=view)
+            else:
+                await interacted.response.defer()
+                view.clear_items()
+                await mymsg.edit(view=view)
+
+                if interacted.data['custom_id'] == 'cancel':
+                    embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                    await ctx.author.send(embed=embed)
+
+                elif interacted.data['custom_id'] == 'confirm':
+                    embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+                    msg2 = await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
+
+                    checkFirstMessage = 0
+                    while (checkFirstMessage == 0):
+                        try:
+                            msg3 = await client.wait_for('message', timeout=300, check=check)
+                        except asyncio.TimeoutError:
+                            await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                            checkFirstMessage = 2
+                        else:
+                            try:
+                                getLink = msg3.content.replace("https://discord.com/channels/","")
+                                idList = getLink.split("/")
+                                myChannel = client.get_channel(int(idList[1]))
+                                fetched = await myChannel.fetch_message(int(idList[2]))
+                            except:
+                                await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
+                            else:
+                                checkFirstMessage = 1
+
+                    if checkFirstMessage == 1:
+                        embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
+                        embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
+                        await ctx.author.send(embed=embed)
+                        embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+                        msg4 = await ctx.author.send(embed=embed)
+
+                        checkSecondMessage = 0
+                        while (checkSecondMessage == 0):
+                            try:
+                                msg5 = await client.wait_for('message', timeout=300, check=check)
+                            except asyncio.TimeoutError:
+                                await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                                checkSecondMessage = 2
+                            else:
+                                try:
+                                    getLink = msg5.content.replace("https://discord.com/channels/","")
+                                    idList = getLink.split("/")
+                                    myChannel = client.get_channel(int(idList[1]))
+                                    fetched2 = await myChannel.fetch_message(idList[2])
+                                except:
+                                    await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
+                                else:
+                                    if fetched2.channel.id != fetched.channel.id:
+                                        await ctx.author.send(embed=discord.Embed(title="Error, this message belongs to a different channel. Please try again"))
+                                    else:
+                                        checkSecondMessage = 1
+
+                    if checkFirstMessage == 1 and checkSecondMessage == 1:
+                        embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
+                        embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
+                        await ctx.author.send(embed=embed)
+                        
+                        msg6 = await ctx.author.send(embed=discord.Embed(title=f"Calculating...", color=0xFF5733))
+
+                        if fetched.created_at < fetched2.created_at:
+                            dateStart = fetched.created_at - timedelta(seconds=0.1)
+                            dateEnd = fetched2.created_at + timedelta(seconds=0.1)
+                        else:
+                            dateStart = fetched2.created_at - timedelta(seconds=0.1)
+                            dateEnd = fetched.created_at + timedelta(seconds=0.1)
+
+                        messageArray = []
+                        messagePreview = ""
+                        async for x in fetched.channel.history(limit=3000, before=dateEnd, after=dateStart):
+                            if len(x.content) > 27:
+                                shortMessage = x.content[:27] + ".."
+                            else:
+                                shortMessage = x.content
+                            messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at).strftime("%d/%m/%y %H:%M:%S")})
+
+                        currentPage = 1
+
+                        if (len(messageArray) < 20):
+                            maxPage = 1
+                            pageLength = len(messageArray)
+                        else:
+                            pageLength = 20
+                            if (len(messageArray) % 20 == 0):
+                                maxPage = len(messageArray) / 20
+                            else:
+                                maxPage = math.ceil((len(messageArray) / 20))
+
+                        for x in range(pageLength):
+                            messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                        view.add_item(item=button1)
+                        view.add_item(item=button2)
+                        embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
+                        embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                        embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
+                        await msg6.edit(embed=embedArray, view=view)
+                        await msg6.add_reaction('⬅')
+                        await msg6.add_reaction('➡')
+
+                        def checkButton2(m):
+                            return m.message == msg6 and m.user == ctx.author
+
+                        def checkReaction(m,user):
+                            return m.message == msg6 and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
+
+                        exitLoop = 0
+                        while (exitLoop == 0):
+                            done, pending = await asyncio.wait([
+                                client.loop.create_task(client.wait_for('interaction', check=checkButton2)),
+                                client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
+                                client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
+                                ], timeout=300, return_when=asyncio.FIRST_COMPLETED)
+                            try:
+                                myResult = done.pop().result()
+                            except:
+                                view.clear_items()
+                                await msg6.edit(content='Timed out!', view=view)
+                                exitLoop = 1
+                            else:        
+                                if type(myResult) is discord.interactions.Interaction:
+                                    await myResult.response.defer()
+                                    view.clear_items()
+                                    await msg6.edit(view=view)
+                                    
+                                    if myResult.data['custom_id'] == 'confirm':
+                                        embed=discord.Embed(title=f'Processing...', color=0xFF5733)
+                                        progress = await ctx.author.send(embed=embed)
+                                        deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart)
+                                        embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
+                                        await progress.edit(embed=embed)
+                                        await fetched.channel.send(f'Deleted {len(deleted)} message(s).')
+                                    elif myResult.data['custom_id'] == 'cancel':
+                                        embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                                        await ctx.author.send(embed=embed)
+                                    exitLoop = 1
+                                        
+                                elif type(myResult) is tuple:
+                                    if myResult[0].emoji == '⬅':
+                                        currentPage -= 1
+                                        if currentPage < 1:
+                                            currentPage = maxPage
+                                            
+                                    elif myResult[0].emoji == '➡':
+                                        currentPage += 1
+                                        if currentPage > maxPage:
+                                            currentPage = 1
+                                            
+                                    messagePreview = ""
+
+                                    startIndex = (currentPage - 1) * 20
+                                    if currentPage == maxPage:
+                                        endIndex = len(messageArray)
+                                    else:
+                                        endIndex = currentPage * 20
+                                    
+                                    for x in range(startIndex, endIndex):
+                                        messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                                    embed_dict = embedArray.to_dict()
+                                    for field in embed_dict["fields"]:
+                                        if "Message Preview" in field["name"]:
+                                            field["name"] = f"Message Preview (page {currentPage} of {maxPage})"
+                                            field["value"] = messagePreview
+
+                                    embed = discord.Embed.from_dict(embed_dict)
+                                    await msg6.edit(embed=embed)
+
+
+@client.command() #!selfdelete        
+async def selfdelete(ctx):
+    try:
+        await ctx.message.delete()
+    except:
+        await ctx.author.send("Please use this command in a server channel.")
+    else:
         view = discord.ui.View()
         button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
         button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
         view.add_item(item=button1)
         view.add_item(item=button2)
-        embed = discord.Embed(title=f'__**You are attempting to bulk delete a section of messages**__', description=f'Do you wish to proceed?', color=0xFF5733)
+        embed = discord.Embed(title=f'__**You are attempting to bulk delete your messages from a channel**__', description=f'Do you wish to proceed?', color=0xFF5733)
         mymsg = await ctx.author.send(embed=embed, view=view)
 
         def checkButton(m):
@@ -753,378 +966,186 @@ async def bulkdelete(ctx):
             view.clear_items()
             await mymsg.edit(view=view)
 
-            if interacted.data['custom_id'] == 'confirm':
+            if interacted.data['custom_id'] == 'cancel':
+                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                await ctx.author.send(embed=embed)
+
+            elif interacted.data['custom_id'] == 'confirm':
                 embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
                 msg2 = await ctx.author.send(embed=embed)
 
                 def check(m):
                     return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
-                try:
-                    msg3 = await client.wait_for('message', timeout=300, check=check)
-                except asyncio.TimeoutError:
-                    await msg2.edit(content='Timed out!')
-                else:
+
+                checkFirstMessage = 0
+                while (checkFirstMessage == 0):
                     try:
-                        getLink = msg3.content.replace("https://discord.com/channels/","")
-                        idList = getLink.split("/")
-                        guildId = int(idList[0])
-                        channelId = int(idList[1])
-                        messageId = int(idList[2])
-
-                        myGuild = client.get_guild(guildId)
-                        myChannel = client.get_channel(channelId)
-                        fetched = await myChannel.fetch_message(messageId)
-                    except:
-                        embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
-                        await ctx.author.send(embed=embed)
+                        msg3 = await client.wait_for('message', timeout=300, check=check)
+                    except asyncio.TimeoutError:
+                        await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                        checkFirstMessage = 2
                     else:
-                        embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                        embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
-                        embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
-                        await ctx.author.send(embed=embed)
-                        embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-                        msg4 = await ctx.author.send(embed=embed)
+                        try:
+                            getLink = msg3.content.replace("https://discord.com/channels/","")
+                            idList = getLink.split("/")
+                            myChannel = client.get_channel(int(idList[1]))
+                            fetched = await myChannel.fetch_message(int(idList[2]))
+                        except:
+                            await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
+                        else:
+                            if fetched.author != ctx.author:
+                                await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
+                            else:
+                                checkFirstMessage = 1
 
+                if checkFirstMessage == 1:
+                    embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                    embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
+                    embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
+                    await ctx.author.send(embed=embed)
+                    embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
+                    msg4 = await ctx.author.send(embed=embed)
+
+                    checkSecondMessage = 0
+                    while (checkSecondMessage == 0):
                         try:
                             msg5 = await client.wait_for('message', timeout=300, check=check)
                         except asyncio.TimeoutError:
-                            await msg4.edit(content='Timed out!')
+                            await ctx.author.send(embed=discord.Embed(title="Timed out!"))
+                            checkSecondMessage = 2
                         else:
                             try:
                                 getLink = msg5.content.replace("https://discord.com/channels/","")
                                 idList = getLink.split("/")
-                                guildId2 = int(idList[0])
-                                channelId2 = int(idList[1])
-                                messageId2 = int(idList[2])
-
-                                myChannel2 = client.get_channel(channelId2)
-                                fetched2 = await myChannel2.fetch_message(messageId2)
+                                myChannel = client.get_channel(int(idList[1]))
+                                fetched2 = await myChannel.fetch_message(idList[2])
                             except:
-                                embed=discord.Embed(title=f'Error, could not retrieve message', description=f'Bulk delete cancelled', color=0xFF5733)
-                                await ctx.author.send(embed=embed)
+                                await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
                             else:
-                                if channelId2 != channelId:
-                                    embed=discord.Embed(title=f'Error, this message belongs to a different channel', description=f'Bulk delete cancelled', color=0xFF5733)
-                                    await ctx.author.send(embed=embed)
+                                if fetched2.channel.id != fetched.channel.id:
+                                    await ctx.author.send(embed=discord.Embed(title="Error, this message belongs to a different channel. Please try again"))
+                                elif fetched2.author != ctx.author:
+                                    await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
                                 else:
-                                    embed=discord.Embed(title=f"Bulk Delete [End]", description="**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel) + "\n**Author**: " + str(fetched2.author) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                                    embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
-                                    embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
-                                    await ctx.author.send(embed=embed)
+                                    checkSecondMessage = 1
 
-                                    if fetched.created_at < fetched2.created_at:
-                                        dateStart = fetched.created_at - timedelta(seconds=0.1)
-                                        dateEnd = fetched2.created_at + timedelta(seconds=0.1)
-                                    else:
-                                        dateStart = fetched2.created_at - timedelta(seconds=0.1)
-                                        dateEnd = fetched.created_at + timedelta(seconds=0.1)
-
-                                    messages = [message async for message in myChannel.history(limit=3000, before=dateEnd, after=dateStart)]
-
-                                    view.add_item(item=button1)
-                                    view.add_item(item=button2)
-                                    embed=discord.Embed(title=f"Delete {len(messages)} messages?", description="(Search Limit: 3000 messages from start date)\n\n**Server**: " + str(myGuild) + "\n**Channel**: #" + str(myChannel), color=0xFF5733)
-                                    embed.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
-                                    msg6 = await ctx.author.send(embed=embed, view=view)
-
-                                    def checkButton2(m):
-                                        return m.message == msg6 and m.user == ctx.author
-
-                                    try:
-                                        interacted = await client.wait_for('interaction', timeout=300, check=checkButton2)
-                                    except asyncio.TimeoutError:
-                                        view.clear_items()
-                                        await msg6.edit(content='Timed out!', view=view)
-                                    else:
-                                        await interacted.response.defer()
-                                        view.clear_items()
-                                        await msg6.edit(view=view)
-
-                                        if interacted.data['custom_id'] == 'confirm':
-                                            embed=discord.Embed(title=f'Processing...', color=0xFF5733)
-                                            progress = await ctx.author.send(embed=embed)
-                                            deleted = await myChannel.purge(limit=3000, before=dateEnd, after=dateStart)
-                                            await myChannel.send(f'Deleted {len(deleted)} message(s).')
-                                            embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{myChannel} in {myGuild}', color=0x00FF00)
-                                            await progress.edit(embed=embed)
-                                        elif interacted.data['custom_id'] == 'cancel':
-                                            embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                                            await ctx.author.send(embed=embed)                                                
-
-            elif interacted.data['custom_id'] == 'cancel':
-                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                await ctx.author.send(embed=embed)
-
-@client.command() #!selfdelete        
-async def selfdelete(ctx):
-    try:
-        await ctx.message.delete()
-    except:
-        pass
-    view = discord.ui.View()
-    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-    view.add_item(item=button1)
-    view.add_item(item=button2)
-    embed = discord.Embed(title=f'__**You are attempting to bulk delete your messages from a channel**__', description=f'Do you wish to proceed?', color=0xFF5733)
-    mymsg = await ctx.author.send(embed=embed, view=view)
-
-    def checkButton(m):
-        return m.message == mymsg and m.user == ctx.author
-
-    try:
-        interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
-    except asyncio.TimeoutError:
-        view.clear_items()
-        await mymsg.edit(content='Timed out!', view=view)
-    else:
-        await interacted.response.defer()
-        view.clear_items()
-        await mymsg.edit(view=view)
-
-        if interacted.data['custom_id'] == 'cancel':
-            embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-            await ctx.author.send(embed=embed)
-
-        elif interacted.data['custom_id'] == 'confirm':
-            embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-            msg2 = await ctx.author.send(embed=embed)
-
-            def check(m):
-                return "http" in m.content and m.channel.type is discord.ChannelType.private and m.author == ctx.author
-
-            async def getFirstMessage():
-                try:
-                    msg3 = await client.wait_for('message', timeout=300, check=check)
-                except asyncio.TimeoutError:
-                    await ctx.author.send(embed=discord.Embed(title="Timed out!"))
-                    return False, 0
-                else:
-                    try:
-                        getLink = msg3.content.replace("https://discord.com/channels/","")
-                        idList = getLink.split("/")
-                        myChannel = client.get_channel(int(idList[1]))
-                        fetched = await myChannel.fetch_message(int(idList[2]))
-                    except:
-                        await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
-                        checkFirstMessage, fetched = await getFirstMessage()
-                        return checkFirstMessage, fetched
-                    else:
-                        if fetched.author != ctx.author:
-                            await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
-                            checkFirstMessage, fetched = await getFirstMessage()
-                            return checkFirstMessage, fetched
-                        else:
-                            return True, fetched
-
-            checkFirstMessage, fetched = await getFirstMessage()
-
-            if checkFirstMessage == True:
-                embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
-                embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
-                await ctx.author.send(embed=embed)
-                embed=discord.Embed(title=f'Please enter the URL link to the last message to end at', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
-                msg4 = await ctx.author.send(embed=embed)
-
-                async def getSecondMessage():
-                    try:
-                        msg5 = await client.wait_for('message', timeout=300, check=check)
-                    except asyncio.TimeoutError:
-                        await ctx.author.send(embed=discord.Embed(title="Timed out!"))
-                        return False, 0
-                    else:
-                        try:
-                            getLink = msg5.content.replace("https://discord.com/channels/","")
-                            idList = getLink.split("/")
-                            myChannel = client.get_channel(int(idList[1]))
-                            fetched2 = await myChannel.fetch_message(idList[2])
-                        except:
-                            await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
-                            checkSecondMessage, fetched2 = await getSecondMessage()
-                            return checkSecondMessage, fetched2
-                        else:
-                            if fetched2.channel.id != fetched.channel.id:
-                                await ctx.author.send(embed=discord.Embed(title="Error, this message belongs to a different channel. Please try again"))
-                                checkSecondMessage, fetched2 = await getSecondMessage()
-                                return checkSecondMessage, fetched2
-                            elif fetched2.author != ctx.author:
-                                await ctx.author.send(embed=discord.Embed(title="Error, this message does not belong to you. Please try again"))
-                                checkSecondMessage, fetched2 = await getSecondMessage()
-                                return checkSecondMessage, fetched2
-                            else:
-                                return True, fetched2
-                
-            checkSecondMessage, fetched2 = await getSecondMessage()
-
-            if checkSecondMessage == True:
-                embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
-                embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
-                embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
-                await ctx.author.send(embed=embed)
-                
-                msg6 = await ctx.author.send(embed=discord.Embed(title=f"Calculating...", color=0xFF5733))
-
-                if fetched.created_at < fetched2.created_at:
-                    dateStart = fetched.created_at - timedelta(seconds=0.1)
-                    dateEnd = fetched2.created_at + timedelta(seconds=0.1)
-                else:
-                    dateStart = fetched2.created_at - timedelta(seconds=0.1)
-                    dateEnd = fetched.created_at + timedelta(seconds=0.1)
-                def checkUser(m):
-                    return m.author.id == ctx.author.id
-
-                messageArray = []
-                messagePreview = ""
-                async for x in fetched.channel.history(limit=3000, before=dateEnd, after=dateStart):
-                    if x.author.id == ctx.author.id:
-                        if len(x.content) > 27:
-                            shortMessage = x.content[:27] + ".."
-                        else:
-                            shortMessage = x.content
-                        messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at).strftime("%d/%m/%y %H:%M:%S")})
-
-                currentPage = 1
-
-                if (len(messageArray) < 20):
-                    maxPage = 1
-                    pageLength = len(messageArray)
-                else:
-                    pageLength = 20
-                    if (len(messageArray) % 20 == 0):
-                        maxPage = len(messageArray) / 20
-                    else:
-                        maxPage = math.ceil((len(messageArray) / 20))
-
-                for x in range(pageLength):
-                    messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
-
-                view.add_item(item=button1)
-                view.add_item(item=button2)
-                embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
-                embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
-                embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
-                await msg6.edit(embed=embedArray, view=view)
-                await msg6.add_reaction('⬅')
-                await msg6.add_reaction('➡')
-
-                def checkButton2(m):
-                    return m.message == msg6 and m.user == ctx.author
-
-                def checkReaction(m,user):
-                    return m.message == msg6 and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
-
-                async def loopMessages(currentPage):
-                    done, pending = await asyncio.wait([
-                        client.loop.create_task(client.wait_for('interaction', check=checkButton2)),
-                        client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
-                        client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
-                        ], timeout=300, return_when=asyncio.FIRST_COMPLETED)
-                    try:
-                        myResult = done.pop().result()
-                    except:
-                        view.clear_items()
-                        await msg6.edit(content='Timed out!', view=view)
-                    else:        
-                        if type(myResult) is discord.interactions.Interaction:
-                            
-                            await myResult.response.defer()
-                            view.clear_items()
-                            await msg6.edit(view=view)
-                            
-                            if myResult.data['custom_id'] == 'confirm':
-                                embed=discord.Embed(title=f'Processing...', color=0xFF5733)
-                                progress = await ctx.author.send(embed=embed)
-                                deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart, check=checkUser)
-                                embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
-                                await progress.edit(embed=embed)
-                            elif myResult.data['custom_id'] == 'cancel':
-                                embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
-                                await ctx.author.send(embed=embed)
-                                
-                        elif type(myResult) is tuple:
-                            if myResult[0].emoji == '⬅':
-                                currentPage -= 1
-                                if currentPage < 1:
-                                    currentPage = maxPage
-                                    
-                            elif myResult[0].emoji == '➡':
-                                currentPage += 1
-                                if currentPage > maxPage:
-                                    currentPage = 1
-                                    
-                            messagePreview = ""
-
-                            startIndex = (currentPage - 1) * 20
-                            if currentPage == maxPage:
-                                endIndex = len(messageArray)
-                            else:
-                                endIndex = currentPage * 20
-                            
-                            for x in range(startIndex, endIndex):
-                                messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
-
-                            embed_dict = embedArray.to_dict()
-                            for field in embed_dict["fields"]:
-                                if "Message Preview" in field["name"]:
-                                    field["name"] = f"Message Preview (page {currentPage} of {maxPage})"
-                                    field["value"] = messagePreview
-
-                            embed = discord.Embed.from_dict(embed_dict)
-                            await msg6.edit(embed=embed)
-                            await loopMessages(currentPage)
+                if checkFirstMessage == 1 and checkSecondMessage == 1:
+                    embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                    embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
+                    embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
+                    await ctx.author.send(embed=embed)
                     
-                await loopMessages(currentPage)
-                        
+                    msg6 = await ctx.author.send(embed=discord.Embed(title=f"Calculating...", color=0xFF5733))
 
+                    if fetched.created_at < fetched2.created_at:
+                        dateStart = fetched.created_at - timedelta(seconds=0.1)
+                        dateEnd = fetched2.created_at + timedelta(seconds=0.1)
+                    else:
+                        dateStart = fetched2.created_at - timedelta(seconds=0.1)
+                        dateEnd = fetched.created_at + timedelta(seconds=0.1)
+                    def checkUser(m):
+                        return m.author.id == ctx.author.id
 
-'''
-@client.command()
-async def test2(ctx):
-    view = discord.ui.View()
-    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
-    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
-    view.add_item(item=button1)
-    view.add_item(item=button2)    
-    embed = discord.Embed(title="Testing", description="TESTING!")
-    embed.add_field(name="Field", value="Field's value",inline=False)
-    mymsg = await ctx.author.send(embed=embed,view=view)
-    await mymsg.add_reaction('⬅')
-    await mymsg.add_reaction('➡')
+                    messageArray = []
+                    messagePreview = ""
+                    async for x in fetched.channel.history(limit=3000, before=dateEnd, after=dateStart):
+                        if x.author.id == ctx.author.id:
+                            if len(x.content) > 27:
+                                shortMessage = x.content[:27] + ".."
+                            else:
+                                shortMessage = x.content
+                            messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at).strftime("%d/%m/%y %H:%M:%S")})
 
-    def checkButton(m):
-        return m.message == mymsg and m.user == ctx.author
+                    currentPage = 1
 
-    def checkReaction(m,user):
-        return m.message == mymsg and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
-    
-    async def thisloop():
-        done, pending = await asyncio.wait([
-            client.loop.create_task(client.wait_for('interaction', check=checkButton)),
-            client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
-            client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
-            ], timeout=60, return_when=asyncio.FIRST_COMPLETED)
-        try:
-            myResult = done.pop().result()
-        except:
-            view.clear_items()
-            await mymsg.edit(content='Timed out!', view=view)
-        else:        
-            if type(myResult) is discord.interactions.Interaction:
-                await myResult.response.defer()
-                print("Button pressed")
-            elif type(myResult) is tuple:
-                #print(type(myResult[0].emoji))
-                #print(myResult[0].emoji)
-                if myResult[0].emoji == '⬅':
-                    print("Go left")
-                elif myResult[0].emoji == '➡':
-                    print("Go right")
-            await thisloop()
-        
-    await thisloop()
-'''
+                    if (len(messageArray) < 20):
+                        maxPage = 1
+                        pageLength = len(messageArray)
+                    else:
+                        pageLength = 20
+                        if (len(messageArray) % 20 == 0):
+                            maxPage = len(messageArray) / 20
+                        else:
+                            maxPage = math.ceil((len(messageArray) / 20))
 
+                    for x in range(pageLength):
+                        messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                    view.add_item(item=button1)
+                    view.add_item(item=button2)
+                    embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
+                    embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                    embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
+                    await msg6.edit(embed=embedArray, view=view)
+                    await msg6.add_reaction('⬅')
+                    await msg6.add_reaction('➡')
+
+                    def checkButton2(m):
+                        return m.message == msg6 and m.user == ctx.author
+
+                    def checkReaction(m,user):
+                        return m.message == msg6 and user == ctx.author and (m.emoji == '⬅' or m.emoji == '➡')
+
+                    exitLoop = 0
+                    while (exitLoop == 0):
+                        done, pending = await asyncio.wait([
+                            client.loop.create_task(client.wait_for('interaction', check=checkButton2)),
+                            client.loop.create_task(client.wait_for('reaction_add', check=checkReaction)),
+                            client.loop.create_task(client.wait_for('reaction_remove', check=checkReaction)),
+                            ], timeout=300, return_when=asyncio.FIRST_COMPLETED)
+                        try:
+                            myResult = done.pop().result()
+                        except:
+                            view.clear_items()
+                            await msg6.edit(content='Timed out!', view=view)
+                            exitLoop = 1
+                        else:        
+                            if type(myResult) is discord.interactions.Interaction:
+                                await myResult.response.defer()
+                                view.clear_items()
+                                await msg6.edit(view=view)
+                                
+                                if myResult.data['custom_id'] == 'confirm':
+                                    embed=discord.Embed(title=f'Processing...', color=0xFF5733)
+                                    progress = await ctx.author.send(embed=embed)
+                                    deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart, check=checkUser)
+                                    embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
+                                    await progress.edit(embed=embed)
+                                elif myResult.data['custom_id'] == 'cancel':
+                                    embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
+                                    await ctx.author.send(embed=embed)
+                                exitLoop = 1
+                                    
+                            elif type(myResult) is tuple:
+                                if myResult[0].emoji == '⬅':
+                                    currentPage -= 1
+                                    if currentPage < 1:
+                                        currentPage = maxPage
+                                        
+                                elif myResult[0].emoji == '➡':
+                                    currentPage += 1
+                                    if currentPage > maxPage:
+                                        currentPage = 1
+                                        
+                                messagePreview = ""
+
+                                startIndex = (currentPage - 1) * 20
+                                if currentPage == maxPage:
+                                    endIndex = len(messageArray)
+                                else:
+                                    endIndex = currentPage * 20
+                                
+                                for x in range(startIndex, endIndex):
+                                    messagePreview += "> "+ messageArray[x]['time'] + "| " + messageArray[x]['message'] + "\n"
+
+                                embed_dict = embedArray.to_dict()
+                                for field in embed_dict["fields"]:
+                                    if "Message Preview" in field["name"]:
+                                        field["name"] = f"Message Preview (page {currentPage} of {maxPage})"
+                                        field["value"] = messagePreview
+
+                                embed = discord.Embed.from_dict(embed_dict)
+                                await msg6.edit(embed=embed)
     
 @client.command() #!timed        
 async def timed(ctx):
@@ -1132,7 +1153,28 @@ async def timed(ctx):
         countdown = ctx.message.content.replace('!timed ', '')
         myList = countdown.split(' ')
         countdown = float(myList[0])
-        msg = await ctx.reply(f'Message set to auto-delete in {countdown} minutes')
+
+        myMessage = []
+        remainder = countdown % 60
+        hours = math.floor(countdown/60)
+        minutes = math.floor(remainder)
+        seconds = (remainder - math.floor(remainder)) * 60
+        if hours > 1:
+            myMessage.append(str(hours) + " hours")
+        elif hours == 1:
+            myMessage.append("1 hour")
+        if minutes > 1:
+            myMessage.append(str(minutes) + " minutes")
+        elif minutes == 1:
+            myMessage.append("1 minute")
+        if seconds == 1:
+            myMessage.append("1 second")
+        elif seconds != 0:
+            myMessage.append(str(int(seconds)) + " seconds")
+            
+        joinedMessage = " ".join(myMessage)
+        msg = await ctx.reply(f'Message set to auto-delete in {joinedMessage}.')
+        
     except:
         countdown = 5
         msg = await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use !timed # (# = minutes)')
@@ -1209,25 +1251,27 @@ async def report(ctx: discord.ApplicationContext, message: discord.Message):
     embed.add_field(name="Additional Info", value=additionalInfo, inline=False)
     reportChannel = client.get_channel(1033289784581427230)
     await reportChannel.send(embed=embed)
-  
+
 @client.event
-async def on_reaction_add(reaction,user):
-    if reaction.emoji == '⭐': #nsfw-starboard
-        reaction = discord.utils.get(reaction.message.reactions, emoji='⭐')
-        if (reaction.message.channel.id == 407561378564407297 or reaction.message.channel.id == 407561306162331674) and reaction.count >= 5:
-            doNotAdd = 0
-            async for user in reaction.users():
-                if user.id == 1032276665092538489:
-                    doNotAdd = 1
+async def on_raw_reaction_add(payload):
+    if str(payload.emoji) == '⭐':
+        channel = client.get_channel(payload.channel_id)
+        myMessage = await channel.fetch_message(payload.message_id)
+        reaction = discord.utils.get(myMessage.reactions, emoji='⭐')
+        if (channel.id == 407561378564407297 or channel.id == 407561306162331674) and reaction.count >= 5:
+            starChannel = client.get_channel(1032702775022321735)
+            found = 0
+            async for message in starChannel.history(limit=None):
+                if message.embeds and message.embeds[0].footer and f'Message ID: {myMessage.id}' in message.embeds[0].footer.text:
+                    found = 1
+                    await message.edit(content='** **' + '⭐' * reaction.count)
                     break
-            if doNotAdd == 0:
-                await reaction.message.add_reaction('⭐')
-                starChannel = discord.utils.get(reaction.message.guild.channels, name='nsfw-starboard')
+            if found == 0:
                 embed=discord.Embed(description=f'{reaction.message.content}\n\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
-                embed.set_footer(text=f'brought to you by degens at #{reaction.message.channel}')
-                embed.set_author(name=f'⭐⭐{reaction.message.author.display_name}⭐⭐', icon_url=reaction.message.author.display_avatar)
+                embed.set_footer(text=f'brought to you by degens at #{reaction.message.channel} | Message ID: {myMessage.id}')
+                embed.set_author(name=f'{reaction.message.author.display_name}', icon_url=reaction.message.author.display_avatar)
                 if reaction.message.attachments:
                     embed.set_image(url=reaction.message.attachments[0].url)
-                await starChannel.send(embed=embed)
+                await starChannel.send(content='** **' + '⭐' * reaction.count, embed=embed)
 
 client.run(TOKEN)
