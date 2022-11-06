@@ -82,7 +82,6 @@ async def populateTable(ctx):
         mycursor.execute(sql, val)
         mydb.commit()
 '''
-
 @client.command()
 async def populate(ctx): #populate the user profile channel
     if ctx.author.id == 262909760255426570:
@@ -531,7 +530,7 @@ async def battle(ctx):
         else:
             if getUser.id == 1032276665092538489:
                 await ctx.reply('Use !game to battle me!')
-            elif getUser != ctx.author:
+            elif getUser == ctx.author:
                 await ctx.reply('You cannot battle yourself!')
             else:
                 channel = ctx.channel
@@ -706,7 +705,7 @@ async def blahaj(ctx):
     url2 = 'https://api.ingka.ikea.com/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
     headers['path'] = '/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url2, headers=headers)
     mydict = json.loads(response.content.decode('utf-8'))
 
 
@@ -716,9 +715,11 @@ async def blahaj(ctx):
     minihajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
     
     blahajFlat = ["https://i.redd.it/vg3vjkroytq71.jpg",
-              "https://i.redd.it/2f72lz7qufm81.jpg",
-              "https://i.redd.it/fxckzsfrivq71.png",
-              "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg"]
+                  "https://i.redd.it/2f72lz7qufm81.jpg",
+                  "https://i.redd.it/fxckzsfrivq71.png",
+                  "https://i.redd.it/zqb38mi2lcp91.jpg",
+                  "https://i.redd.it/0963hzs2lcp91.jpg",
+                  "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg",]
     
     if (blahajStock['Tampines'] == blahajStock['Alexandra'] == blahajStock['Jurong'] == blahajStock['Online'] == minihajStock['Tampines'] == minihajStock['Alexandra'] == minihajStock['Jurong'] == minihajStock['Online'] == "OUT OF STOCK"):
         embedColour = 0xFF5733
@@ -727,7 +728,7 @@ async def blahaj(ctx):
         embedColour = 0x00FF00
         embedImage = "https://www.ikea.com/sg/en/images/products/blahaj-soft-toy-shark__0710175_pe727378_s5.jpg"
         
-    embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[MINIHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)", color=embedColour)
+    embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[MINIHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-baby-shark-00540664/)", color=embedColour)
     embed.set_image(url=embedImage)
     embed.add_field(name="BLÅHAJ", value="> Online: " + blahajStock["Online"] + "\n> Alexandra: " + blahajStock["Alexandra"] + "\n> Jurong: " + blahajStock["Jurong"] + "\n> Tampines: " + blahajStock["Tampines"], inline=True)
     embed.add_field(name="MINIHAJ", value="> Online: " + minihajStock["Online"] + "\n> Alexandra: " + minihajStock["Alexandra"] + "\n> Jurong: " + minihajStock["Jurong"] + "\n> Tampines: " + minihajStock["Tampines"], inline=True)
