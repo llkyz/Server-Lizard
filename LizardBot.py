@@ -714,19 +714,27 @@ async def blahaj(ctx):
         minihajStock[storeList[x]] = mydict['availabilities'][x]['buyingOption']['cashCarry']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
     minihajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
     
-    blahajFlat = ["https://i.redd.it/vg3vjkroytq71.jpg",
+    blahajNo = ["https://i.redd.it/vg3vjkroytq71.jpg",
                   "https://i.redd.it/2f72lz7qufm81.jpg",
                   "https://i.redd.it/fxckzsfrivq71.png",
                   "https://i.redd.it/zqb38mi2lcp91.jpg",
                   "https://i.redd.it/0963hzs2lcp91.jpg",
                   "https://static.mothership.sg/1/2022/01/272744499_10165925896085402_5819381897009474509_n.jpeg",]
+
+    blahajYes = ["https://www.ikea.com/sg/en/images/products/blahaj-soft-toy-shark__0710175_pe727378_s5.jpg",
+                 "https://media.tenor.com/JpairZOomiEAAAAd/bl%C3%A5haj-ikea-shark.gif",
+                 "https://media.tenor.com/GAR9pKKpnIEAAAAC/shonk-shonks.gif",
+                 "https://media.tenor.com/e7p3zXTC2owAAAAd/blahaj-ikea.gif",
+                 "https://media.tenor.com/eNDOA4cQmNYAAAAd/blahaj-cat.gif",
+                 "https://media.tenor.com/3a_BHoflOosAAAAd/blahaj-shark.gif",
+                 "https://truth.bahamut.com.tw/s01/202204/f514f0295b7ac37df5d7911ffb143fb6.JPG"]
     
     if (blahajStock['Tampines'] == blahajStock['Alexandra'] == blahajStock['Jurong'] == blahajStock['Online'] == minihajStock['Tampines'] == minihajStock['Alexandra'] == minihajStock['Jurong'] == minihajStock['Online'] == "OUT OF STOCK"):
         embedColour = 0xFF5733
-        embedImage = blahajFlat[random.randint(0,3)]
+        embedImage = blahajNo[random.randint(0,len(blahajNo)-1)]
     else:
         embedColour = 0x00FF00
-        embedImage = "https://www.ikea.com/sg/en/images/products/blahaj-soft-toy-shark__0710175_pe727378_s5.jpg"
+        embedImage = blahajYes[random.randint(0,len(blahajYes)-1)]
         
     embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[MINIHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-baby-shark-00540664/)", color=embedColour)
     embed.set_image(url=embedImage)
