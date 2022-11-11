@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import random
 from discord import Button, ButtonStyle
+import asyncio
 
 def setup(client):
     @client.command() #!game

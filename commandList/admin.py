@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 
+import sys
+sys.path.append('../')
+from LizardBot import checkRoles
+
 def setup(client):
     @client.command() #!admin
     async def admin(ctx):

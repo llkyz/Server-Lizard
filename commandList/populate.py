@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 def setup(client):
     @client.command() #populate the user profile channel

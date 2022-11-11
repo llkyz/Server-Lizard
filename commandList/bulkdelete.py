@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 from discord import Button, ButtonStyle
 from datetime import datetime, timedelta
+import math
 
 import sys
 sys.path.append('../')
