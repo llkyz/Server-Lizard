@@ -7,8 +7,7 @@ def setup(client):
     @client.command() #!battle
     async def battle(ctx):
         try:
-            getOpponentId = ctx.message.content.replace('!battle <@','')
-            getOpponentId = int(getOpponentId.replace('>',''))
+            getOpponentId = int(ctx.message.content.replace('!battle <@','').replace('>',''))
             guild = await client.fetch_guild(ctx.guild.id)
             getUser = await guild.fetch_member(getOpponentId)
             if ctx.guild.get_member(getOpponentId) is None:

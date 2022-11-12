@@ -19,6 +19,6 @@ def setup(client):
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
-                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You got {dailyCoins} coins!')
+                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You got {"{:,}".format(dailyCoins)} coins!')
             else:
                 await ctx.send(f'**{ctx.author.display_name} 🪙 |** You already claimed your daily coins!')
