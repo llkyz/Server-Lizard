@@ -1,10 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
-
-import sys
-sys.path.append('../')
-from LizardBot import checkRoles
+from functions import *
 
 def setup(client):
     @client.event #update user profiles to a channel whenever there's a change

@@ -3,10 +3,7 @@ from discord.ext import commands
 from discord import Button, ButtonStyle
 import asyncio
 from datetime import datetime
-
-import sys
-sys.path.append('../')
-from LizardBot import checkRoles, timeConvert
+from functions import *
 
 def setup(client):
     @client.command() #!infraction

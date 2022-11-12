@@ -1,68 +1,32 @@
-# bot.py
 import os
 import discord
 from discord.ext import commands
-from discord import Button, ButtonStyle
 from dotenv import load_dotenv
-import random
-import asyncio
-import requests
-import json
-from datetime import datetime, timedelta
-import time
-import math
+import glob
 
-#### Bot Settings
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
+# from discord import Button, ButtonStyle
+# import random
+# import asyncio
+# import requests
+# import json
+# from datetime import datetime, timedelta
+# import time
+# import math
 
-intents = discord.Intents.all()
-client = commands.Bot(command_prefix='!', intents=intents)
+def main():
+    load_dotenv()
+    TOKEN = os.getenv('DISCORD_TOKEN')
+    GUILD = os.getenv('DISCORD_GUILD')
 
-#### Global Functions
-def timeConvert(originalTime): #converts UTC to GMT+8
-    newTime = originalTime + timedelta(hours=8)
-    return newTime
+    intents = discord.Intents.all()
+    client = commands.Bot(command_prefix='!', intents=intents)
 
-#usage example: checkRoles(ctx.author, [1030144135560167464, 1035245311553196112])
-#returns True if any of the roles in the array matches, else return False
-def checkRoles(member, arr):
-    for x in member.roles:
-        for y in arr:
-            if x.id == y:
-                return True
-    return False
+    myfolders = ["commandList/*.py", "commandList/messageCommandList/*.py", "commandList/userCommandList/*.py", "eventList/*.py", "sql/*.py"]
+    for folderPath in myfolders:
+        for x in glob.glob(folderPath):
+            client.load_extension(x.replace("\\", ".").replace("/", ".").replace(".py", ""))
+    
+    client.run(TOKEN)
 
-#### Administrative
-client.load_extension("commandList.admin")
-client.load_extension("commandList.commands")
-client.load_extension("commandList.populate")
-client.load_extension("commandList.infraction")
-client.load_extension("commandList.bulkdelete")
-client.load_extension("commandList.selfdelete")
-client.load_extension("commandList.timed")
-
-#### Fluff
-client.load_extension("commandList.test")
-client.load_extension("commandList.greet")
-client.load_extension("commandList.change")
-client.load_extension("commandList.blahaj")
-
-#### Games
-client.load_extension("commandList.game")
-client.load_extension("commandList.battle")
-client.load_extension("commandList.roll")
-
-#### User/Message Commands
-client.load_extension("commandList.userCommandList.userProfile")
-client.load_extension("commandList.messageCommandList.report")
-
-#### Event Listeners
-client.load_extension("eventList.on_ready")
-client.load_extension("eventList.on_member_join")
-client.load_extension("eventList.on_member_update")
-client.load_extension("eventList.on_raw_reaction_add")
-client.load_extension("eventList.on_message")
-
-client.run(TOKEN)
+if __name__ == "__main__":
+    main()

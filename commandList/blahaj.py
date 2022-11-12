@@ -4,10 +4,7 @@ import requests
 import json
 import random
 from datetime import datetime, timedelta
-
-import sys
-sys.path.append('../')
-from LizardBot import timeConvert
+from functions import *
 
 def setup(client):
     @client.command() #!blahaj

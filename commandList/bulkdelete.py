@@ -4,10 +4,7 @@ import asyncio
 from discord import Button, ButtonStyle
 from datetime import datetime, timedelta
 import math
-
-import sys
-sys.path.append('../')
-from LizardBot import checkRoles, timeConvert
+from functions import *
 
 def setup(client):
     @client.command() #!bulkdelete   

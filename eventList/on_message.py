@@ -2,10 +2,7 @@ import discord
 from discord.ext import commands
 import random
 from datetime import datetime
-
-import sys
-sys.path.append('../')
-from LizardBot import timeConvert
+from functions import *
 
 def setup(client):
     @client.event

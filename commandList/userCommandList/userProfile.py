@@ -1,9 +1,6 @@
 import discord
 from discord.ext import commands
-
-import sys
-sys.path.append('../')
-from LizardBot import checkRoles
+from functions import *
 
 def setup(client):
     @client.user_command(name="User Profile") #Looks up user's profile in the user profile channel
