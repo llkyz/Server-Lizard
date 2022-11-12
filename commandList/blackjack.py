@@ -72,7 +72,7 @@ def setup(client):
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'`{printCards(dealerHand)}, ??`', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'`{printCards(playerHand)}`', inline=True)
-            msg1 = await ctx.reply(embed=embed, view=view)
+            msg1 = await ctx.send(embed=embed, view=view)
 
             def checkButton(m):
                 return m.message == msg1 and m.user == ctx.author

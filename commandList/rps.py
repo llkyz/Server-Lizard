@@ -22,7 +22,7 @@ def setup(client):
             view.add_item(item=button3)
             embed=discord.Embed(description=f'**[ Bet: 🪙 {bet} ]** Pick your choice!')
             embed.set_author(name=f'{ctx.author.display_name} is playing Rock, Paper, Scissors', icon_url=ctx.author.display_avatar)
-            msg = await ctx.reply(embed=embed, view=view)
+            msg = await ctx.send(embed=embed, view=view)
 
             def check(m):
                 return m.message == msg and m.user == ctx.author
