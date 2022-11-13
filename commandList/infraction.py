@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from discord import Button, ButtonStyle
 import asyncio
-from datetime import datetime
 from functions import *
 
 def setup(client):
@@ -15,7 +14,7 @@ def setup(client):
                 try:
                     user = await client.fetch_user(mylist[1])
                 except:
-                    await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction add [userID]` (e.g userID = 1032276665092538489)'))
+                    await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction add [userID]` (e.g userID = 1032276665092538489)'), delete_after=60)
                 else:
                     view = discord.ui.View()
                     button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
@@ -72,10 +71,10 @@ def setup(client):
                                     await msg3.edit(view=view)
                                     if interacted.data['custom_id'] == 'confirm':
                                         found = 0
-                                        async for message in profileChannel.history(limit=None): # change channel ID later
+                                        async for message in profileChannel.history(limit=None):
                                             if message.embeds and message.embeds[0].description and f'**User ID**: {user.id}' in message.embeds[0].description:
                                                 found = 1
-                                                embed = discord.Embed(title=message.embeds[0].title, description=message.embeds[0].description + '\n* ' + newInfraction + ' [' + timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p") + ']')
+                                                embed = discord.Embed(title=message.embeds[0].title, description=message.embeds[0].description + '\n* ' + newInfraction + ' [' + timeNow() + ']')
                                                 embed.set_thumbnail(url=user.display_avatar.url)
                                                 await message.edit(embed=embed)
                                                 embed = discord.Embed(title=f'Infraction added.', description=f'Link to updated profile: [\[Link\]]({message.jump_url})')
@@ -210,4 +209,4 @@ def setup(client):
                                 await ctx.send(embed=embed)
                             
             else:
-                await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please use `!infraction add [userID]` or `!infraction remove [userID]` (e.g userID = 1032276665092538489)'))
+                await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please use `!infraction add [userID]` or `!infraction remove [userID]` (e.g userID = 1032276665092538489)'), delete_after=60)

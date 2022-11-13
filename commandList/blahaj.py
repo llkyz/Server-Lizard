@@ -3,7 +3,6 @@ from discord.ext import commands
 import requests
 import json
 import random
-from datetime import datetime, timedelta
 from functions import *
 
 def setup(client):
@@ -79,5 +78,5 @@ def setup(client):
         embed.set_image(url=embedImage)
         embed.add_field(name="BLÅHAJ", value="> Online: " + blahajStock["Online"] + "\n> Alexandra: " + blahajStock["Alexandra"] + "\n> Jurong: " + blahajStock["Jurong"] + "\n> Tampines: " + blahajStock["Tampines"], inline=True)
         embed.add_field(name="MINIHAJ", value="> Online: " + minihajStock["Online"] + "\n> Alexandra: " + minihajStock["Alexandra"] + "\n> Jurong: " + minihajStock["Jurong"] + "\n> Tampines: " + minihajStock["Tampines"], inline=True)
-        embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
+        embed.set_footer(text=timeNow())
         await ctx.send(embed=embed)

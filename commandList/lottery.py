@@ -125,7 +125,7 @@ def setup(client):
                         prizeType = "Consolation"
                         multiplier = 60
 
-                    resultText = f'You won the {prizeType} prize of {bet*multiplier} coins!'
+                    resultText = f'🪙🪙 **You won the {prizeType} prize of {bet*multiplier} coins!** 🪙🪙'
                 
                 view.remove_item(item=button1)
                 view.remove_item(item=button2)

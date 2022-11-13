@@ -68,7 +68,7 @@ def setup(client):
                                     checkFirstMessage = 1
 
                     if checkFirstMessage == 1:
-                        embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Time**: " + timeConvert(fetched.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed=discord.Embed(title=f"Bulk Delete (own messages) [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Time**: " + timeConvert(fetched.created_at), color=0xFF5733)
                         embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched.jump_url})", inline=False)
                         embed.add_field(name="Message Content", value=f"> {fetched.content}", inline=False)
                         await ctx.author.send(embed=embed)
@@ -99,7 +99,7 @@ def setup(client):
                                         checkSecondMessage = 1
 
                     if checkFirstMessage == 1 and checkSecondMessage == 1:
-                        embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Time**: " + timeConvert(fetched2.created_at).strftime("%d %B %Y, %I:%M:%S%p"), color=0xFF5733)
+                        embed=discord.Embed(title=f"Bulk Delete (own messages) [End]", description="**Server**: " + str(fetched2.guild) + "\n**Channel**: #" + str(fetched2.channel) + "\n**Time**: " + timeConvert(fetched2.created_at), color=0xFF5733)
                         embed.add_field(name="Message Link", value=f"> [\[Link\]]({fetched2.jump_url})", inline=False)
                         embed.add_field(name="Message Content", value=f"> {fetched2.content}", inline=False)
                         await ctx.author.send(embed=embed)
@@ -123,7 +123,7 @@ def setup(client):
                                     shortMessage = x.content[:27] + ".."
                                 else:
                                     shortMessage = x.content
-                                messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at).strftime("%d/%m/%y %H:%M:%S")})
+                                messageArray.append({'message': shortMessage, 'time': timeConvert(x.created_at)})
 
                         currentPage = 1
 
@@ -143,7 +143,7 @@ def setup(client):
                         view.add_item(item=button1)
                         view.add_item(item=button2)
                         embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
-                        embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd).strftime("%d %B %Y, %I:%M:%S%p"), inline=False)
+                        embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart) + "\n> **End**: " + timeConvert(dateEnd), inline=False)
                         embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
                         await msg6.edit(embed=embedArray, view=view)
                         await msg6.add_reaction('⬅')

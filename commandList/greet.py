@@ -12,7 +12,7 @@ def setup(client):
             return m.content == 'hello' and m.channel == channel
 
         try:
-            msg = await client.wait_for('message', timeout=20, check=check)
+            msg = await client.wait_for('message', timeout=60, check=check)
         except asyncio.TimeoutError:
             await mymsg.edit(content='Timed out!')
         else:

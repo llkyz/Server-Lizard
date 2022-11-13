@@ -11,6 +11,6 @@ def setup(client):
                 result = random.randint(1,number)
                 await ctx.reply(f'🎲 Rolled {result}! 🎲')
             else:
-                await ctx.reply(f'Please enter a valid number!')
+                await ctx.reply(f'Please use the following format: !roll [number]', delete_after=20)
         except:
-            await ctx.reply('Please enter a positive number after !roll.')
+            await ctx.reply('Please use the following format: !roll [number]', delete_after=20)

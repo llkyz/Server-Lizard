@@ -11,12 +11,12 @@ def setup(client):
             guild = await client.fetch_guild(ctx.guild.id)
             getUser = await guild.fetch_member(getOpponentId)
             if ctx.guild.get_member(getOpponentId) is None:
-                await ctx.reply('Invalid syntax! Please use `!battle [@user]`')
+                await ctx.reply('Invalid syntax! Please use `!battle [@user]`', delete_after=20)
             else:
                 if getUser.id == 1032276665092538489:
-                    await ctx.reply('Use !game to battle me!')
+                    await ctx.reply('Use !game to battle me!', delete_after=20)
                 elif getUser == ctx.author:
-                    await ctx.reply('You cannot battle yourself!')
+                    await ctx.reply('You cannot battle yourself!', delete_after=20)
                 else:
                     channel = ctx.channel
                     view = discord.ui.View()
@@ -151,4 +151,4 @@ def setup(client):
                             await mymsg.edit(view=view)
                             await mymsg.reply(content='Battle declined.')
         except:
-            await ctx.reply('Invalid syntax! Please use `!battle [@user]`')
+            await ctx.reply('Invalid syntax! Please use `!battle [@user]`', delete_after=20)

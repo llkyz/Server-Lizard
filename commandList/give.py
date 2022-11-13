@@ -11,7 +11,7 @@ def setup(client):
         if userData != None:
             msgData = ctx.message.content.split(" ")
             if len(msgData) != 3:
-                await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`')
+                await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
             else:
                 try:
                     receiverId = int(msgData[1].replace('<@','').replace('>',''))
@@ -19,12 +19,12 @@ def setup(client):
                     getUser = await guild.fetch_member(receiverId)
                     giveAmount = int(msgData[2])
                 except:
-                    await ctx.send('Invalid syntax! Please use `!give [@user} [amount]`')
+                    await ctx.send('Invalid syntax! Please use `!give [@user} [amount]`', delete_after=20)
                 else:
                     if getUser is None:
-                        await ctx.send('Invalid user! Please use `!give [@user] [amount]`')
+                        await ctx.send('Invalid user! Please use `!give [@user] [amount]`', delete_after=20)
                     elif giveAmount > userData["money"]:
-                        await ctx.send('You don\'t have that many coins!')
+                        await ctx.send('You don\'t have that many coins!', delete_after=20)
                     else:
                         sqlCursor.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
                         receiverData = sqlCursor.fetchone()

@@ -21,4 +21,4 @@ def setup(client):
 
                 await ctx.send(f'**{ctx.author.display_name} 🪙 |** You got {"{:,}".format(dailyCoins)} coins!')
             else:
-                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You already claimed your daily coins!')
+                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You already claimed your daily coins!', delete_after=20)
