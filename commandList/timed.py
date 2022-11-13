@@ -7,7 +7,7 @@ def setup(client):
     @client.command() #!timed        
     async def timed(ctx):
         try:
-            msgData = ctx.message.content.split(" ")
+            msgData = ctx.message.content.replace("\n", " ").split(" ")
             countdown = float(msgData[1])
             
             if countdown <= 0:
