@@ -12,7 +12,7 @@ def setup(client):
             
             if countdown <= 0:
                 countdown = 5
-                msg = await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use !timed # (# = minutes)')
+                msg = await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`')
             else:
                 myMessage = []
                 remainder = countdown % 60
@@ -38,7 +38,7 @@ def setup(client):
         except Exception as e:
             print(e)
             countdown = 5
-            msg = await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use !timed # (# = minutes)')
+            msg = await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`')
         await asyncio.sleep(countdown * 60)
         await msg.delete()
         await ctx.message.delete()

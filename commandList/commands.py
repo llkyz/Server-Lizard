@@ -9,7 +9,7 @@ def setup(client):
         embed.add_field(name='🙃 **Fluff**', value='`test` `greet` `change` `blahaj`', inline=False)
         embed.add_field(name='🪙 **Economy**', value='`coins` `daily` `give`', inline=False)
         embed.add_field(name='🎮 **Games**', value='`roll` `battle`', inline=False)
-        embed.add_field(name='🎲 **Gamble**', value='`rps` `blackjack`', inline=False)
+        embed.add_field(name='🎲 **Gamble**', value='`rps` `blackjack` `lottery`', inline=False)
         embed.add_field(name='📰 **Message Management**', value='`timed` `selfdelete`', inline=False)
         embed.add_field(name='👓 **Mod/Admin Use**', value='`admin`', inline=False)
         embed.add_field(name='**Additional Features**', value='Starboard / Post Reporting / Mod Pings', inline=False)

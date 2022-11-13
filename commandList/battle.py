@@ -4,14 +4,14 @@ from discord import Button, ButtonStyle
 import asyncio
 
 def setup(client):
-    @client.command() #!battle
+    @client.command(aliases=['fight']) #!battle
     async def battle(ctx):
         try:
             getOpponentId = int(ctx.message.content.replace('!battle <@','').replace('>',''))
             guild = await client.fetch_guild(ctx.guild.id)
             getUser = await guild.fetch_member(getOpponentId)
             if ctx.guild.get_member(getOpponentId) is None:
-                await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
+                await ctx.reply('Invalid syntax! Please use `!battle [@user]`')
             else:
                 if getUser.id == 1032276665092538489:
                     await ctx.reply('Use !game to battle me!')
@@ -151,4 +151,4 @@ def setup(client):
                             await mymsg.edit(view=view)
                             await mymsg.reply(content='Battle declined.')
         except:
-            await ctx.reply('Invalid syntax! Please use `!battle {@user}`')
+            await ctx.reply('Invalid syntax! Please use `!battle [@user]`')
