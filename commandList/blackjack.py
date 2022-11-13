@@ -68,7 +68,7 @@ def setup(client):
             button2 = discord.ui.Button(label="Stand", style=ButtonStyle.red, custom_id='stand')
             view.add_item(item=button1)
             view.add_item(item=button2)
-            embed = discord.Embed(description=f'**[ Bet: 🪙 {bet} ]**')
+            embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]**')
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'`{printCards(dealerHand)}, ??`', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'`{printCards(playerHand)}`', inline=True)
@@ -132,8 +132,8 @@ def setup(client):
                 color = 0xaacbeb
 
             view = discord.ui.View()
-            embed = discord.Embed(description=f'**[ Bet: 🪙 {bet} ]** {resultText}',color=color)
-            embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack [bet: {bet}]', icon_url=ctx.author.display_avatar)
+            embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** {resultText}',color=color)
+            embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[1]}]`', value=f'`{printCards(dealerHand)}`', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'`{printCards(playerHand)}`', inline=True)
             await msg1.edit(embed=embed, view=view)
