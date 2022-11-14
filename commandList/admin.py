@@ -2,6 +2,18 @@ import discord
 from discord.ext import commands
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!admin",
+
+    "description":"Displays a list of admin-exclusive commands. Requires administrator permission to use.",
+
+    "category":"admin"
+    
+    }
+
 def setup(client):
     @client.command() #!admin
     async def admin(ctx):

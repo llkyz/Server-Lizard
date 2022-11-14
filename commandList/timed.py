@@ -3,6 +3,18 @@ from discord.ext import commands
 import asyncio
 import math
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!timed [minutes]",
+
+    "description":"Include this in your message to auto-delete it after a set amount of time. Works both with text messages and images.",
+
+    "category":"messages"
+    
+    }
+
 def setup(client):
     @client.command() #!timed        
     async def timed(ctx):

@@ -3,6 +3,17 @@ from discord.ext import commands
 import random
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!daily",
+
+    "description":"Get a random amount of free coins every day! Resets at UTC midnight.",
+
+    "category":"economy"
+    
+    }
 
 def setup(client):
     @client.command() # Get a random number of coins every day
@@ -19,6 +30,6 @@ def setup(client):
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
-                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You got {"{:,}".format(dailyCoins)} coins!')
+                await ctx.send(f'**{ctx.author.display_name} 🪙 |** You got **{"{:,}".format(dailyCoins)}** coins!')
             else:
                 await ctx.send(f'**{ctx.author.display_name} 🪙 |** You already claimed your daily coins!', delete_after=20)

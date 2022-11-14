@@ -3,6 +3,18 @@ from discord.ext import commands
 from discord import Button, ButtonStyle
 import asyncio
 
+docs = {
+
+    "aliases":['fight'],
+
+    "usage":"!battle [@user]",
+
+    "description":"Play against another user in a battle of Rock Paper Scissors!",
+
+    "category":"games"
+    
+    }
+
 def setup(client):
     @client.command(aliases=['fight']) #!battle
     async def battle(ctx):

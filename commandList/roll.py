@@ -2,8 +2,20 @@ import discord
 from discord.ext import commands
 import random
 
+docs = {
+
+    "aliases":['dice'],
+
+    "usage":"!roll [number]",
+
+    "description":"Rolls a random number between 0 and your chosen number.",
+
+    "category":"games"
+    
+    }
+
 def setup(client):
-    @client.command() #!roll
+    @client.command(aliases=['dice']) #!roll
     async def roll(ctx):
         try:
             number = int(ctx.message.content.replace('!roll ',''))

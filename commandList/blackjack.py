@@ -6,9 +6,21 @@ import random
 import asyncio
 from functions import *
 
+docs = {
+
+    "aliases":['bj'],
+
+    "usage":"!blackjack [bet]",
+
+    "description":"Play a game of Blackjack! Get the highest hand value without exceeding 21. Double your bet if you win!",
+
+    "category":"gamble"
+    
+    }
+
 def setup(client):
-    @client.command(aliases=['bj','blackjack']) #!blackjack
-    async def blacjack(ctx):
+    @client.command(aliases=['bj']) #!blackjack
+    async def blackjack(ctx):
         userData = await checkAccount(ctx)
         bet = await checkBet(userData,ctx)
 

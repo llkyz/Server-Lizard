@@ -2,6 +2,18 @@ import discord
 from discord.ext import commands
 import asyncio
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!populate",
+
+    "description":"Populate the selected channel with user profiles. This may take anywhere from a few minutes to a few hours depending on the size of your server. The message \"All done!\" will be sent upon completion.",
+
+    "category":"admin-administrative"
+    
+    }
+
 def setup(client):
     @client.command() #populate the user profile channel
     async def populate(ctx): 

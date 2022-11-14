@@ -7,6 +7,18 @@ import math
 from dotenv import load_dotenv
 import os
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!bus [5-digit bus stop code]",
+
+    "description":"Checks the bus arrival timings for a specific bus stop.",
+
+    "category":"fluff"
+    
+    }
+
 def setup(client):
     @client.command() #!bus
     async def bus(ctx):
@@ -58,6 +70,6 @@ def setup(client):
                         embed.add_field(name=x["service"], value="\n".join(x["timings"]), inline=True)
                     await ctx.reply(embed=embed)
             else:
-                await ctx.reply("Please use the following format: !bus [5 digit bus stop code]", delete_after=20)
+                await ctx.reply("Please use the following format: !bus [5-digit bus stop code]", delete_after=20)
         else:
-            await ctx.reply("Please use the following format: !bus [5 digit bus stop code]", delete_after=20)
+            await ctx.reply("Please use the following format: !bus [5-digit bus stop code]", delete_after=20)

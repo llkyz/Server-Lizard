@@ -3,6 +3,17 @@ from discord.ext import commands
 import random
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!give [@user] [amount]",
+
+    "description":"Gives another user some of your coins. Spread the love!",
+
+    "category":"economy"
+    
+    }
 
 def setup(client):
     @client.command() # Give another user some coins

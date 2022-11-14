@@ -4,6 +4,18 @@ from discord import Button, ButtonStyle
 import asyncio
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!infraction add [userID], !infration remove [userID]",
+
+    "description":"Place or remove an infraction on a user's profile entry. This requires user profiles to be enabled and generated.",
+
+    "category":"admin-disciplinary"
+    
+    }
+
 def setup(client):
     @client.command() #!infraction
     async def infraction(ctx):

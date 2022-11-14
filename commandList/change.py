@@ -2,6 +2,18 @@ import discord
 from discord.ext import commands
 import random
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!change",
+
+    "description":"Changes my nickname! Beware, may have certain unforseen side effects. Use at your own risk... 🦎",
+
+    "category":"fluff"
+    
+    }
+
 def setup(client):
     @client.command() #!change
     async def change(ctx):

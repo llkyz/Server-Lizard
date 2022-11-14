@@ -5,6 +5,18 @@ from discord import Button, ButtonStyle
 import asyncio
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!rps [bet]",
+
+    "description":"Bet on a game of Rock Paper Scissors! Rock beats scissors, scissors beat paper, and paper beats rock.",
+
+    "category":"gamble"
+    
+    }
+
 def setup(client):
     @client.command() #!game
     async def rps(ctx):

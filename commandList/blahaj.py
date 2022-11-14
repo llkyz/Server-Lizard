@@ -5,6 +5,18 @@ import json
 import random
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!blahaj",
+
+    "description":"Checks IKEA's stock to see if BLÅHAJ and MINIHAJ are available for sale. 🦈",
+
+    "category":"fluff"
+    
+    }
+
 def setup(client):
     @client.command() #!blahaj
     async def blahaj(ctx):

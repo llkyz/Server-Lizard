@@ -6,6 +6,18 @@ from datetime import datetime, timedelta
 import math
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!bulkdelete",
+
+    "description":"Allows you to select and delete a range of messages from any channel.\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
+
+    "category":"admin-messages"
+    
+    }
+
 def setup(client):
     @client.command() #!bulkdelete   
     async def bulkdelete(ctx):

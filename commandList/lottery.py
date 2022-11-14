@@ -6,6 +6,18 @@ import random
 import asyncio
 from functions import *
 
+docs = {
+
+    "aliases":['4D', '4d'],
+
+    "usage":"!lottery [bet] [4-digit number]",
+
+    "description":"Choose a 4 digit number. If it matches any of the prize numbers, you win a huge payout!\nThe 'SMALL' prize category contains a First, Second, and Third prize. The 'BIG' category contains all 3 prizes, plus additional Starter and Consolation prizes.",
+
+    "category":"gamble"
+    
+    }
+
 def setup(client):
     @client.command(aliases=['4D','4d']) #!blackjack
     async def lottery(ctx):
@@ -15,13 +27,13 @@ def setup(client):
         if userData != None:
                 msgData = ctx.message.content.split(" ")
                 if len(msgData) != 3:
-                    await ctx.reply("Please use the following format: !lottery [bet] [4 digit number]")
+                    await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]")
                 else:
                     try:
                         bet = int(msgData[1])
                         choice = int(msgData[2])
                     except:
-                        await ctx.reply("Please use the following format: !lottery [bet] [4 digit number]")
+                        await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]")
                     else:
                         if bet > userData["money"]:
                             await ctx.reply("You don't have enough coins to bet that much.")

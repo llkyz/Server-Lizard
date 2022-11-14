@@ -2,6 +2,18 @@ import discord
 from discord.ext import commands
 import asyncio
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!greet",
+
+    "description":"Say hello to me!",
+
+    "category":"fluff"
+    
+    }
+
 def setup(client):
     @client.command() #!greet
     async def greet(ctx):

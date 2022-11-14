@@ -6,6 +6,18 @@ from datetime import datetime, timedelta
 import math
 from functions import *
 
+docs = {
+
+    "aliases":[],
+
+    "usage":"!selfdelete",
+
+    "description":"Allows you to select and delete a range of your own messages from any channel. This will not delete other users' messages, only your own.\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
+
+    "category":"messages"
+    
+    }
+
 def setup(client):
     @client.command() #!selfdelete        
     async def selfdelete(ctx):
