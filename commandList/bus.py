@@ -58,10 +58,13 @@ def setup(client):
                         tempHolder = []
                         for y in range(3):
                             if nextBusArr[y] in x:
-                                busArrival = processTime(x[nextBusArr[y]]["EstimatedArrival"])
-                                tempHolder.append(calcArrival(busArrival, currentTime))
+                                try:
+                                    busArrival = processTime(x[nextBusArr[y]]["EstimatedArrival"])
+                                    tempHolder.append(calcArrival(busArrival, currentTime))
+                                except:
+                                    tempHolder.append("`N/A`")
                             else:
-                                tempHolder.append("N/A")
+                                tempHolder.append("`N/A`")
 
                         embedData.append({'service': f'__**{x["ServiceNo"]}**__', 'timings': tempHolder})   
 
