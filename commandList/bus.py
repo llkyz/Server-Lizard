@@ -15,7 +15,7 @@ docs = {
 
     "description":"Checks the bus arrival timings for a specific bus stop.",
 
-    "category":"fluff"
+    "category":"utility"
     
     }
 
@@ -50,7 +50,7 @@ def setup(client):
                         return (f'`{result}m`')
 
                 if len(mydict["Services"]) == 0:
-                    await ctx.reply("Invalid bus stop code!", delete_after=20)
+                    await ctx.reply("Invalid bus stop code / No more buses available", delete_after=20)
                 else:
                     embedData = []
 
