@@ -11,7 +11,7 @@ def setup(client):
             coins INT(255), \
             daily VARCHAR(10)) \
             ")
-                await ctx.reply("userDB created")
+                await ctx.reply("UserDB created")
             except Exception as e:
                 await ctx.reply(e)
 
@@ -21,3 +21,10 @@ def setup(client):
             sqlCursor.execute('DELETE FROM userDB')
             sqlDb.commit()
             await ctx.reply("UserDB emptied")
+
+    @client.command(aliases=['dropusertable'])
+    async def dropUserTable(ctx):
+        if checkOwner(ctx):
+            sqlCursor.execute('DROP TABLE userDB')
+            sqlDb.commit()
+            await ctx.reply("UserDB yeeted and deleted")

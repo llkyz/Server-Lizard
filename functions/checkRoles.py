@@ -7,3 +7,4 @@ def checkRoles(member, arr):
     for x in member.roles:
         if x.id in arr:
             return True
+    return False

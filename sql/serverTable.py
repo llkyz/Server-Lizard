@@ -10,18 +10,14 @@ def setup(client):
                 sqlCursor.execute("CREATE TABLE serverDB (serverId BIGINT, \
             serverName VARCHAR(100), \
             adminRoles JSON, \
-            adminPingEnabled INT(1), \
             adminPingChannel BIGINT, \
-            userProfilesEnabled INT(1), \
             userProfilesChannel BIGINT, \
-            reportChannelEnabled INT(1), \
             reportChannel BIGINT, \
-            starboardEnabled INT(1), \
             starboardChannel BIGINT, \
             starboardSources JSON, \
             embedRoles JSON) \
             ")
-                await ctx.reply("serverDB created")
+                await ctx.reply("ServerDB created")
             except Exception as e:
                 await ctx.reply(e)
     
@@ -31,3 +27,10 @@ def setup(client):
             sqlCursor.execute('DELETE FROM serverDB')
             sqlDb.commit()
             await ctx.reply("ServerDB emptied")
+
+    @client.command(aliases=['dropservertable'])
+    async def dropServerTable(ctx):
+        if checkOwner(ctx):
+            sqlCursor.execute('DROP TABLE serverDB')
+            sqlDb.commit()
+            await ctx.reply("ServerDB yeeted and deleted")

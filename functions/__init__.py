@@ -5,4 +5,6 @@ from .checkRoles import checkRoles
 from .timeConvert import timeConvert
 from .timeNow import timeNow
 from .updateCoins import updateCoins
+from .hasAdminRole import hasAdminRole
+from .hasEmbedRole import hasEmbedRole
 from .sql_start import *

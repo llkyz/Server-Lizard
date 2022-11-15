@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import json
 from functions import *
 
 def setup(client):
@@ -18,11 +19,10 @@ def setup(client):
                 if role.permissions.administrator or role.permissions.manage_guild:
                     adminList.append(role.id)
 
-            sql = "INSERT INTO serverDB (serverId, serverName, adminRoles) VALUES (%s, %s, %s)"
-            val = (guild.id, guild.name, adminList)
-            # fix adminList. (_mysql_connector.MySQLInterfaceError: Python type list cannot be converted)
+            sql = "INSERT INTO serverDB (serverId, serverName, adminRoles, embedRoles) VALUES (%s, %s, %s, %s)"
+            val = (guild.id, guild.name, json.dumps(adminList), json.dumps(adminList))
             sqlCursor.execute(sql, val)
             sqlDb.commit()
-            print(f'Data added for {guild.name}(id: {guild.id}')
+            print(f'Server data added for {guild.name}(id: {guild.id}')
         else:
-            print(f'Data already exists for {guild.name}(id: {guild.id}')
+            print(f'Server data already exists for {guild.name}(id: {guild.id}')
