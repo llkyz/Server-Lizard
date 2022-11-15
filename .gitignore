@@ -1,2 +1,8 @@
 .env
 *.txt
+commandList/__pycache__
+commandList/messageCommandList/__pycache__
+commandList/userCommandList/__pycache__
+eventList/__pycache__
+functions/__pycache__
+sql/__pycache__
