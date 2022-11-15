@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import random
-from datetime import datetime
 from functions import *
 
 def setup(client):
@@ -28,7 +27,7 @@ def setup(client):
         if '<@&423458739656458243>' in message.content and message.author.id != 1032276665092538489:
             reportChannel = client.get_channel(1033289784581427230)
             embed=discord.Embed(title=f"@mod pinged by {message.author.display_name}", description=f"[\[Link\]]({message.jump_url})", color=0x00FF00)
-            embed.set_footer(text=timeConvert(datetime.utcnow()).strftime("%d %B %Y, %I:%M:%S%p"))
+            embed.set_footer(text=timeNow())
             await reportChannel.send(embed=embed)
             await message.reply('Mods pinged!')
 

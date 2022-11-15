@@ -33,7 +33,7 @@ def setup(client):
         if len(msgData) == 1:
             commandList = glob.glob("commandList/*.py")
             for x in commandList:
-                slice = x.replace("\\", ".").replace(".py", "")
+                slice = x.replace("\\", ".").replace("/", ".").replace(".py", "")
                 commandName = slice.replace("commandList.","")
                 getDocs = importlib.import_module(slice)
                 if getDocs.docs["category"] in categories:

@@ -18,7 +18,7 @@ def setup(client):
                         break
                 if found == 0:
                     embed=discord.Embed(description=f'{reaction.message.content}\n\n> [\[Link\]]({reaction.message.jump_url})', color=0x14AB49)
-                    embed.set_footer(text=f'brought to you by degens at #{reaction.message.channel} | Message ID: {myMessage.id}')
+                    embed.set_footer(text=f'#{reaction.message.channel} | Message ID: {myMessage.id}')
                     embed.set_author(name=f'{reaction.message.author.display_name}', icon_url=reaction.message.author.display_avatar)
                     if reaction.message.attachments:
                         embed.set_image(url=reaction.message.attachments[0].url)

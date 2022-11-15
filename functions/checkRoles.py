@@ -5,6 +5,5 @@ from discord.ext import commands
 #returns True if any of the roles in the array matches, else return False
 def checkRoles(member, arr):
     for x in member.roles:
-        for y in arr:
-            if x.id == y:
-                return True
+        if x.id in arr:
+            return True

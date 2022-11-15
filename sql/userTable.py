@@ -3,7 +3,7 @@ from discord.ext import commands
 from functions import *
 
 def setup(client):
-    @client.command()
+    @client.command(aliases=['makeusertable'])
     async def makeUserTable(ctx):
         if checkOwner(ctx):
             try:
@@ -12,10 +12,10 @@ def setup(client):
             daily VARCHAR(10)) \
             ")
                 await ctx.reply("userDB created")
-            except:
-                await ctx.reply("userDB already exists")
+            except Exception as e:
+                await ctx.reply(e)
 
-    @client.command()
+    @client.command(aliases=['emptyusertable','clearUserTable', 'clearusertable'])
     async def emptyUserTable(ctx):
         if checkOwner(ctx):
             sqlCursor.execute('DELETE FROM userDB')

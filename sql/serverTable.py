@@ -3,11 +3,12 @@ from discord.ext import commands
 from functions import *
 
 def setup(client):
-    @client.command()
+    @client.command(aliases=['makeservertable'])
     async def makeServerTable(ctx):
         if checkOwner(ctx):
             try:
                 sqlCursor.execute("CREATE TABLE serverDB (serverId BIGINT, \
+            serverName VARCHAR(100), \
             adminRoles JSON, \
             adminPingEnabled INT(1), \
             adminPingChannel BIGINT, \
@@ -17,13 +18,14 @@ def setup(client):
             reportChannel BIGINT, \
             starboardEnabled INT(1), \
             starboardChannel BIGINT, \
-            starboardSources JSON) \
+            starboardSources JSON, \
+            embedRoles JSON) \
             ")
                 await ctx.reply("serverDB created")
-            except:
-                await ctx.reply("serverDB already exists")
+            except Exception as e:
+                await ctx.reply(e)
     
-    @client.command()
+    @client.command(aliases=['emptyservertable', 'clearservertable', 'clearServerTable'])
     async def emptyServerTable(ctx):
         if checkOwner(ctx):
             sqlCursor.execute('DELETE FROM serverDB')
