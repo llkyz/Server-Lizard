@@ -148,7 +148,7 @@ def setup(client):
                             view.add_item(item=button1)
                             view.add_item(item=button2)
                             embedArray=discord.Embed(title=f"Delete {len(messageArray)} messages?", description="(Search Limit: Up to 3000 messages from everyone since the start date)\n\n**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel), color=0xFF5733)
-                            embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart).strftime("%d %B %Y, %I:%M:%S%p") + "\n> **End**: " + timeConvert(dateEnd), inline=False)
+                            embedArray.add_field(name="Date", value=f"> **Start**: " + timeConvert(dateStart) + "\n> **End**: " + timeConvert(dateEnd), inline=False)
                             embedArray.add_field(name=f"Message Preview (page {currentPage} of {maxPage})", value=messagePreview, inline=False)
                             await msg6.edit(embed=embedArray, view=view)
                             await msg6.add_reaction('⬅')
