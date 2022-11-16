@@ -25,7 +25,7 @@ categories = {
 def setup(client):
     @client.command() #!admin
     async def admin(ctx):
-        if hasAdminRole(ctx) or checkOwner():
+        if hasAdminRole(ctx) or checkOwner(ctx):
             msgData = ctx.message.content.split(" ")
             if len(msgData) == 1:
                 commandList = glob.glob("commandList/*.py")
