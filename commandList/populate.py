@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
+from functions import *
 
 docs = {
 
@@ -17,7 +18,7 @@ docs = {
 def setup(client):
     @client.command() #populate the user profile channel
     async def populate(ctx): 
-        if ctx.author.id == 262909760255426570:
+        if hasAdminRole(ctx) or checkOwner(ctx):
             msg1 = await ctx.reply("Populating user profiles... sit tight!")
             channel = client.get_channel(1035131570257932318)
             for member in channel.guild.members:

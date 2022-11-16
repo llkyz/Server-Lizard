@@ -10,12 +10,13 @@ def setup(client):
                 sqlCursor.execute("CREATE TABLE serverDB (serverId BIGINT, \
             serverName VARCHAR(100), \
             adminRoles JSON, \
+            embedRoles JSON, \
             adminPingChannel BIGINT, \
             userProfilesChannel BIGINT, \
+            roleSaveChannel BIGINT, \
             reportChannel BIGINT, \
-            starboardChannel BIGINT, \
-            starboardSources JSON, \
-            embedRoles JSON) \
+            starboardChannel JSON, \
+            starboardSources JSON) \
             ")
                 await ctx.reply("ServerDB created")
             except Exception as e:

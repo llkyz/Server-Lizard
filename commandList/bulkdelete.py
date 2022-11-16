@@ -26,7 +26,7 @@ def setup(client):
         except:
             await ctx.author.send(f'Please use this command in a server channel.')
         else:
-            if checkRoles(ctx.author, [423458739656458243, 407557898638589974]):
+            if hasAdminRole(ctx) or checkOwner(ctx):
                 view = discord.ui.View()
                 button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
                 button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')

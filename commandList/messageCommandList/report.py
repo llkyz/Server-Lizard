@@ -6,22 +6,29 @@ from functions import *
 def setup(client):
     @client.message_command(name="Report Message")
     async def report(ctx: discord.ApplicationContext, message: discord.Message):
-        report = ReportModal(title="Report Form")
-        await ctx.send_modal(report)
-        await report.wait()
-        embed = discord.Embed(title=f'__**Post report by {ctx.user.display_name} ({ctx.user})**__', description=f'**Reported User**: {str(message.author.display_name)} ({message.author})\n**Channel**: #{str(message.channel)}\n**Time**: ' + timeConvert(message.created_at) + f'\n**Message Link**: [\[Link\]]({message.jump_url})', color=0xFF5733)
-        embed.add_field(name="Message Content", value=f"> `{message.content}`", inline=False)
-        embed.add_field(name="Reporting Details", value=report.children[0].value, inline=False)
-        embed.set_footer(text=timeNow())
-        if message.attachments:
-            embed.set_image(url=message.attachments[0].url)
-        if report.children[1].value != "":
-            additionalInfo = report.children[1].value
+        sqlCursor.execute('SELECT reportChannel FROM serverDB WHERE serverId = %s', (message.guild.id,))
+        channelData = sqlCursor.fetchone()[0]
+
+        if channelData != None:
+            reportChannel = client.get_channel(channelData) #user profiles channel
+            report = ReportModal(title="Report Form")
+            await ctx.send_modal(report)
+            await report.wait()
+            embed = discord.Embed(title=f'__**Post report by {ctx.user.display_name} ({ctx.user})**__', description=f'**Reported User**: {str(message.author.display_name)} ({message.author})\n**Channel**: #{str(message.channel)}\n**Time**: ' + timeConvert(message.created_at) + f'\n**Message Link**: [\[Link\]]({message.jump_url})', color=0xFF5733)
+            embed.add_field(name="Message Content", value=f"> `{message.content}`", inline=False)
+            embed.add_field(name="Reporting Details", value=report.children[0].value, inline=False)
+            embed.set_footer(text=timeNow())
+            if message.attachments:
+                embed.set_image(url=message.attachments[0].url)
+            if report.children[1].value != "":
+                additionalInfo = report.children[1].value
+            else:
+                additionalInfo = 'N/A'
+            embed.add_field(name="Additional Info", value=additionalInfo, inline=False)
+            await reportChannel.send(embed=embed)
+
         else:
-            additionalInfo = 'N/A'
-        embed.add_field(name="Additional Info", value=additionalInfo, inline=False)
-        reportChannel = client.get_channel(1033289784581427230)
-        await reportChannel.send(embed=embed)
+            await ctx.respond("This feature has not been activated.", ephemeral=True, delete_after=20)
     
     class ReportModal(discord.ui.Modal):
         def __init__(self, *args, **kwargs) -> None:

@@ -8,7 +8,7 @@ docs = {
 
     "aliases":['userprofile'],
 
-    "usage":"!userprofiles set, !userprofiles remove",
+    "usage":"!userprofiles set, !userprofiles remove, !userprofiles populate",
 
     "description":"Placeholder",
 
@@ -32,7 +32,7 @@ def setup(client):
                 if channelData == None:
                     await ctx.reply("No user profile channel has been set. Please use `!userprofiles set` to designate a User Profile channel", delete_after=20)
                 else:
-                    await ctx.reply(f'`#{ctx.guild.get_channel(channelData)}` has been set as the User Profile channel. Please use `!userprofile set` to overwrite the channel or `!userprofiles remove` to undesignate the channel', delete_after=20)
+                    await ctx.reply(f'`#{ctx.guild.get_channel(channelData)}` has been set as the User Profile channel. Please use `!userprofiles set` to overwrite the channel or `!userprofiles remove` to undesignate the channel. Use `!userprofiles populate` to generate user profiles.', delete_after=20)
 
 
             ##############################
@@ -141,6 +141,54 @@ def setup(client):
 
                             embed=discord.Embed(title=f'`#{ctx.guild.get_channel(channelData)}` removed as the User Profile channel')
                             await ctx.send(embed=embed)
+
+            ##############################
+            ### !userprofiles populate
+            ##############################
+            elif msgData[1].lower() == "populate":
+                if channelData == None:
+                    await ctx.send(embed=discord.Embed(title="There is no User Profile channel set"))
+                else:
+                    view = discord.ui.View()
+                    button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
+                    button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
+                    view.add_item(item=button1)
+                    view.add_item(item=button2)
+                    embed=discord.Embed(title=f'Populate User Profile channel?', description=f'This will fill your selected channel with user profiles, and may take anywhere from a few minutes to a few hours depending on the size of your server. The message \"All done!\" will be sent upon completion.\n\n>>WARNING<< Do not run this command if your User Profile channel has already been populated.')
+                    msg1 = await ctx.send(embed=embed, view=view)
+
+                    def checkButton(m):
+                        return m.message == msg1 and m.user == ctx.author
+
+                    try:
+                        interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+                    except asyncio.TimeoutError:
+                        view.clear_items()
+                        await msg1.edit(content='Timed out!', view=view)
+                    else:
+                        await interacted.response.defer()
+                        view.clear_items()
+                        await msg1.edit(view=view)
+
+                        if interacted.data['custom_id'] == 'cancel':
+                            embed=discord.Embed(title=f'UserProfiles Populate cancelled')
+                            await ctx.send(embed=embed)
+
+                        elif interacted.data['custom_id'] == 'confirm':
+                            msg2 = await ctx.send("Populating user profiles... sit tight!")
+                            channel = client.get_channel(channelData)
+                            for member in channel.guild.members:
+                                userName = member.name + "#" + member.discriminator
+                                roleList = []
+                                for x in member.roles:
+                                    roleList.append(x.name)
+
+                                embed = discord.Embed(title=f'{member.display_name} ({userName})', description=f'**User ID**: {member.id}\n**User Roles**: {roleList}\n**Infractions**:')
+                                embed.set_thumbnail(url=member.display_avatar.url)
+                                await channel.send(embed=embed)
+                                await asyncio.sleep(2)
+                            await msg2.reply("All done!")
+
             else:
                 await ctx.reply("Please use `!userprofiles set` to designate a User Profile channel or `!userprofiles remove` to remove a designated channel", delete_after=20)
         else:
