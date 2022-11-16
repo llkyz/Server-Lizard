@@ -174,7 +174,7 @@ def setup(client):
                                             await ctx.send(embed=embed)
 
                                 else:
-                                    await ctx.send(embed=discord.Embed(title=f'Invalid number entered', delete_after=20))
+                                    await ctx.send(embed=discord.Embed(title=f'Invalid number entered'), delete_after=20)
                 else:
                     await ctx.reply("Please use the following format: !adminroles / !adminroles add / !adminroles remove", delete_after=20)
 
