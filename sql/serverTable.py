@@ -13,7 +13,8 @@ def setup(client):
             embedRoles JSON, \
             adminPingChannel BIGINT, \
             userProfilesChannel BIGINT, \
-            roleSaveChannel BIGINT, \
+            saveRoleChannel BIGINT, \
+            reactionRoleChannel BIGINT, \
             reportChannel BIGINT, \
             starboardChannel JSON, \
             starboardSources JSON) \
