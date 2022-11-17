@@ -11,7 +11,7 @@ docs = {
 
     "usage":"!adminroles, !adminroles add, !adminroles remove",
 
-    "description":"Placeholder",
+    "description":"Specify user roles which will have access to Server Lizard's admin commands.\n\n`!adminroles` or `!adminroles show` will show a list of roles with access to admin commands.\nSpecify new roles with `!adminroles add`, and remove them with `!adminroles remove`.\n\nThis will not affect a role's Discord permissions.\n\nThe server administrator will always have admin access regardless of role.",
 
     "category":"admin-administrative"
     

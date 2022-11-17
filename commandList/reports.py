@@ -10,7 +10,7 @@ docs = {
 
     "usage":"!reports set, !reports remove",
 
-    "description":"Placeholder",
+    "description":"This feature allows users to report any message on the server using the **Message Command** `Report Message`. The report will be sent to the designated channel for your server mods to follow-up with.\n\nUse `!reports set` to designate a channel. Once a channel is set, this feature will automatically activate. Use `!reports remove` to undesignate the channel and disable this feature.",
 
     "category":"admin-administrative"
     

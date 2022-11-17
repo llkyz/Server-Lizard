@@ -9,9 +9,9 @@ docs = {
 
     "aliases":['embedrole'],
 
-    "usage":"!embedroles, !embedroles add, !embedroles remove",
+    "usage":"!embedroles show, !embedroles add, !embedroles remove",
 
-    "description":"Placeholder",
+    "description":"Specify user roles which will have access to Server Lizard's `!embed` command.\n\n`!embedroles` or `!embedroles show` will show a list of roles with access to the embed command.\nSpecify new roles with `!embedroles add`, and remove them with `!embedroles remove`.\n\nThis will not affect a role's Discord permissions.\n\nThe server administrator will always have embed access regardless of role.",
 
     "category":"admin-administrative"
     

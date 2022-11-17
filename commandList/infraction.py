@@ -10,7 +10,7 @@ docs = {
 
     "usage":"!infraction add [userID], !infration remove [userID]",
 
-    "description":"Place or remove an infraction on a user's profile entry. This requires user profiles to be enabled and generated.",
+    "description":"Place or remove an infraction on a user's profile entry for record-keeping purposes.\n\nThis requires user profiles (`!userprofiles set` / `!userprofiles populate`) to be enabled and generated.",
 
     "category":"admin-disciplinary"
     

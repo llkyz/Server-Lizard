@@ -8,9 +8,9 @@ docs = {
 
     "aliases":['saverole'],
 
-    "usage":"!saveroles set, !saveroles remove, !saveroles populate",
+    "usage":"!saveroles show, !saveroles set, !saveroles remove",
 
-    "description":"Placeholder",
+    "description":"When a user leaves your server, their user roles are typically lost and will not be reassigned if they rejoin your server. If a user rejoins your server, this feature will send a message containing a list of their previous roles to the designated \"Save Role\" channel for easy reference.\n\nThis feature utilises role data saved in users' profile entries in the user profile channel. It requires user profiles (`!userprofiles set` / `!userprofiles populate`) to be first enabled and generated.\n\nUse `!saveroles set` to designate a channel. Once a channel is set, this feature will automatically activate. Use `!saveroles remove` to undesignate the channel and disable this feature.",
 
     "category":"admin-administrative"
     

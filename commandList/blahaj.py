@@ -11,7 +11,7 @@ docs = {
 
     "usage":"!blahaj",
 
-    "description":"Checks IKEA's stock to see if BLÅHAJ and MINIHAJ are available for sale. 🦈",
+    "description":"Checks IKEA's stock to see if BLÅHAJ 🦈 and MINIHAJ 🦈 are available for sale. (Singapore-only feature!)",
 
     "category":"fluff"
     

@@ -13,7 +13,7 @@ docs = {
 
     "usage":"!bus [5-digit bus stop code]",
 
-    "description":"Checks the bus arrival timings for a specific bus stop.",
+    "description":"Checks the bus arrival timings for a specific bus stop. (Singapore-only feature!)",
 
     "category":"utility"
     

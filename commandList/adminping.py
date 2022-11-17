@@ -9,9 +9,9 @@ docs = {
 
     "aliases":[],
 
-    "usage":"!adminping set, !adminping remove",
+    "usage":"!adminping show, !adminping set, !adminping remove",
 
-    "description":"Placeholder",
+    "description":"If a user pings/mentions an admin role, this feature will send a message to the designated channel that links to the ping/mention. This allows for easier ping tracking instead of looking through an entire channel to find the ping.\n\nUse `!adminping set` to designate a channel. Once a channel is set, this feature will automatically activate. Use `!adminping remove` to undesignate the channel and disable this feature.",
 
     "category":"admin-administrative"
     

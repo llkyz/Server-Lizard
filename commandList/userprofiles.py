@@ -10,7 +10,7 @@ docs = {
 
     "usage":"!userprofiles set, !userprofiles remove, !userprofiles populate",
 
-    "description":"Placeholder",
+    "description":"Designate a channel to store user profiles of all the members in your server. This feature is meant for server management and recording disciplinary actions.\n\nUse `!userprofiles set` to designate a channel. Once a channel is set, use `!userprofiles populate` to generate user profiles. Use `!userprofiles remove` to undesignate the channel and disable this feature.\n\nA user profile channel must be set with user profiles generated in order to use the `!saveroles` and `!infraction` features.",
 
     "category":"admin-administrative"
     

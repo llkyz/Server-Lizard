@@ -36,7 +36,7 @@ def setup(client):
                     if getDocs.docs["category"] in categories:
                         categories[getDocs.docs["category"]]["modules"].append(f'`{commandName}`')
 
-                embed=discord.Embed(title=f'Admin commands for Server Lizard', description='To use a command, enter: `!{command}`',color=0x14AB49)
+                embed=discord.Embed(title=f'Admin commands for Server Lizard', description='To use a command, type: `![command]`.\nTo get additional info on a command, type: `!admin [commmand name]`',color=0x14AB49)
                 for key in categories:
                     embed.add_field(name=categories[key]["field"], value=" ".join(categories[key]["modules"]), inline=False)
                 await ctx.reply(embed=embed)

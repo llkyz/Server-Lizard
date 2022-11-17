@@ -11,7 +11,7 @@ docs = {
 
     "usage":"!embed create, !embed edit [msg id], !embed delete [msg id]",
 
-    "description":"Placeholder. Requires embed role permission to use.",
+    "description":"Create an embedded message using my embed builder and send it to a specific channel. The embed builder interface will be sent through your DMs.\n\nRequires embed role permission to use. Please contact a server admin if you require this permission.",
 
     "category":"utility"
     
