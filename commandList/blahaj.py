@@ -11,7 +11,7 @@ docs = {
 
     "usage":"!blahaj",
 
-    "description":"Checks IKEA's stock to see if BLÅHAJ 🦈 and MINIHAJ 🦈 are available for sale. (Singapore-only feature!)",
+    "description":"Checks IKEA's stock to see if BLÅHAJ 🦈 and SMÖLHAJ 🦈 are available for sale. (Singapore-only feature!)",
 
     "category":"fluff"
     
@@ -59,10 +59,10 @@ def setup(client):
         mydict = json.loads(response.content.decode('utf-8'))
 
 
-        minihajStock = {}
+        smohajStock = {}
         for x in range(3):
-            minihajStock[storeList[x]] = mydict['availabilities'][x]['buyingOption']['cashCarry']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
-        minihajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
+            smohajStock[storeList[x]] = mydict['availabilities'][x]['buyingOption']['cashCarry']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
+        smohajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
         
         blahajNo = ["https://i.redd.it/vg3vjkroytq71.jpg",
                       "https://i.redd.it/2f72lz7qufm81.jpg",
@@ -79,16 +79,16 @@ def setup(client):
                      "https://media.tenor.com/3a_BHoflOosAAAAd/blahaj-shark.gif",
                      "https://truth.bahamut.com.tw/s01/202204/f514f0295b7ac37df5d7911ffb143fb6.JPG"]
         
-        if (blahajStock['Tampines'] == blahajStock['Alexandra'] == blahajStock['Jurong'] == blahajStock['Online'] == minihajStock['Tampines'] == minihajStock['Alexandra'] == minihajStock['Jurong'] == minihajStock['Online'] == "OUT OF STOCK"):
+        if (blahajStock['Tampines'] == blahajStock['Alexandra'] == blahajStock['Jurong'] == blahajStock['Online'] == smohajStock['Tampines'] == smohajStock['Alexandra'] == smohajStock['Jurong'] == smohajStock['Online'] == "OUT OF STOCK"):
             embedColour = 0xFF5733
             embedImage = blahajNo[random.randint(0,len(blahajNo)-1)]
         else:
             embedColour = 0x00FF00
             embedImage = blahajYes[random.randint(0,len(blahajYes)-1)]
             
-        embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[MINIHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-baby-shark-00540664/)", color=embedColour)
+        embed=discord.Embed(title="BLÅHAJ Availability", description="Get your BLÅHAJ before they're gone!\n[BLÅHAJ (100cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-shark-10373589/)\n[SMÖLHAJ (55cm)](https://www.ikea.com/sg/en/p/blahaj-soft-toy-baby-shark-00540664/)", color=embedColour)
         embed.set_image(url=embedImage)
         embed.add_field(name="BLÅHAJ", value="> Online: " + blahajStock["Online"] + "\n> Alexandra: " + blahajStock["Alexandra"] + "\n> Jurong: " + blahajStock["Jurong"] + "\n> Tampines: " + blahajStock["Tampines"], inline=True)
-        embed.add_field(name="MINIHAJ", value="> Online: " + minihajStock["Online"] + "\n> Alexandra: " + minihajStock["Alexandra"] + "\n> Jurong: " + minihajStock["Jurong"] + "\n> Tampines: " + minihajStock["Tampines"], inline=True)
+        embed.add_field(name="SMÖLHAJ", value="> Online: " + smohajStock["Online"] + "\n> Alexandra: " + smohajStock["Alexandra"] + "\n> Jurong: " + smohajStock["Jurong"] + "\n> Tampines: " + smohajStock["Tampines"], inline=True)
         embed.set_footer(text=timeNow())
         await ctx.send(embed=embed)
