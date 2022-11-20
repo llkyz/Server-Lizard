@@ -5,7 +5,7 @@ import math
 
 docs = {
 
-    "aliases":[],
+    "aliases":['timer'],
 
     "usage":"!timed [minutes]",
 
@@ -16,7 +16,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!timed        
+    @client.command(aliases=['timer']) #!timed        
     async def timed(ctx):
         try:
             msgData = ctx.message.content.replace("\n", " ").split(" ")

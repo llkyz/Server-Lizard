@@ -3,6 +3,7 @@ from .checkBet import checkBet
 from .checkOwner import checkOwner
 from .checkRoles import checkRoles
 from .timeConvert import timeConvert
+from .timeConvertShort import timeConvertShort
 from .timeNow import timeNow
 from .updateCoins import updateCoins
 from .hasAdminRole import hasAdminRole
