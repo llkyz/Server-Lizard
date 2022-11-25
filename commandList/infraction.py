@@ -26,11 +26,11 @@ def setup(client):
             if channelData == None:
                 await ctx.reply("A User Profile channel has not been set yet. Please set one up using `!userprofiles` and generate the profiles first.")
             else:
-                profileChannel = client.get_channel(channelData)
-                mylist = ctx.message.content.replace('!infraction ', '').split(' ')
-                if mylist[0] == 'add':
+                profileChannel = client.get_channel(channelData[0])
+                mylist = ctx.message.content.split(' ')
+                if mylist[1] == 'add':
                     try:
-                        user = await client.fetch_user(mylist[1])
+                        user = await client.fetch_user(mylist[2])
                     except:
                         await ctx.reply(embed=discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction add [userID]` (e.g userID = 1032276665092538489)'), delete_after=60)
                     else:
@@ -39,7 +39,7 @@ def setup(client):
                         button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')
                         view.add_item(item=button1)
                         view.add_item(item=button2)
-                        embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
+                        embed = discord.Embed(title=f'Adding infraction to user {mylist[2]} ({user})')
                         msg1 = await ctx.reply(embed=embed, view=view)
 
                         def check(m):
@@ -68,7 +68,7 @@ def setup(client):
                                     await msg2.edit(content='Timed out!')
                                 else:
                                     newInfraction = interacted.content
-                                    embed = discord.Embed(title=f'Adding infraction to user {mylist[1]} ({user})')
+                                    embed = discord.Embed(title=f'Adding infraction to user {mylist[2]} ({user})')
                                     embed.add_field(name='**Infraction**', value=f'> {newInfraction}')
                                     view.add_item(item=button1)
                                     view.add_item(item=button2)
@@ -110,14 +110,14 @@ def setup(client):
                                 embed = discord.Embed(title=f'Infraction cancelled')
                                 await ctx.send(embed=embed)
                                 
-                elif mylist[0] == 'remove':
+                elif mylist[1] == 'remove':
                     try:
-                        user = await client.fetch_user(mylist[1])
+                        user = await client.fetch_user(mylist[2])
                     except:
                         embed = discord.Embed(title='Syntax Error', description='Please follow this format: `!infraction remove [userID]` (e.g userID = 1032276665092538489)')
                         await ctx.reply(embed=embed)
                     else:
-                        embed = discord.Embed(title=f'Removing infraction from user {mylist[1]} ({user})')
+                        embed = discord.Embed(title=f'Removing infraction from user {mylist[2]} ({user})')
                         view = discord.ui.View()
                         button1 = discord.ui.Button(label="Confirm", style=ButtonStyle.green, custom_id='confirm')
                         button2 = discord.ui.Button(label="Cancel", style=ButtonStyle.red, custom_id='cancel')

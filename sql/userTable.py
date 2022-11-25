@@ -8,6 +8,7 @@ def setup(client):
         if checkOwner(ctx):
             try:
                 sqlCursor.execute("CREATE TABLE userDB (userId BIGINT, \
+            userName VARCHAR(50), \
             coins INT(255), \
             daily VARCHAR(10)) \
             ")
