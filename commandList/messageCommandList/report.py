@@ -16,7 +16,7 @@ def setup(client):
             await report.wait()
             embed = discord.Embed(title=f'__**Post report by {ctx.user.display_name} ({ctx.user})**__', description=f'**Reported User**: {str(message.author.display_name)} ({message.author})\n**Channel**: #{str(message.channel)}\n**Time**: ' + timeConvert(message.created_at) + f'\n**Message Link**: [\[Link\]]({message.jump_url})', color=0xFF5733)
             embed.add_field(name="Message Content", value=f"> `{message.content}`", inline=False)
-            embed.add_field(name="Reporting Details", value=report.children[0].value, inline=False)
+            embed.add_field(name="Report Details", value=report.children[0].value, inline=False)
             embed.set_footer(text=timeNow())
             if message.attachments:
                 embed.set_image(url=message.attachments[0].url)
