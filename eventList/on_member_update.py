@@ -27,26 +27,13 @@ def setup(client):
                 async for message in channel.history(limit=None): # If member profile is found, update it 
                     if message.embeds and message.embeds[0].description and f'**User ID**: {after.id}' in message.embeds[0].description:
                         found = 1
-                        mystr = message.embeds[0].description.split('**Infractions**:')
-                        if len(mystr) > 1:
-                            infractions = mystr[1]
-                        else:
-                            infractions = "" # no infractions
-
-                        try:
-                            notesStart = message.embeds[0].description.index('**Notes**:') + 10
-                            notesEnd = message.embeds[0].description.index('**Infractions**:')
-                            notes = message.embeds[0].description[notesStart:notesEnd]
-                        except:
-                            notes = ""
-
-
+                        notesStart = message.embeds[0].description.index('**Notes**:')
                         userName = after.name + "#" + after.discriminator
                         roleList = []
                         for x in after.roles:
                             roleList.append(x.name)
 
-                        embed = discord.Embed(title=f'{after.display_name} ({userName})', description=f'**User ID**: {after.id}\n**User Roles**: {roleList}\n**Notes**:{notes}\n**Infractions**:{infractions}')
+                        embed = discord.Embed(title=f'{after.display_name} ({userName})', description=f'**User ID**: {after.id}\n**User Roles**: {roleList}\n{message.embeds[0].description[notesStart:]}')
                         embed.set_thumbnail(url=after.display_avatar.url)
                         await message.edit(embed=embed)
                         break

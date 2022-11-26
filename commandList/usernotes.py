@@ -8,7 +8,7 @@ docs = {
 
     "aliases":['usernote'],
 
-    "usage":"!usernotes [userId]",
+    "usage":"!usernotes [userID], !usernotes [@user]",
 
     "description":"View, add, or remove notes on a user's profile entry for record-keeping purposes.\n\nThis requires user profiles (`!userprofiles set` / `!userprofiles populate`) to be enabled and generated.",
 
@@ -27,7 +27,7 @@ def setup(client):
                 await ctx.reply("A User Profile channel has not been set yet. Please set one up using `!userprofiles` and generate the profiles first.")
             else:
                 profileChannel = client.get_channel(channelData[0])
-                userId = ctx.message.content.split(' ')[1]
+                userId = ctx.message.content.split(' ')[1].replace("<@","").replace(">","")
                 try:
                     user = await client.fetch_user(userId)
                 except:
@@ -51,7 +51,7 @@ def setup(client):
                         view.add_item(item=button1)
                         view.add_item(item=button2)
                         view.add_item(item=button3)
-                        msg1 = await ctx.reply(embed=embed, view=view)
+                        msg1 = await ctx.reply(content="Viewing User Notes", embed=embed, view=view)
 
                         def checkButton(m):
                             return m.message == msg1 and m.user == ctx.author
@@ -98,7 +98,7 @@ def setup(client):
                                 notesEnd = message.embeds[0].description.index('**Infractions**:') - 1
                                 notes = message.embeds[0].description[notesStart:notesEnd]
                                 if len(notes) < 2:
-                                    await ctx.send(embed=discord.Embed(title=f'No notes available'))
+                                    await ctx.send(embed=discord.Embed(title=f'No notes logged'))
                                 else:
                                     noteList = notes.split('\n* ')
                                     embed = discord.Embed(title=f'Current Notes')
@@ -139,3 +139,5 @@ def setup(client):
                                                     break
                                             except:
                                                 await ctx.send(embed=discord.Embed(title=f'Invalid number entered'), delete_after=20)
+        else:
+            await ctx.send(embed=discord.Embed(title=f'You do not have permission to use that command'), delete_after=20)
