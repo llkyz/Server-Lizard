@@ -10,19 +10,51 @@ To invite Server Lizard into your Discord server, simply use the link [HERE](htt
 
 ## Features
 
-### Server Administration
+### Server Management
+---
+- Administrative
 
-|Command|Usage|   |Description|
-|--|--|--|--|
-|admin|!admin||Displays a list of admin-only commands|
-|bulkdelete|!bulkdelete| |Delete large sections of messages|
-|adminping|!adminping||Whenever a user pings/mentions a moderator, a message will be posted to a selected channel with a link to the originating message for easy reference|
-|userprofiles|!userprofiles||Set a channel where user profiles will be generated. Allows the usage of [!usernotes], [!infraction], and [!saveroles] functions|
-|infraction|!infraction [@user]|||
-|reports|!reports|||
-|usernotes|!usernotes [@user]|||
-|adminroles|!adminroles|||
-|embedroles|!embedroles|||
-|embed|!embed create, !embed edit, !embed remove|||
-|saveroles|!saveroles|||
-|starboard|!starboard||WIP|
+`admin` `adminroles` `embedroles`
+
+- Message Management
+
+`bulkdelete` `embed` `adminping`  `reports`
+
+- User Management
+
+`userprofiles` `infraction` `usernotes` `saveroles`
+
+- Additional Features
+
+`starboard`
+
+### User Functions
+---
+- Utility
+
+`commands`
+
+- Fluff
+
+`test` `change` `greet`
+
+- Economy
+
+`coins` `daily` `give`
+
+- Games
+
+`battle` `roll`
+
+- Gamble
+
+`lottery` `coinflip` `rps` `blackjack`
+
+- Message Management
+
+`selfdelete`
+
+- Singapore-exclusive Functions
+
+`bus` `blahaj`
+
