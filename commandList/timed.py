@@ -25,6 +25,9 @@ def setup(client):
             if countdown <= 0:
                 countdown = 5
                 await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`', delete_after=countdown*60)
+            elif countdown > 1440:
+                countdown = 1440
+                await ctx.reply(f'That\'s beyond the maximum time limit! Auto-deletion has been set to 24 hours.', delete_after=countdown*60)
             else:
                 myMessage = []
                 remainder = countdown % 60
