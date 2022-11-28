@@ -34,7 +34,7 @@ def setup(client):
                     except:
                         await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]")
                     else:
-                        if bet > userData["money"]:
+                        if bet > userData["coins"]:
                             await ctx.reply("You don't have enough coins to bet that much.")
                         elif bet < 1:
                             await ctx.reply("You can't bet less than 1 coin!")

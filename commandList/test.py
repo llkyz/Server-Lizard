@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from functions import *
-
 docs = {
 
     "aliases":[],
@@ -16,5 +15,5 @@ docs = {
 
 def setup(client):
     @client.command() #!test
-    async def test(ctx):
+    async def test(ctx):     
         await ctx.send("owo")

@@ -19,4 +19,4 @@ def setup(client):
     async def coin(ctx):
         userData = await checkAccount(ctx)
         if userData != None:
-            await ctx.send(f'**{ctx.author.display_name} 🪙 |** You have **{"{:,}".format(userData["money"])}** coins')
+            await ctx.send(f'**{ctx.author.display_name} 🪙 |** You have **{"{:,}".format(userData["coins"])}** coins')
