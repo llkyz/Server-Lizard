@@ -20,7 +20,7 @@ GUILD = os.getenv('DISCORD_GUILD')
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!', intents=intents)
 
-myfolders = ["commandList/*.py", "commandList/messageCommandList/*.py", "commandList/userCommandList/*.py", "eventList/*.py", "sql/*.py"]
+myfolders = ["commandList/*.py", "commandList/messageCommandList/*.py", "commandList/userCommandList/*.py", "eventList/*.py", "admin/*.py"]
 for folderPath in myfolders:
     for x in glob.glob(folderPath):
         client.load_extension(x.replace("\\", ".").replace("/", ".").replace(".py", ""))
