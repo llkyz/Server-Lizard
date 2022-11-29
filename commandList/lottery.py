@@ -27,20 +27,20 @@ def setup(client):
         if userData != None:
                 msgData = ctx.message.content.split(" ")
                 if len(msgData) != 3:
-                    await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]")
+                    await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
                 else:
                     try:
                         bet = int(msgData[1])
                         choice = int(msgData[2])
                     except:
-                        await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]")
+                        await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
                     else:
                         if bet > userData["coins"]:
-                            await ctx.reply("You don't have enough coins to bet that much.")
+                            await ctx.reply("You don't have enough coins to bet that much.", delete_after=20)
                         elif bet < 1:
                             await ctx.reply("You can't bet less than 1 coin!")
                         elif len(str(msgData[2])) != 4:
-                            await ctx.reply("Please enter a 4 digit number to bet on.")
+                            await ctx.reply("Please enter a 4 digit number to bet on.", delete_after=20)
                         else:
                             gameProceed = 1
 
