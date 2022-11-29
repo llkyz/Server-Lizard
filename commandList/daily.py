@@ -18,7 +18,7 @@ docs = {
 def setup(client):
     @client.command()
     async def daily(ctx):
-        userData = await checkAccount(ctx)
+        userData = await fetchUserData(ctx.author)
         if userData != None:
             sqlCursor.execute('SELECT CURDATE()')
             currentDate = sqlCursor.fetchone()[0]
@@ -26,7 +26,7 @@ def setup(client):
                 dailyCoins = random.randint(500,2000)
 
                 sql = 'UPDATE userDB SET coins = %s, daily = %s WHERE userId = %s'
-                val = (userData["money"]+dailyCoins, currentDate, userData["id"])
+                val = (userData["coins"]+dailyCoins, currentDate, userData["userId"])
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
