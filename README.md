@@ -1,4 +1,3 @@
-# Server-Lizard
 ### <img style="width:50px" src="https://github.com/llkyz/Server-Lizard/blob/main/server_lizard.png/"> <sup>"In your servers, eating your bugs"</sup><img style="width:50px" src="https://github.com/llkyz/Server-Lizard/blob/main/server_lizard.png/">
 <br>
 A Discord Bot with features to facilitate server management and social interaction.
