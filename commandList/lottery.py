@@ -66,6 +66,7 @@ def setup(client):
             except asyncio.TimeoutError:
                 view.clear_items()
                 await msg1.edit(content='Timed out!', view=view)
+                return
             else:
                 await interacted.response.defer()
                 prizeNumbers = []

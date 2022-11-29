@@ -78,10 +78,15 @@ def setup(client):
                 drawCard(playerHand)
                 drawCard(playerHand)
                 drawCard(dealerHand)
+                sql = 'UPDATE userDB SET bjBet = %s WHERE userId = %s'
+                val = (bet, ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
                 resumeText = ""
             else:
                 dealerHand = json.loads(userData["bjDealer"])
                 playerHand = json.loads(userData["bjPlayer"])
+                bet = userData["bjBet"]
                 resumeText = "Resuming previous Blackjack game..."
                 
             view = discord.ui.View()
@@ -164,8 +169,8 @@ def setup(client):
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'`{printCards(playerHand)}`', inline=True)
             await msg1.edit(embed=embed, view=view)
 
-            sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s WHERE userId = %s'
-            val = (None, None, ctx.author.id)
+            sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s, bjBet = %s WHERE userId = %s'
+            val = (None, None, None, ctx.author.id)
             sqlCursor.execute(sql, val)
             sqlDb.commit()
 

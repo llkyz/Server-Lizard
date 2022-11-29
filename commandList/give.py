@@ -42,7 +42,11 @@ def setup(client):
                     elif giveAmount > userData["coins"]:
                         await ctx.send('You don\'t have that many coins!', delete_after=20)
                     elif receiverData['coins'] + giveAmount > 2147483647:
-                        await ctx.send(f'{getUser.display_name} cannot receive any more coins.')
+                        await ctx.send(f'{getUser.display_name} cannot receive any more coins.', delete_after=20)
+                    elif userData["bjBet"] != None:
+                        await ctx.send('You have a pending Blackjack bet! Please finish your game before giving coins.', delete_after=20)
+                    elif userData["rpsBet"] != None:
+                        await ctx.send('You have a pending Rock-Paper-Scissors bet! Please finish your game before giving coins.', delete_after=20)
                     else:
                         sqlCursor.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
                         receiverData = sqlCursor.fetchone()

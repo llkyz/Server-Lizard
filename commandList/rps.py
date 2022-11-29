@@ -26,6 +26,10 @@ def setup(client):
         bet = await checkBet(userData,ctx)
 
         if bet != None:
+            sql = 'UPDATE userDB SET rpsBet = %s WHERE userId = %s'
+            val = (True, ctx.author.id)
+            sqlCursor.execute(sql, val)
+            sqlDb.commit()
 
             view = discord.ui.View()
             button1 = discord.ui.Button(label="Rock 🗿", style=ButtonStyle.grey, custom_id='rock')
@@ -48,6 +52,11 @@ def setup(client):
                 button2.disabled = True
                 button3.disabled = True
                 await msg.edit(content='Timed out!', view=view)
+                sql = 'UPDATE userDB SET rpsBet = %s WHERE userId = %s'
+                val = (None, ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
+                return
             else:
                 await interacted.response.defer()
 
@@ -100,5 +109,10 @@ def setup(client):
                 embed.add_field(name=f'Dealer', value=f'{emoji[computerChoice]}', inline=True)
                 embed.add_field(name=f'{ctx.author.display_name}', value=f'{emoji[playerChoice]}', inline=True)
                 await msg.edit(embed=embed, view=view)
+
+                sql = 'UPDATE userDB SET rpsBet = %s WHERE userId = %s'
+                val = (None, ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
 
                 updateCoins(userData, result, bet)
