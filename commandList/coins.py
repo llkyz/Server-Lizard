@@ -16,6 +16,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['money','currency', 'coins', 'balance', 'wallet']) # Checks your coin balance
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def coin(ctx):
         userData = await checkAccount(ctx)
         if userData != None:

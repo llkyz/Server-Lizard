@@ -21,6 +21,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['bj', 'breadjack'])
+    @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def blackjack(ctx):
         userData = await fetchUserData(ctx.author)
@@ -77,9 +78,11 @@ def setup(client):
                 drawCard(playerHand)
                 drawCard(playerHand)
                 drawCard(dealerHand)
+                resumeText = ""
             else:
                 dealerHand = json.loads(userData["bjDealer"])
                 playerHand = json.loads(userData["bjPlayer"])
+                resumeText = "Resuming previous Blackjack game..."
                 
             view = discord.ui.View()
             button1 = discord.ui.Button(label="Hit", style=ButtonStyle.green, custom_id='hit')
@@ -90,7 +93,7 @@ def setup(client):
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'`{printCards(dealerHand)}, ??`', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'`{printCards(playerHand)}`', inline=True)
-            msg1 = await ctx.send(embed=embed, view=view)
+            msg1 = await ctx.send(content=resumeText, embed=embed, view=view)
 
             def checkButton(m):
                 return m.message == msg1 and m.user == ctx.author
@@ -106,6 +109,7 @@ def setup(client):
                 except asyncio.TimeoutError:
                     view.clear_items()
                     await msg1.edit(content='Timed out!', view=view)
+                    return
                 else:
                     await interacted.response.defer()
                     if interacted.data['custom_id'] == 'stand':
