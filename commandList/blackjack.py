@@ -5,6 +5,7 @@ import math
 import random
 import asyncio
 from functions import *
+import json
 
 docs = {
 
@@ -22,11 +23,11 @@ def setup(client):
     @client.command(aliases=['bj', 'breadjack'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def blackjack(ctx):
-        userData = await checkAccount(ctx)
+        userData = await fetchUserData(ctx.author)
         bet = await checkBet(userData,ctx)
 
         if bet != None:
-
+            
             cardTypes = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
             cardSuits = ["♣️","♦️","♥️","♠️"]
             cardValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
@@ -71,11 +72,15 @@ def setup(client):
             def dealerDraw():
                 while printValue(dealerHand)[1] < 17:
                     drawCard(dealerHand)
-            
-            drawCard(playerHand)
-            drawCard(playerHand)
-            drawCard(dealerHand)
 
+            if userData["bjPlayer"] == None and userData["bjDealer"] == None:
+                drawCard(playerHand)
+                drawCard(playerHand)
+                drawCard(dealerHand)
+            else:
+                dealerHand = json.loads(userData["bjDealer"])
+                playerHand = json.loads(userData["bjPlayer"])
+                
             view = discord.ui.View()
             button1 = discord.ui.Button(label="Hit", style=ButtonStyle.green, custom_id='hit')
             button2 = discord.ui.Button(label="Stand", style=ButtonStyle.red, custom_id='stand')
@@ -90,8 +95,12 @@ def setup(client):
             def checkButton(m):
                 return m.message == msg1 and m.user == ctx.author
 
-            exitLoop = 0
-            while exitLoop == 0:
+            while True:
+                sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s WHERE userId = %s'
+                val = (json.dumps(dealerHand), json.dumps(playerHand), ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
+
                 try:
                     interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
                 except asyncio.TimeoutError:
@@ -100,11 +109,11 @@ def setup(client):
                 else:
                     await interacted.response.defer()
                     if interacted.data['custom_id'] == 'stand':
-                        exitLoop = 1
+                        break
                     elif interacted.data['custom_id'] == 'hit':
                         drawCard(playerHand)
                         if printValue(playerHand)[1] > 21:
-                            exitLoop = 1
+                            break
                         
                         embed_dict = embed.to_dict()
                         for field in embed_dict["fields"]:
@@ -150,5 +159,10 @@ def setup(client):
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[1]}]`', value=f'`{printCards(dealerHand)}`', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'`{printCards(playerHand)}`', inline=True)
             await msg1.edit(embed=embed, view=view)
+
+            sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s WHERE userId = %s'
+            val = (None, None, ctx.author.id)
+            sqlCursor.execute(sql, val)
+            sqlDb.commit()
 
             updateCoins(userData, result, bet)
