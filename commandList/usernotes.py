@@ -18,6 +18,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['userNotes', 'usernote', 'userNote'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def usernotes(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

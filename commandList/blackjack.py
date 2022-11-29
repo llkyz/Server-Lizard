@@ -8,7 +8,7 @@ from functions import *
 
 docs = {
 
-    "aliases":['bj'],
+    "aliases":['bj', 'breadjack'],
 
     "usage":"!blackjack [bet]",
 
@@ -19,7 +19,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['bj']) #!blackjack
+    @client.command(aliases=['bj', 'breadjack'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def blackjack(ctx):
         userData = await checkAccount(ctx)
         bet = await checkBet(userData,ctx)

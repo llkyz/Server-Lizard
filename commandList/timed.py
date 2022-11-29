@@ -16,7 +16,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['timer']) #!timed        
+    @client.command(aliases=['timer'])
     async def timed(ctx):
         try:
             msgData = ctx.message.content.replace("\n", " ").split(" ")

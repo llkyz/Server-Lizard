@@ -15,7 +15,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!greet
+    @client.command()
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def greet(ctx):
         channel = ctx.channel
         mymsg = await ctx.reply('Say hello!')

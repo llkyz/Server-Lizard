@@ -19,7 +19,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!selfdelete        
+    @client.command()
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)  
     async def selfdelete(ctx):
         try:
             await ctx.message.delete()

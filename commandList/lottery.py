@@ -18,7 +18,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['4D','4d']) #!blackjack
+    @client.command(aliases=['4D','4d'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def lottery(ctx):
         userData = await checkAccount(ctx)
 

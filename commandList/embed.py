@@ -19,6 +19,7 @@ docs = {
 
 def setup(client):
     @client.command()
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def embed(ctx):
         if hasEmbedRole(ctx) or hasAdminRole(ctx) or checkOwner(ctx):
             msgData = ctx.message.content.split(" ")

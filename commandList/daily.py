@@ -16,7 +16,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command() # Get a random number of coins every day
+    @client.command()
     async def daily(ctx):
         userData = await checkAccount(ctx)
         if userData != None:

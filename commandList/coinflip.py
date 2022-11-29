@@ -18,7 +18,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['cf']) #!game
+    @client.command(aliases=['cf'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def coinflip(ctx):
         userData = await checkAccount(ctx)
         bet = await checkBet(userData,ctx)

@@ -19,6 +19,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['embedRoles', 'embedrole', 'embedRole'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def embedroles(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT embedRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

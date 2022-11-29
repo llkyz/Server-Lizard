@@ -19,7 +19,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!bulkdelete   
+    @client.command()
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)  
     async def bulkdelete(ctx):
         try:
             await ctx.message.delete()

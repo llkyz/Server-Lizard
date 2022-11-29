@@ -18,7 +18,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!game
+    @client.command()
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def rps(ctx):
         userData = await checkAccount(ctx)
         bet = await checkBet(userData,ctx)

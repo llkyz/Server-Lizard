@@ -4,7 +4,7 @@ from functions import *
 
 docs = {
 
-    "aliases":['coins', 'money', 'currency'],
+    "aliases":['coins', 'money', 'currency', 'balance', 'wallet'],
 
     "usage":"!coins",
 
@@ -15,7 +15,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['money','currency', 'coins']) # Checks your coin balance
+    @client.command(aliases=['money','currency', 'coins', 'balance', 'wallet']) # Checks your coin balance
     async def coin(ctx):
         userData = await checkAccount(ctx)
         if userData != None:

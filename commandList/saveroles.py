@@ -18,6 +18,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['saverole'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def saveroles(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT saveRoleChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

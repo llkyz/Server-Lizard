@@ -7,20 +7,25 @@ def setup(client):
     async def setCoins(ctx):
         if checkOwner(ctx):
             msgData = ctx.message.content.split(" ")
-            if len(msgData) != 2:
-                await ctx.reply("Invalid arguments. Please use !setCoins [x]", delete_after=20)
+            if len(msgData) != 3:
+                await ctx.reply("Invalid arguments. Please use !setCoins [@user] [x]", delete_after=20)
             else:
                 try:
-                    query = int(msgData[1])
+                    userId = msgData[1].replace("<@", "").replace(">", "")
+                    query = int(msgData[2])
                 except:
-                    await ctx.reply("Invalid arguments. Please use !setCoins [x]", delete_after=20)
+                    await ctx.reply("Invalid arguments. Please use !setCoins [@user] [x]", delete_after=20)
                 else:
                     sql = 'UPDATE userDB SET coins = %s WHERE userId = %s'
-                    val = (query, ctx.author.id)
+                    val = (query, userId)
                     sqlCursor.execute(sql, val)
                     sqlDb.commit()
 
                     await ctx.reply(f'Coins set to {"{:,}".format(query)}')
+        else:
+            embed = discord.Embed()
+            embed.set_image(url='https://cdnmetv.metv.com/z50xp-1619719725-16226-list_items-no.jpg')
+            await ctx.send(embed=embed, delete_after=20)
 
     @client.command(aliases=['setactivity'])
     async def setActivity(ctx):

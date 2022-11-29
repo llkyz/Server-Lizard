@@ -18,6 +18,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['report', 'reportchannel', 'reportChannel', 'reportschannel', 'reportsChannel'])
+    @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def reports(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT reportChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

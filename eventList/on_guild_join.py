@@ -12,8 +12,8 @@ def setup(client):
 
 
         sqlCursor.execute('SELECT * FROM serverDB WHERE serverId = %s', (guild.id,))
-        userData = sqlCursor.fetchone()
-        if userData == None:
+        serverData = sqlCursor.fetchone()
+        if serverData == None:
             adminList = []
             for role in guild.roles:
                 if role.permissions.administrator or role.permissions.manage_guild:
