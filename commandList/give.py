@@ -47,6 +47,8 @@ def setup(client):
                         await ctx.send('You have a pending Blackjack bet! Please finish your game before giving coins.', delete_after=20)
                     elif userData["rpsBet"] != None:
                         await ctx.send('You have a pending Rock-Paper-Scissors bet! Please finish your game before giving coins.', delete_after=20)
+                    elif userData["cfBet"] != None:
+                        await ctx.send('You have a pending Coin Flip bet! Please finish your game before giving coins.', delete_after=20)
                     else:
                         sqlCursor.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
                         receiverData = sqlCursor.fetchone()

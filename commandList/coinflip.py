@@ -25,6 +25,11 @@ def setup(client):
         bet = await checkBet(userData,ctx)
 
         if bet != None:
+                sql = 'UPDATE userDB SET cfBet = %s WHERE userId = %s'
+                val = (True, ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
+
                 msgData = ctx.message.content.split(" ")
                 if len(msgData) == 3:
                     match msgData[2]:
@@ -75,5 +80,10 @@ def setup(client):
                 embed=discord.Embed(title=f'Betting on {choiceText}', description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** **{coinResultText}!!** {resultText}', color=color)
                 embed.set_author(name=f'{ctx.author.display_name} is playing Coin Flip', icon_url=ctx.author.display_avatar)
                 await msg1.edit(embed=embed)
+
+                sql = 'UPDATE userDB SET cfBet = %s WHERE userId = %s'
+                val = (None, ctx.author.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
 
                 updateCoins(userData, result, bet)
