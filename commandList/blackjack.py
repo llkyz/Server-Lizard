@@ -19,6 +19,11 @@ docs = {
     
     }
 
+
+cardback = "<:cardback:1047469347586711552>"
+
+cards = ["blank","<:c_ace:1047469363189526549>","<:c_two:1047469380470059138>","<:c_three:1047469391098413098>","<:c_four:1047469399977758740>","<:c_five:1047469407049367632>","<:c_six:1047469418046820372>","<:c_seven:1047469424732553287>","<:c_eight:1047469432257118250>","<:c_nine:1047469439450370068>","<:c_ten:1047469452603686983>","<:c_jack:1047469553707397213>","<:c_queen:1047469567255003166>","<:c_king:1047469573974278144>","<:d_ace:1047469624679202866>","<:d_two:1047469634120585226>","<:d_three:1047469640588214282>","<:d_four:1047469647315882004>","<:d_five:1047469653238235146>","<:d_six:1047469659659702302>","<:d_seven:1047469665938587759>","<:d_eight:1047469672251011142>","<:d_nine:1047469680576700457>","<:d_ten:1047469691767115776>","<:d_jack:1047469908289658961>","<:d_queen:1047469915633897502>","<:d_king:1047469924077031524>","<:h_ace:1047470468107616286>","<:h_two:1047470477829996604>","<:h_three:1047470485023236166>","<:h_four:1047470491386003537>","<:h_five:1047470497677443102>","<:h_six:1047470510797230080>","<:h_seven:1047470517713645638>","<:h_eight:1047470525565374544>","<:h_nine:1047470537946968115>","<:h_ten:1047470545089855528>","<:h_jack:1047470552975159296>","<:h_queen:1047470564148772926>","<:h_king:1047470572499636314>","<:s_ace:1047470673133572176>","<:s_two:1047470680544915466>","<:s_three:1047470686567944233>","<:s_four:1047470693211721790>","<:s_five:1047470699498967070>","<:s_six:1047470705924653117>","<:s_seven:1047470712841060432>","<:s_eight:1047487024040513637>","<:s_nine:1047487043036520468>","<:s_ten:1047487052373032960>","<:s_jack:1047471402258800640>","<:s_queen:1047471423347773441>","<:s_king:1047471433523138660>"]
+
 def setup(client):
     @client.command(aliases=['bj', 'breadjack'])
     @commands.cooldown(1,5,commands.BucketType.user)
@@ -28,37 +33,32 @@ def setup(client):
         bet = await checkBet(userData,ctx)
 
         if bet != None:
-            
-            cardTypes = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-            cardSuits = ["♣️","♦️","♥️","♠️"]
             cardValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
             playerHand = []
             dealerHand = []
 
             def drawCard(targetHand):
                 myNum = random.randint(1,52)
-                while ('id', myNum) in playerHand or ('id', myNum) in dealerHand:
+                while (myNum) in playerHand or (myNum) in dealerHand:
                     myNum = random.randint(1,52)
-                myCard = (myNum % 13) - 1
-                mySuit = math.ceil(myNum / 13) - 1
-                targetHand.append({'id': myNum, 'type': cardTypes[myCard], 'suit': cardSuits[mySuit], 'value': cardValues[myCard]})
+                targetHand.append(myNum)
 
             def printCards(targetHand):
-                textOutput = []
+                cardOutput = []
 
                 for x in targetHand:
-                    textOutput.append(f'{x["type"]}{x["suit"]}')
-                textOutput = ", ".join(textOutput)
+                    cardOutput.append(cards[x])
+                cardOutput = " ".join(cardOutput)
 
-                return textOutput
+                return cardOutput
 
             def printValue(targetHand):
                 totalValue = 0
                 aceCount = 0
 
                 for x in targetHand:
-                    totalValue += x["value"]
-                    if x["value"] == 1:
+                    totalValue += cardValues[(x % 13) - 1]
+                    if cardValues[(x % 13) - 1] == 1:
                         aceCount += 1
 
                 if aceCount > 0 and totalValue < 12:
@@ -98,8 +98,8 @@ def setup(client):
             view.add_item(button3)
             embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]**')
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
-            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'`{printCards(dealerHand)}, ??`', inline=True)
-            embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'`{printCards(playerHand)}`', inline=True)
+            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'{printCards(dealerHand)}, {cardback}', inline=True)
+            embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'{printCards(playerHand)}', inline=True)
             msg1 = await ctx.send(content=resumeText, embed=embed, view=view)
 
             def checkButton(m):
@@ -130,7 +130,7 @@ def setup(client):
                         for field in embed_dict["fields"]:
                             if f'{ctx.author.display_name}' in field["name"]:
                                 field["name"] = f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`'
-                                field["value"] = f'`{printCards(playerHand)}`'
+                                field["value"] = f'{printCards(playerHand)}'
 
                         embed = discord.Embed.from_dict(embed_dict)
                         await msg1.edit(embed=embed)
@@ -183,8 +183,8 @@ def setup(client):
             view = discord.ui.View()
             embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** {resultText}',color=color)
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
-            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[1]}]`', value=f'`{printCards(dealerHand)}`', inline=True)
-            embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'`{printCards(playerHand)}`', inline=True)
+            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[1]}]`', value=f'{printCards(dealerHand)}', inline=True)
+            embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'{printCards(playerHand)}', inline=True)
             await msg1.edit(embed=embed, view=view)
 
             sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s, bjBet = %s WHERE userId = %s'
