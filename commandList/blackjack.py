@@ -13,7 +13,7 @@ docs = {
 
     "usage":"!blackjack [bet]",
 
-    "description":"Play a game of Blackjack! Get the highest hand value without exceeding 21. Double your bet if you win!",
+    "description":"Play a game of Blackjack!\n\nGet the highest hand value without exceeding 21. Double your bet if you win!\nIf you choose to forfeit, you'll get back 50% of your bet.",
 
     "category":"gamble"
     
@@ -92,8 +92,10 @@ def setup(client):
             view = discord.ui.View()
             button1 = discord.ui.Button(label="Hit", style=ButtonStyle.green, custom_id='hit')
             button2 = discord.ui.Button(label="Stand", style=ButtonStyle.red, custom_id='stand')
-            view.add_item(item=button1)
-            view.add_item(item=button2)
+            button3 = discord.ui.Button(label="Forfeit", style=ButtonStyle.blurple, custom_id='forfeit')
+            view.add_item(button1)
+            view.add_item(button2)
+            view.add_item(button3)
             embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]**')
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'`{printCards(dealerHand)}, ??`', inline=True)
@@ -133,6 +135,22 @@ def setup(client):
                         embed = discord.Embed.from_dict(embed_dict)
                         await msg1.edit(embed=embed)
 
+                    elif interacted.data['custom_id'] == 'forfeit':
+                        resultText = f'Hand Forfeited! You get back {"{:,}".format(math.floor(bet/2))} coins'
+
+                        embed_dict = embed.to_dict()
+                        embed_dict["description"] = f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** {resultText}'
+                        embed_dict["color"] = 0xFF5733
+                        embed = discord.Embed.from_dict(embed_dict)
+                        await msg1.edit(embed=embed, view=None)
+
+                        sql = 'UPDATE userDB SET bjDealer = %s, bjPlayer = %s, bjBet = %s WHERE userId = %s'
+                        val = (None, None, None, ctx.author.id)
+                        sqlCursor.execute(sql, val)
+                        sqlDb.commit()
+
+                        updateCoins(userData, 'lose', math.ceil(bet/2))
+                        return
             dealerDraw()
 
             playerValue = printValue(playerHand)[1]
