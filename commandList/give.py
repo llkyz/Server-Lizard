@@ -66,4 +66,4 @@ def setup(client):
                         sqlCursor.execute(sql, val)
                         sqlDb.commit()
 
-                        await ctx.send(f'<:lizard_coin:1047527590677712896> | **🪙 {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coins to **{getUser.display_name}**!')
+                        await ctx.send(f'<:lizard_coin:1047527590677712896> | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coins to **{getUser.display_name}**!')

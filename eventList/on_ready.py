@@ -7,9 +7,7 @@ def setup(client):
     async def on_ready():
         print(f'{client.user} is connected to the following guilds:\n')
         for guild in client.guilds:
-            print(
-                f'{guild.name}(id: {guild.id})\n'
-            )
+            print(f'{guild.name} (id: {guild.id})')
 
         await asyncio.sleep(5)
         await client.change_presence(status=discord.Status.online, activity=discord.Game(name="!commands"))
