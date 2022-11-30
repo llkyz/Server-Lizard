@@ -96,7 +96,7 @@ def setup(client):
             view.add_item(button1)
             view.add_item(button2)
             view.add_item(button3)
-            embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]**')
+            embed = discord.Embed(description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]**')
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'{printCards(dealerHand)}, {cardback}', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'{printCards(playerHand)}', inline=True)
@@ -139,7 +139,7 @@ def setup(client):
                         resultText = f'Hand Forfeited! You get back {"{:,}".format(math.floor(bet/2))} coins'
 
                         embed_dict = embed.to_dict()
-                        embed_dict["description"] = f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** {resultText}'
+                        embed_dict["description"] = f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}'
                         embed_dict["color"] = 0xFF5733
                         embed = discord.Embed.from_dict(embed_dict)
                         await msg1.edit(embed=embed, view=None)
@@ -181,7 +181,7 @@ def setup(client):
                 color = 0xaacbeb
 
             view = discord.ui.View()
-            embed = discord.Embed(description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** {resultText}',color=color)
+            embed = discord.Embed(description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}',color=color)
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Dealer `[{printValue(dealerHand)[1]}]`', value=f'{printCards(dealerHand)}', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[1]}]`', value=f'{printCards(playerHand)}', inline=True)

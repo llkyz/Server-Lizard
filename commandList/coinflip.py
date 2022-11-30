@@ -55,7 +55,7 @@ def setup(client):
                 else:
                     choiceText = "Tails"
             
-                embed=discord.Embed(title=f'Betting on {choiceText}', description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** Flipping! Cross your fingers...', color=0xaacbeb)
+                embed=discord.Embed(title=f'Betting on {choiceText}', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** Flipping! Cross your fingers...', color=0xaacbeb)
                 embed.set_author(name=f'{ctx.author.display_name} is playing Coin Flip', icon_url=ctx.author.display_avatar)
                 msg1 = await ctx.send(embed=embed)
 
@@ -77,7 +77,7 @@ def setup(client):
                     resultText = "You lost..."
                     color = 0xFF5733
 
-                embed=discord.Embed(title=f'Betting on {choiceText}', description=f'**[ Bet: 🪙 {"{:,}".format(bet)} ]** **{coinResultText}!!** {resultText}', color=color)
+                embed=discord.Embed(title=f'Betting on {choiceText}', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** **{coinResultText}!!** {resultText}', color=color)
                 embed.set_author(name=f'{ctx.author.display_name} is playing Coin Flip', icon_url=ctx.author.display_avatar)
                 await msg1.edit(embed=embed)
 
