@@ -10,8 +10,17 @@ async def checkBet(userData,ctx):
             else:
                 await ctx.reply("You don't have any coins to bet!", delete_after=20)
         else:
+            if msgData[1][-1] == "k".casefold():
+                multiplier = 1000
+                msgData[1] = msgData[1][:-1]
+            elif msgData[1][-1] == "m".casefold():
+                multiplier = 1000000
+                msgData[1] = msgData[1][:-1]
+            else:
+                multiplier = 1
+
             try:
-                query = int(msgData[1])
+                query = int(float(msgData[1]) * multiplier)
             except:
                 await ctx.reply("Please enter a proper bet amount.", delete_after=20)
             else:
