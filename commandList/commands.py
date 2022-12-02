@@ -15,20 +15,20 @@ docs = {
     
     }
 
-categories = {
-    "utility": {'field': "🔧 **Utility**", 'modules':[]},
-    "fluff": {'field': "🙃 **Fluff**", 'modules':[]},
-    "economy": {'field': "🪙 **Economy**", 'modules':[]},
-    "games": {'field': "🎮 **Games**", 'modules':[]},
-    "gamble": {'field': "🎲 **Gamble**", 'modules':[]},
-    "messages": {'field': "📰 **Message Management**", 'modules':[]},
-    "admin": {'field': "👓 **Mod/Admin Use**", 'modules':[]},
-}
-
 def setup(client):
     client.remove_command('help')
     @client.command(aliases=['command','help']) #!commands            
     async def commands(ctx, arg=None):
+        categories = {
+            "utility": {'field': "🔧 **Utility**", 'modules':[]},
+            "fluff": {'field': "🙃 **Fluff**", 'modules':[]},
+            "economy": {'field': "🪙 **Economy**", 'modules':[]},
+            "games": {'field': "🎮 **Games**", 'modules':[]},
+            "gamble": {'field': "🎲 **Gamble**", 'modules':[]},
+            "messages": {'field': "📰 **Message Management**", 'modules':[]},
+            "admin": {'field': "👓 **Mod/Admin Use**", 'modules':[]},
+        }
+
         if arg == None:
             commandList = glob.glob("commandList/*.py")
             for x in commandList:
