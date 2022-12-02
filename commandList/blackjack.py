@@ -98,7 +98,7 @@ def setup(client):
             view.add_item(button3)
             embed = discord.Embed(description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]**')
             embed.set_author(name=f'{ctx.author.display_name} is playing Blackjack', icon_url=ctx.author.display_avatar)
-            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'{printCards(dealerHand)}, {cardback}', inline=True)
+            embed.add_field(name=f'Dealer `[{printValue(dealerHand)[0]}]`', value=f'{printCards(dealerHand)} {cardback}', inline=True)
             embed.add_field(name=f'{ctx.author.display_name} `[{printValue(playerHand)[0]}]`', value=f'{printCards(playerHand)}', inline=True)
             msg1 = await ctx.send(content=resumeText, embed=embed, view=view)
 

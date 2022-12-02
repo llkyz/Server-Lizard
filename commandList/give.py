@@ -29,7 +29,17 @@ def setup(client):
                     guild = await client.fetch_guild(ctx.guild.id)
                     getUser = await guild.fetch_member(receiverId)
                     receiverData = await fetchUserData(getUser)
-                    giveAmount = int(msgData[2])
+
+                    if msgData[2][-1] == "k".casefold():
+                        multiplier = 1000
+                        msgData[2] = msgData[2][:-1]
+                    elif msgData[2][-1] == "m".casefold():
+                        multiplier = 1000000
+                        msgData[2] = msgData[2][:-1]
+                    else:
+                        multiplier = 1
+
+                    giveAmount = int(float(msgData[2]) * multiplier)
                 except:
                     await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
                 else:
