@@ -20,7 +20,7 @@ async def checkBet(userData,ctx):
                 multiplier = 1
 
             try:
-                query = int(float(msgData[1]) * multiplier)
+                query = int(float(msgData[1].replace(",","")) * multiplier)
             except:
                 await ctx.reply("Please enter a proper bet amount.", delete_after=20)
             else:

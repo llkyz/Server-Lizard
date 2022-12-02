@@ -39,7 +39,7 @@ def setup(client):
                     else:
                         multiplier = 1
 
-                    giveAmount = int(float(msgData[2]) * multiplier)
+                    giveAmount = int(float(msgData[2].replace(",","")) * multiplier)
                 except:
                     await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
                 else:
