@@ -14,6 +14,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command() #!test
+    @client.command()
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def test(ctx):     
         await ctx.send("owo")

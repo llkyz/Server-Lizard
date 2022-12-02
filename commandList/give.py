@@ -16,30 +16,29 @@ docs = {
 
 def setup(client):
     @client.command() # Give another user some coins
-    async def give(ctx):
+    async def give(ctx, arg=None, arg2=None):
         userData = await fetchUserData(ctx.author)
 
         if userData != None:
-            msgData = ctx.message.content.split(" ")
-            if len(msgData) != 3:
+            if arg2 == None:
                 await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
             else:
                 try:
-                    receiverId = int(msgData[1].replace('<@','').replace('>',''))
+                    receiverId = int(arg.replace('<@','').replace('>',''))
                     guild = await client.fetch_guild(ctx.guild.id)
                     getUser = await guild.fetch_member(receiverId)
                     receiverData = await fetchUserData(getUser)
 
-                    if msgData[2][-1] == "k".casefold():
+                    if arg2[-1] == "k".casefold():
                         multiplier = 1000
-                        msgData[2] = msgData[2][:-1]
-                    elif msgData[2][-1] == "m".casefold():
+                        arg2 = arg2[:-1]
+                    elif arg2[-1] == "m".casefold():
                         multiplier = 1000000
-                        msgData[2] = msgData[2][:-1]
+                        arg2 = arg2[:-1]
                     else:
                         multiplier = 1
 
-                    giveAmount = int(float(msgData[2].replace(",","")) * multiplier)
+                    giveAmount = int(float(arg2.replace(",","")) * multiplier)
                 except:
                     await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
                 else:

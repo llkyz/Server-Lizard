@@ -20,17 +20,16 @@ docs = {
 def setup(client):
     @client.command()
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
-    async def embed(ctx):
+    async def embed(ctx, arg=None, arg2=None):
         if hasEmbedRole(ctx) or hasAdminRole(ctx) or checkOwner(ctx):
-            msgData = ctx.message.content.split(" ")
 
-            if len(msgData) == 1:
+            if arg == None and arg2 == None:
                 await ctx.reply("Please use the following format: !embed create / !embed edit [msg id] / !embed delete [msg id]", delete_after=20)
-            elif msgData[1].lower() == "create" or msgData[1].lower() == "edit":
+            elif arg.lower() == "create" or arg.lower() == "edit":
 
-                if msgData[1].lower() == "edit":
+                if arg.lower() == "edit":
                     try:
-                        fetchedMessage = await ctx.channel.fetch_message(msgData[2])
+                        fetchedMessage = await ctx.channel.fetch_message(arg2)
                     except:
                         await ctx.reply("Message not found. Please ensure that you're entering this command in the channel that the message is in, and use the following format: !embed edit [msg id]. The message ID can be found in the embed's footer")
                         return
@@ -43,7 +42,7 @@ def setup(client):
                             await ctx.reply("That message is not a custom embedded message created by Server Lizard.")
                             return
                     
-                elif msgData[1].lower() == "create":
+                elif arg.lower() == "create":
                     embed_dict = {'title': f'This is your new embed message!', 'footer': {'text': f'created by {ctx.author.display_name} | Message ID: <message ID will be entered here>'}}
 
                 section = "overall"
@@ -327,7 +326,7 @@ def setup(client):
                                         view = createView(viewDisplay[section])
 
                                 elif getButtonData[1] == "create":
-                                    if msgData[1].lower() == "create":
+                                    if arg.lower() == "create":
                                         controllerText = f'Creating embedded message in `#{ctx.channel.name}` on {ctx.guild.name}... hang on!'
                                         createdEmbed = await ctx.channel.send(embed=discord.Embed(title="Processing..."))
                                         embed_dict["footer"]["text"] = f'created by {ctx.author.display_name} | Message ID: {createdEmbed.id}'
@@ -336,7 +335,7 @@ def setup(client):
                                         await embedController.edit(embed=discord.Embed(title ='**🦎 | Server Lizard **:', description=controllerText), view=view)
                                         break
 
-                                    elif msgData[1].lower() == "edit":
+                                    elif arg.lower() == "edit":
                                         await fetchedMessage.edit(embed=discord.Embed.from_dict(embed_dict))
                                         controllerText = f'Message edited! [Link to message]({fetchedMessage.jump_url})'
                                         await embedController.edit(embed=discord.Embed(title ='**🦎 | Server Lizard **:', description=controllerText), view=view)
@@ -351,9 +350,9 @@ def setup(client):
                             case _:
                                 print("Something wrong happened")
 
-            elif msgData[1].lower() == "delete":
+            elif arg.lower() == "delete":
                 try:
-                    fetchedMessage = await ctx.channel.fetch_message(msgData[2])
+                    fetchedMessage = await ctx.channel.fetch_message(arg2)
                 except:
                     await ctx.reply("Message not found. Please ensure that you're entering this command in the channel that the message is in, and use the following format: !embed edit [msg id]. The message ID can be found in the embed's footer")
                     return

@@ -28,9 +28,9 @@ def setup(client):
     @client.command(aliases=['bj', 'breadjack'])
     @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
-    async def blackjack(ctx):
+    async def blackjack(ctx, arg=None):
         userData = await fetchUserData(ctx.author)
-        bet = await checkBet(userData,ctx)
+        bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
             cardValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]

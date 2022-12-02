@@ -21,34 +21,33 @@ def setup(client):
     @client.command(aliases=['4D','4d'])
     @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
-    async def lottery(ctx):
-        userData = await checkAccount(ctx)
+    async def lottery(ctx, arg=None, arg2=None):
+        userData = await fetchUserData(ctx.author)
 
         if userData != None:
-                msgData = ctx.message.content.split(" ")
-                if len(msgData) != 3:
+            if arg == None or arg2 == None:
+                await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
+                return
+            else:
+                try:
+                    bet = await checkBet(userData, arg, ctx)
+                    choice = int(arg2)
+                except:
                     await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
                     return
                 else:
-                    try:
-                        bet = await checkBet(userData,ctx)
-                        choice = int(msgData[2])
-                    except:
-                        await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
+                    if bet == None:
                         return
-                    else:
-                        if bet == None:
-                            return
-                        elif len(str(msgData[2])) != 4:
-                            await ctx.reply("Please enter a 4 digit number to bet on.", delete_after=20)
-                            return
+                    elif len(str(arg2)) != 4:
+                        await ctx.reply("Please enter a 4 digit number to bet on.", delete_after=20)
+                        return
 
         view = discord.ui.View()
         button1 = discord.ui.Button(label="Big", style=ButtonStyle.grey, custom_id='big')
         button2 = discord.ui.Button(label="Small", style=ButtonStyle.grey, custom_id='small')
         view.add_item(item=button1)
         view.add_item(item=button2)
-        embed = discord.Embed(title=f'Betting on __{msgData[2]}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]**')
+        embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]**')
         embed.set_author(name=f'{ctx.author.display_name} is playing Lottery (4D)', icon_url=ctx.author.display_avatar)
         embed.add_field(name=f'Prize Category', value=f'First\nSecond\nThird\nStarter\nConsolation', inline=True)
         embed.add_field(name=f'Big', value=f'2000x\n1000x\n490x\n250x\n60x', inline=True)
@@ -140,7 +139,7 @@ def setup(client):
             
             view.remove_item(item=button1)
             view.remove_item(item=button2)
-            embed = discord.Embed(title=f'Betting on __{msgData[2]}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}')
+            embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}')
             embed.set_author(name=f'{ctx.author.display_name} is playing Lottery (4D)', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Prize Category', value=f'First\nSecond\nThird\nStarter\nConsolation', inline=True)
             embed.add_field(name=f'Big', value=f'2000x\n1000x\n490x\n250x\n60x', inline=True)

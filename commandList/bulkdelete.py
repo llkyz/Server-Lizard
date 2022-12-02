@@ -12,7 +12,7 @@ docs = {
 
     "usage":"!bulkdelete",
 
-    "description":"Allows you to select and delete a range of messages from any channel.\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
+    "description":"Allows you to select and delete a range of messages from any channel.\n\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
 
     "category":"admin-messages"
     

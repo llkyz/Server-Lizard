@@ -1,26 +1,25 @@
 import discord
 from discord.ext import commands
 
-async def checkBet(userData,ctx):
+async def checkBet(userData, arg, ctx):
     if userData != None:
-        msgData = ctx.message.content.split(" ")
-        if len(msgData) == 1:
+        if arg == None:
             if userData["coins"] > 0:
                 return 1
             else:
                 await ctx.reply("You don't have any coins to bet!", delete_after=20)
         else:
-            if msgData[1][-1] == "k".casefold():
+            if arg[-1] == "k".casefold():
                 multiplier = 1000
-                msgData[1] = msgData[1][:-1]
-            elif msgData[1][-1] == "m".casefold():
+                arg = arg[:-1]
+            elif arg[-1] == "m".casefold():
                 multiplier = 1000000
-                msgData[1] = msgData[1][:-1]
+                arg = arg[:-1]
             else:
                 multiplier = 1
 
             try:
-                query = int(float(msgData[1].replace(",","")) * multiplier)
+                query = int(float(arg.replace(",","")) * multiplier)
             except:
                 await ctx.reply("Please enter a proper bet amount.", delete_after=20)
             else:

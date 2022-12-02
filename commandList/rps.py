@@ -21,9 +21,9 @@ def setup(client):
     @client.command()
     @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
-    async def rps(ctx):
-        userData = await checkAccount(ctx)
-        bet = await checkBet(userData,ctx)
+    async def rps(ctx, arg=None):
+        userData = await fetchUserData(ctx.author)
+        bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
             sql = 'UPDATE userDB SET rpsBet = %s WHERE userId = %s'

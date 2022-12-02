@@ -12,7 +12,7 @@ docs = {
 
     "usage":"!selfdelete",
 
-    "description":"Allows you to select and delete a range of your own messages from any channel. This will not delete other users' messages, only your own.\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
+    "description":"Allows you to select and delete a range of your own messages from any channel. This will not delete other users' messages, only your own.\n\nCAUTION: Messages will be permanently deleted and cannot be retrieved.",
 
     "category":"messages"
     

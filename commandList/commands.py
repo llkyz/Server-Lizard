@@ -28,9 +28,8 @@ categories = {
 def setup(client):
     client.remove_command('help')
     @client.command(aliases=['command','help']) #!commands            
-    async def commands(ctx):
-        msgData = ctx.message.content.split(" ")
-        if len(msgData) == 1:
+    async def commands(ctx, arg=None):
+        if arg == None:
             commandList = glob.glob("commandList/*.py")
             for x in commandList:
                 slice = x.replace("\\", ".").replace("/", ".").replace(".py", "")
@@ -48,7 +47,7 @@ def setup(client):
         else:
             try:
                 mymodule = "commandList."
-                getDocs = importlib.import_module(mymodule + msgData[1])
+                getDocs = importlib.import_module(mymodule + arg)
                 if getDocs.docs["category"] not in categories:
                     await ctx.reply("Command not found!")
                 else:
@@ -57,7 +56,7 @@ def setup(client):
                     else:
                         aliasList = ", ".join(getDocs.docs["aliases"])
 
-                    embed = discord.Embed(title=f'[Command] !{msgData[1]}', description=f'**Aliases**: {aliasList}\n\n**Usage**: {getDocs.docs["usage"]}\n\n**Description**\n> {getDocs.docs["description"]}', color=0xaacbeb)
+                    embed = discord.Embed(title=f'[Command] !{arg}', description=f'**Aliases**: {aliasList}\n\n**Usage**: {getDocs.docs["usage"]}\n\n**Description**\n> {getDocs.docs["description"]}', color=0xaacbeb)
                     await ctx.reply(embed=embed)
             except:
                 await ctx.reply("Command not found!")
