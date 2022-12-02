@@ -17,7 +17,7 @@ To invite Server Lizard into your Discord server, simply use the link [HERE](htt
 
 - Message Management
 
-`bulkdelete` `embed` `adminping`  `reports`
+`bulkdelete` `embed` `adminping`  `quickdelete` `clearreactions` `reports`
 
 - User Management
 
@@ -31,7 +31,7 @@ To invite Server Lizard into your Discord server, simply use the link [HERE](htt
 ---
 - Utility
 
-`commands`
+`commands` `reminder`
 
 - Fluff
 
