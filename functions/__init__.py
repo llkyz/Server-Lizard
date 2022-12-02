@@ -1,4 +1,3 @@
-from .checkAccount import checkAccount
 from .checkBet import checkBet
 from .checkOwner import checkOwner
 from .checkRoles import checkRoles

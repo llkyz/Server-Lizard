@@ -24,7 +24,7 @@ def setup(client):
         if hasEmbedRole(ctx) or hasAdminRole(ctx) or checkOwner(ctx):
 
             if arg == None and arg2 == None:
-                await ctx.reply("Please use the following format: !embed create / !embed edit [msg id] / !embed delete [msg id]", delete_after=20)
+                await ctx.reply("Please use the following format: `!embed create` / `!embed edit [msg id]` / `!embed delete [msg id]`", delete_after=20)
             elif arg.lower() == "create" or arg.lower() == "edit":
 
                 if arg.lower() == "edit":
@@ -389,4 +389,4 @@ def setup(client):
                     elif interacted.data['custom_id'] == "cancel":
                         await msg1.edit(embed=discord.Embed(title="Embed Deletion cancelled"), view=view)
             else:
-                await ctx.reply("Please use the following format: !embed create / !embed edit [msg id] / !embed delete [msg id]", delete_after=20)
+                await ctx.reply("Please use the following format: `!embed create` / `!embed edit [msg id]` / `!embed delete [msg id]`", delete_after=20)

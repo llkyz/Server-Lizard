@@ -30,6 +30,6 @@ def setup(client):
                         embed=discord.Embed(title=f'{len(deleted)} messages deleted.', color=0x00FF00)
                         await ctx.send(embed=embed)
                     except:
-                        await ctx.send("Please use the following format: !quickdelete [number]", delete_after=20)
+                        await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
                 else:
-                    await ctx.send("Please use the following format: !quickdelete [number]", delete_after=20)
+                    await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)

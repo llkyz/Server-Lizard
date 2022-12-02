@@ -73,6 +73,6 @@ def setup(client):
                         embed.add_field(name=x["service"], value="\n".join(x["timings"]), inline=True)
                     await ctx.reply(embed=embed)
             else:
-                await ctx.reply("Please use the following format: !bus [5-digit bus stop code]", delete_after=20)
+                await ctx.reply("Please use the following format: `!bus [5-digit bus stop code]`", delete_after=20)
         else:
-            await ctx.reply("Please use the following format: !bus [5-digit bus stop code]", delete_after=20)
+            await ctx.reply("Please use the following format: `!bus [5-digit bus stop code]`", delete_after=20)

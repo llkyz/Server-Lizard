@@ -26,14 +26,14 @@ def setup(client):
 
         if userData != None:
             if arg == None or arg2 == None:
-                await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
+                await ctx.reply("Please use the following format: `!lottery [bet] [4-digit number]`", delete_after=20)
                 return
             else:
                 try:
                     bet = await checkBet(userData, arg, ctx)
                     choice = int(arg2)
                 except:
-                    await ctx.reply("Please use the following format: !lottery [bet] [4-digit number]", delete_after=20)
+                    await ctx.reply("Please use the following format: `!lottery [bet] [4-digit number]`", delete_after=20)
                     return
                 else:
                     if bet == None:
