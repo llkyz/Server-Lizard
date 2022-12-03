@@ -26,8 +26,7 @@ def setup(client):
         bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
-            sql = 'UPDATE userDB SET rpsBet = %s WHERE userId = %s'
-            val = (True, ctx.author.id)
+            updateCoins(ctx.author.id, -bet)
             sqlCursor.execute(sql, val)
             sqlDb.commit()
 
@@ -115,4 +114,7 @@ def setup(client):
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
-                updateCoins(userData, result, bet)
+                if result == "win":
+                    updateCoins(ctx.author.id, bet*2)
+                elif result == "tie":
+                    updateCoins(ctx.author.id, bet)

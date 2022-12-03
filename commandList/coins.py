@@ -16,8 +16,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['money','currency', 'coins', 'balance', 'wallet']) # Checks your coin balance
-    @commands.cooldown(1,15,commands.BucketType.user)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def coin(ctx):
         userData = await fetchUserData(ctx.author)
-        if userData != None:
-            await ctx.send(f'**<:lizard_coin:1047527590677712896> | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** coins')
+        await ctx.send(f'**<:lizard_coin:1047527590677712896> | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** coins')

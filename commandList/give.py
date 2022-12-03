@@ -41,23 +41,23 @@ def setup(client):
                     giveAmount = int(float(arg2.replace(",","")) * multiplier)
                 except:
                     await ctx.send('Invalid syntax! Please use `!give [@user] [amount]`', delete_after=20)
+                    return
                 else:
                     if receiverId == ctx.author.id:
                         await ctx.send('You can\'t give coins to yourself!', delete_after=20)
+                        return
                     elif getUser is None:
                         await ctx.send('Invalid user! Please use `!give [@user] [amount]`', delete_after=20)
+                        return
                     elif giveAmount < 1:
                         await ctx.send('You can\'t give negative coins! 😠', delete_after=20)
+                        return
                     elif giveAmount > userData["coins"]:
                         await ctx.send('You don\'t have that many coins!', delete_after=20)
+                        return
                     elif receiverData['coins'] + giveAmount > 2147483647:
                         await ctx.send(f'{getUser.display_name} cannot receive any more coins.', delete_after=20)
-                    elif userData["bjBet"] != None:
-                        await ctx.send('You have a pending Blackjack bet! Please finish your game before giving coins.', delete_after=20)
-                    elif userData["rpsBet"] != None:
-                        await ctx.send('You have a pending Rock-Paper-Scissors bet! Please finish your game before giving coins.', delete_after=20)
-                    elif userData["cfBet"] != None:
-                        await ctx.send('You have a pending Coin Flip bet! Please finish your game before giving coins.', delete_after=20)
+                        return
                     else:
                         sqlCursor.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
                         receiverData = sqlCursor.fetchone()
@@ -66,12 +66,12 @@ def setup(client):
                             val = (receiverId, getUser.name + "#" + getUser.discriminator, giveAmount, "0")
                             sqlCursor.execute(sql, val)
                         else:
-                            sql = 'UPDATE userDB SET coins = %s, userName = %s WHERE userId = %s'
-                            val = (receiverData[2]+giveAmount, getUser.name + "#" + getUser.discriminator, receiverId)
+                            sql = 'UPDATE userDB SET coins = (coins + %s), userName = %s WHERE userId = %s'
+                            val = (giveAmount, getUser.name + "#" + getUser.discriminator, receiverId)
                             sqlCursor.execute(sql, val)
 
-                        sql = 'UPDATE userDB SET coins = %s, userName = %s WHERE userId = %s'
-                        val = (userData["coins"]-giveAmount, ctx.author.name + "#" + ctx.author.discriminator, userData["userId"])
+                        sql = 'UPDATE userDB SET coins = (coins - %s), userName = %s WHERE userId = %s'
+                        val = (giveAmount, ctx.author.name + "#" + ctx.author.discriminator, userData["userId"])
                         sqlCursor.execute(sql, val)
                         sqlDb.commit()
 

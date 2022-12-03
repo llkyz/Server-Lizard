@@ -42,6 +42,7 @@ def setup(client):
                         await ctx.reply("Please enter a 4 digit number to bet on.", delete_after=20)
                         return
 
+        updateCoins(ctx.author.id, -bet)
         view = discord.ui.View()
         button1 = discord.ui.Button(label="Big", style=ButtonStyle.grey, custom_id='big')
         button2 = discord.ui.Button(label="Small", style=ButtonStyle.grey, custom_id='small')
@@ -60,8 +61,8 @@ def setup(client):
         try:
             interacted = await client.wait_for('interaction', timeout=120, check=checkButton)
         except asyncio.TimeoutError:
-            view.clear_items()
-            await msg1.edit(content='Timed out!', view=view)
+            await msg1.edit(content='Timed out!', view=None)
+            updateCoins(ctx.author.id, bet)
             return
         else:
             await interacted.response.defer()
@@ -103,7 +104,6 @@ def setup(client):
                     prizeList += " ".join(strList[18:24]) + "\n"
                 return prizeList
 
-            multiplier = 1
             if choice not in prizeNumbers:
                 result = "lose"
                 resultText = "You didn't win..."
@@ -147,4 +147,5 @@ def setup(client):
             embed.add_field(name=f'__**Results**__', value=makeResultsTable(), inline=False)
             await msg1.edit(embed=embed, view=view)
 
-            updateCoins(userData, result, bet*multiplier)
+            if result == "win":
+                updateCoins(ctx.author.id, bet*multiplier)

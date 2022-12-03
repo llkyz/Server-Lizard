@@ -25,10 +25,7 @@ def setup(client):
         bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
-                sql = 'UPDATE userDB SET cfBet = %s WHERE userId = %s'
-                val = (True, ctx.author.id)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
+                updateCoins(ctx.author.id, -bet)
 
                 msgData = ctx.message.content.split(" ")
                 if len(msgData) == 3:
@@ -81,9 +78,5 @@ def setup(client):
                 embed.set_author(name=f'{ctx.author.display_name} is playing Coin Flip', icon_url=ctx.author.display_avatar)
                 await msg1.edit(embed=embed)
 
-                sql = 'UPDATE userDB SET cfBet = %s WHERE userId = %s'
-                val = (None, ctx.author.id)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
-
-                updateCoins(userData, result, bet)
+                if result == 'win':
+                    updateCoins(ctx.author.id, bet*2)
