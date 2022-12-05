@@ -4,6 +4,7 @@ from functions import *
 import asyncio
 from discord import Button, ButtonStyle
 import math
+from copy import deepcopy
 
 docs = {
 
@@ -73,22 +74,32 @@ def setup(client):
                     else:
                         return False
 
-                def editValue(content):
+                def editValue(content, limit=None):
                     if section == "fieldmenu":
                         if content.replace(" ","") == "":
                             controllerText = f'Navigating [{section}] -> [field {currentField + 1}] -> [{sectionValue}]\n\nValue cannot be blank.'
+                        elif len(content) > limit:
+                            controllerText = f'Navigating [{section}] -> [field {currentField + 1}] -> [{sectionValue}]\n\nExceeded limit of {limit} characters. You entered {len(content)} characters.'
                         else:
                             embed_dict['fields'][currentField][sectionValue] = content
                             controllerText = f'Navigating [{section}] -> [field {currentField + 1}] -> [{sectionValue}]\n\n[{sectionValue}] edited.'
 
                     elif (sectionValue == 'url' or sectionValue == 'icon_url') and content[:7].lower() != 'http://' and content[:8].lower() != 'https://':
                         controllerText = f'Navigating [{section}] -> [{sectionValue}]\n\nInvalid input. You need to enter a **http** or **https** link.'
-                    else:
-                        if section == "main":
-                            embed_dict[sectionValue] = content
-                        else:
-                            embed_dict[section][sectionValue] = content
+
+                    elif sectionValue == 'color':
+                        embed_dict[sectionValue] = content
                         controllerText = f'Navigating [{section}] -> [{sectionValue}]\n\n[{sectionValue}] added/edited.'
+                    
+                    else:
+                        if len(content) > limit:
+                            controllerText = f'Navigating [{section}] -> [{sectionValue}]\n\nExceeded limit of {limit} characters.'
+                        else:
+                            if section == "main":
+                                embed_dict[sectionValue] = content
+                            else:
+                                embed_dict[section][sectionValue] = content
+                            controllerText = f'Navigating [{section}] -> [{sectionValue}]\n\n[{sectionValue}] added/edited.'
                     return controllerText
 
                 def deleteValue():
@@ -193,10 +204,15 @@ def setup(client):
                 embedController = await ctx.author.send(embed=discord.Embed(title="Processing..."))
                 view = createView(overallView)
 
-
                 while True:
-                    await embedMsg.edit(embed=discord.Embed.from_dict(embed_dict))
-                    await embedController.edit(embed=discord.Embed(title ='**🦎 | Server Lizard **:', description=controllerText), view=view)
+                    try:
+                        await embedMsg.edit(embed=discord.Embed.from_dict(embed_dict))
+                        await embedController.edit(embed=discord.Embed(title ='**🦎 | Server Lizard **:', description=controllerText), view=view)
+                    except discord.HTTPException:
+                        await embedMsg.edit(embed=discord.Embed.from_dict(oldEmbed))
+                        embed_dict = deepcopy(oldEmbed)
+                        index = controllerText.index('\n\n') + 2
+                        await embedController.edit(embed=discord.Embed(title ='**🦎 | Server Lizard **:', description=controllerText[:index] + "Total number of characters exceeded 6000 characters. Please reduce the number of characters or fields."), view=view)                        
 
                     def checkButton(m):
                         return m.message == embedController and m.user == ctx.author
@@ -290,6 +306,7 @@ def setup(client):
                                     except asyncio.TimeoutError:
                                         await embedController.edit(embed=discord.Embed(title="TIMED OUT"), view=view)
                                     else:
+                                        oldEmbed = deepcopy(embed_dict)
                                         if sectionValue == "color":
                                             try:
                                                 if interacted.content.isalnum() and len(interacted.content) == 6:
@@ -299,7 +316,14 @@ def setup(client):
                                             except:
                                                 controllerText = f'Navigating [{section}] -> [{sectionValue}]\n\nInvalid input entered.'
                                         else:
-                                            controllerText = editValue(interacted.content)
+                                            if sectionValue == "title" or sectionValue == "name":
+                                                controllerText = editValue(interacted.content,256)
+                                            elif sectionValue == "value":
+                                                controllerText = editValue(interacted.content,1024)
+                                            elif sectionValue == "description":
+                                                controllerText = editValue(interacted.content,4096)
+                                            else:
+                                                controllerText = editValue(interacted.content,1000)
 
                                         if valueType == 'regular':
                                             view = createView(valueView)
