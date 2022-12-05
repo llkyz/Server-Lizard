@@ -17,6 +17,7 @@ docs = {
 
 def setup(client):
     @client.command()
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def daily(ctx):
         userData = await fetchUserData(ctx.author)
         if userData != None:
@@ -26,7 +27,7 @@ def setup(client):
                 dailyCoins = random.randint(500,2000)
 
                 sql = 'UPDATE userDB SET coins = %s, daily = %s WHERE userId = %s'
-                val = (userData["coins"]+dailyCoins, currentDate, userData["userId"])
+                val = (userData["coins"]+dailyCoins, str(currentDate), userData["userId"])
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
