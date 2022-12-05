@@ -17,6 +17,7 @@ docs = {
 
 def setup(client):
     @client.command()
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def daily(ctx):
         userData = await fetchUserData(ctx.author)
         if userData != None:
