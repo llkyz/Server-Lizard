@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 import asyncio
 import math
+from functions import *
+from datetime import datetime
 
 docs = {
 
@@ -24,10 +26,10 @@ def setup(client):
             
             if countdown <= 0:
                 countdown = 5
-                await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`', delete_after=countdown*60)
+                await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`', delete_after=60)
             elif countdown > 1440:
                 countdown = 1440
-                await ctx.reply(f'That\'s beyond the maximum time limit! Auto-deletion has been set to 24 hours.', delete_after=countdown*60)
+                await ctx.reply(f'That\'s beyond the maximum time limit! Auto-deletion has been set to 24 hours.', delete_after=60)
             else:
                 myMessage = []
                 remainder = countdown % 60
@@ -48,10 +50,13 @@ def setup(client):
                     myMessage.append(str(int(seconds)) + " seconds")
                     
                 joinedMessage = " ".join(myMessage)
-                await ctx.reply(f'Message set to auto-delete in {joinedMessage}.', delete_after=countdown*60)
+                await ctx.reply(f'Message set to auto-delete in {joinedMessage}.', delete_after=60)
             
         except:
             countdown = 5
-            await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`', delete_after=countdown*60)
-        await asyncio.sleep(countdown * 60)
-        await ctx.message.delete()
+            await ctx.reply(f'Syntax error! Defaulting to auto-deletion in 5 minutes. Please use `!timed [minutes]`', delete_after=60)
+
+        sql = "INSERT INTO timedDB (messageId, channelId, deleteTime) VALUES (%s, %s, %s)"
+        val = (ctx.message.id, ctx.channel.id, int(datetime.now().timestamp()) + countdown*60)
+        sqlCursor.execute(sql, val)
+        sqlDb.commit()
