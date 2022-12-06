@@ -186,7 +186,8 @@ def setup(client):
                                             deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart)
                                             embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
                                             await progress.edit(embed=embed)
-                                            await fetched.channel.send(f'Deleted {len(deleted)} message(s).')
+                                            embed=discord.Embed(title=f'{len(deleted)} message(s) deleted.', color=0x00FF00)
+                                            await fetched.channel.send(embed=embed, delete_after=60)
                                         elif myResult.data['custom_id'] == 'cancel':
                                             embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
                                             await ctx.author.send(embed=embed)

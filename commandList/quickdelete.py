@@ -24,12 +24,19 @@ def setup(client):
             return
         else:
             if hasAdminRole(ctx) or checkOwner(ctx):
-                if arg:
-                    try:
-                        deleted = await ctx.channel.purge(limit=int(arg))
-                        embed=discord.Embed(title=f'{len(deleted)} messages deleted.', color=0x00FF00)
-                        await ctx.send(embed=embed)
-                    except:
+                try:
+                    if arg and arg > 0:
+                        if arg == 1:
+                            plural = "message"
+                        else:
+                            plural = "messages"
+                        try:
+                            deleted = await ctx.channel.purge(limit=int(arg))
+                            embed=discord.Embed(title=f'{len(deleted)} {plural} deleted.', color=0x00FF00)
+                            await ctx.send(embed=embed, delete_after=60)
+                        except:
+                            await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
+                    else:
                         await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
-                else:
+                except:
                     await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
