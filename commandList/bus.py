@@ -45,9 +45,9 @@ def setup(client):
                     result = start - end
                     result = math.floor(result.seconds / 60)
                     if result > 100 or result == 0:
-                        return ("`Arr")
+                        return ("`Arr`")
                     else:
-                        return (f'`{result}m')
+                        return (f'`{result}m`')
 
                 if len(mydict["Services"]) == 0:
                     await ctx.reply("Invalid bus stop code / No more buses available", delete_after=20)
@@ -60,10 +60,7 @@ def setup(client):
                             if nextBusArr[y] in x:
                                 try:
                                     busArrival = processTime(x[nextBusArr[y]]["EstimatedArrival"])
-                                    if x[nextBusArr[y]]["Feature"] == "WAB":
-                                        tempHolder.append(calcArrival(busArrival, currentTime) + "♿`")
-                                    else:
-                                        tempHolder.append(calcArrival(busArrival, currentTime) + "`")
+                                    tempHolder.append(calcArrival(busArrival, currentTime))
                                 except:
                                     tempHolder.append("`N/A`")
                             else:
