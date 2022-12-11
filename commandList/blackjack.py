@@ -32,8 +32,6 @@ def setup(client):
         bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
-            updateCoins(ctx.author.id, -bet)
-
             cardValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
             playerHand = []
             dealerHand = []
@@ -79,6 +77,7 @@ def setup(client):
                 drawCard(playerHand)
                 drawCard(playerHand)
                 drawCard(dealerHand)
+                updateCoins(ctx.author.id, -bet)
                 sql = 'UPDATE userDB SET bjBet = %s WHERE userId = %s'
                 val = (bet, ctx.author.id)
                 sqlCursor.execute(sql, val)
