@@ -125,13 +125,11 @@ def setup(client):
                         else:
                             dateStart = fetched2.created_at - timedelta(seconds=0.1)
                             dateEnd = fetched.created_at + timedelta(seconds=0.1)
-                        def checkUser(m):
-                            return m.author.id == ctx.author.id
 
                         messageArray = []
                         messagePreview = ""
                         async for x in fetched.channel.history(limit=3000, before=dateEnd, after=dateStart):
-                            if x.author.id == ctx.author.id:
+                            if x.author == ctx.author:
                                 if len(x.content) > 27:
                                     shortMessage = x.content[:27] + ".."
                                 else:
@@ -187,12 +185,18 @@ def setup(client):
                                     view.clear_items()
                                     await msg6.edit(view=view)
                                     
+                                        
                                     if myResult.data['custom_id'] == 'confirm':
                                         embed=discord.Embed(title=f'Processing...', color=0xFF5733)
                                         progress = await ctx.author.send(embed=embed)
+
+                                        def checkUser(m):
+                                            return m.author == ctx.author
+
                                         deleted = await fetched.channel.purge(limit=3000, before=dateEnd, after=dateStart, check=checkUser)
                                         embed=discord.Embed(title=f'{len(deleted)} messages deleted from #{fetched.channel} in {fetched.guild}', color=0x00FF00)
-                                        await progress.edit(embed=embed)
+                                        await progress.delete()
+                                        await ctx.author.send(embed=embed)
                                     elif myResult.data['custom_id'] == 'cancel':
                                         embed=discord.Embed(title=f'Bulk delete cancelled', color=0xFF5733)
                                         await ctx.author.send(embed=embed)

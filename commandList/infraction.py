@@ -97,7 +97,7 @@ def setup(client):
 
                             elif interacted.data['custom_id'] == 'remove':
                                 def makeOptions(myList):
-                                    return discord.SelectOption(label=f'Infraction #{myList[0]}', value=f'{myList[0]}', description=f'{myList[1]}')
+                                    return discord.SelectOption(label=f'Infraction #{myList[0]}', value=f'{myList[0]}', description=f'{myList[1][:96]+"..." if len(myList[1]) >= 100 else myList[1]}')
 
                                 options = list(map(makeOptions, list(enumerate(infractionList, start=1))))
                                 options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
