@@ -23,6 +23,7 @@ def setup(client):
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def lottery(ctx, arg=None, arg2=None):
         userData = await fetchUserData(ctx.author)
+        coinEmoji = checkGoldenLizard(userData)
 
         if userData != None:
             if arg == None or arg2 == None:
@@ -48,7 +49,7 @@ def setup(client):
         button2 = discord.ui.Button(label="Small", style=ButtonStyle.grey, custom_id='small')
         view.add_item(item=button1)
         view.add_item(item=button2)
-        embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]**')
+        embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: {coinEmoji} {"{:,}".format(bet)} ]**')
         embed.set_author(name=f'{ctx.author.display_name} is playing Lottery (4D)', icon_url=ctx.author.display_avatar)
         embed.add_field(name=f'Prize Category', value=f'First\nSecond\nThird\nStarter\nConsolation', inline=True)
         embed.add_field(name=f'Big', value=f'2000x\n1000x\n490x\n250x\n60x', inline=True)
@@ -135,11 +136,11 @@ def setup(client):
                     prizeType = "Consolation"
                     multiplier = 60
 
-                resultText = f'<:lizard_coin:1047527590677712896><:lizard_coin:1047527590677712896> **You won the {prizeType} prize of {bet*multiplier} coins!** <:lizard_coin:1047527590677712896><:lizard_coin:1047527590677712896>'
+                resultText = f'{coinEmoji}{coinEmoji} **You won the {prizeType} prize of {bet*multiplier} coins!** {coinEmoji}{coinEmoji}'
             
             view.remove_item(item=button1)
             view.remove_item(item=button2)
-            embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}')
+            embed = discord.Embed(title=f'Betting on __{arg2}__', description=f'**[ Bet: {coinEmoji} {"{:,}".format(bet)} ]** {resultText}')
             embed.set_author(name=f'{ctx.author.display_name} is playing Lottery (4D)', icon_url=ctx.author.display_avatar)
             embed.add_field(name=f'Prize Category', value=f'First\nSecond\nThird\nStarter\nConsolation', inline=True)
             embed.add_field(name=f'Big', value=f'2000x\n1000x\n490x\n250x\n60x', inline=True)

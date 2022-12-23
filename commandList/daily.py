@@ -20,6 +20,7 @@ def setup(client):
     @commands.cooldown(1,15,commands.BucketType.user)
     async def daily(ctx):
         userData = await fetchUserData(ctx.author)
+        coinEmoji = checkGoldenLizard(userData)
         if userData != None:
             sqlCursor.execute('SELECT CURDATE()')
             currentDate = sqlCursor.fetchone()[0]
@@ -31,6 +32,6 @@ def setup(client):
                 sqlCursor.execute(sql, val)
                 sqlDb.commit()
 
-                await ctx.send(f'<:lizard_coin:1047527590677712896> **| {ctx.author.display_name}** You got **{"{:,}".format(dailyCoins)}** coins!')
+                await ctx.send(f'{coinEmoji} **| {ctx.author.display_name}** You got **{"{:,}".format(dailyCoins)}** coins!')
             else:
-                await ctx.send(f'<:lizard_coin:1047527590677712896> **| {ctx.author.display_name}**  You already claimed your daily coins!', delete_after=20)
+                await ctx.send(f'{coinEmoji} **| {ctx.author.display_name}**  You already claimed your daily coins!', delete_after=20)

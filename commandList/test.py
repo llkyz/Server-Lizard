@@ -20,3 +20,6 @@ def setup(client):
     @commands.cooldown(1,15,commands.BucketType.user)
     async def test(ctx):     
         await ctx.send("owo", delete_after=60)
+        # myEmojis = ctx.guild.emojis
+        # for x in myEmojis:
+        #     print(x)

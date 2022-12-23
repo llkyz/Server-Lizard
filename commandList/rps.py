@@ -23,6 +23,7 @@ def setup(client):
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def rps(ctx, arg=None):
         userData = await fetchUserData(ctx.author)
+        coinEmoji = checkGoldenLizard(userData)
         bet = await checkBet(userData, arg, ctx)
 
         if bet != None:
@@ -35,7 +36,7 @@ def setup(client):
             view.add_item(item=button1)
             view.add_item(item=button2)
             view.add_item(item=button3)
-            embed=discord.Embed(description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** Pick your choice!')
+            embed=discord.Embed(description=f'**[ Bet: {coinEmoji} {"{:,}".format(bet)} ]** Pick your choice!')
             embed.set_author(name=f'{ctx.author.display_name} is playing Rock, Paper, Scissors', icon_url=ctx.author.display_avatar)
             msg = await ctx.send(embed=embed, view=view)
 
@@ -98,7 +99,7 @@ def setup(client):
                 view.remove_item(item=button1)
                 view.remove_item(item=button2)
                 view.remove_item(item=button3)
-                embed=discord.Embed(description=f'**[ Bet: <:lizard_coin:1047527590677712896> {"{:,}".format(bet)} ]** {resultText}', color=color)
+                embed=discord.Embed(description=f'**[ Bet: {coinEmoji} {"{:,}".format(bet)} ]** {resultText}', color=color)
                 embed.set_author(name=f'{ctx.author.display_name} is playing Rock, Paper, Scissors', icon_url=ctx.author.display_avatar)
                 embed.add_field(name=f'Dealer', value=f'{emoji[computerChoice]}', inline=True)
                 embed.add_field(name=f'{ctx.author.display_name}', value=f'{emoji[playerChoice]}', inline=True)

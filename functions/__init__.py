@@ -1,4 +1,5 @@
 from .checkBet import checkBet
+from .checkGoldenLizard import checkGoldenLizard
 from .checkOwner import checkOwner
 from .checkRoles import checkRoles
 from .timeConvert import timeConvert

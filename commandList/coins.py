@@ -19,4 +19,5 @@ def setup(client):
     @commands.cooldown(1,10,commands.BucketType.user)
     async def coin(ctx):
         userData = await fetchUserData(ctx.author)
-        await ctx.send(f'**<:lizard_coin:1047527590677712896> | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** coins')
+        coinEmoji = checkGoldenLizard(userData)
+        await ctx.send(f'**{coinEmoji} | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** coins')

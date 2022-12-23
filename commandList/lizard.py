@@ -10,7 +10,7 @@ docs = {
 
     "usage":"!lizard [optional: buy/sell]",
 
-    "description":"Get a golden lizard for the low low price of 1B coins! Also sellable for 900m coins.",
+    "description":"Get a golden lizard for the low low price of 1,000,000,000 coins! Owning a golden lizard will make your coins animated! Also sellable at any time for 900,000,000 coins.",
 
     "category":"economy"
     
@@ -22,7 +22,7 @@ def setup(client):
         goldenLizard = "<:golden_lizard:1055859182319968376>"
         userData = await fetchUserData(ctx.author)
         if arg == "buy":
-            if userData["coins"] > 1000000000:
+            if userData["coins"] >= 1000000000:
                 if userData["goldenLizard"] == None or userData["goldenLizard"] == 0:
                     lizardCount = 1
                 else:

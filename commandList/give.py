@@ -18,6 +18,7 @@ def setup(client):
     @client.command() # Give another user some coins
     async def give(ctx, arg=None, arg2=None):
         userData = await fetchUserData(ctx.author)
+        coinEmoji = checkGoldenLizard(userData)
 
         if userData != None:
             if arg2 == None:
@@ -76,6 +77,6 @@ def setup(client):
                         sqlDb.commit()
 
                         if giveAmount == 1:
-                            await ctx.send(f'<:lizard_coin:1047527590677712896> | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coin to **{getUser.display_name}**! Stingy...')
+                            await ctx.send(f'{coinEmoji} | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coin to **{getUser.display_name}**! Stingy...')
                         else:
-                            await ctx.send(f'<:lizard_coin:1047527590677712896> | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coins to **{getUser.display_name}**!')
+                            await ctx.send(f'{coinEmoji} | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coins to **{getUser.display_name}**!')
