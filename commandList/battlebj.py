@@ -181,31 +181,31 @@ def setup(client):
                         await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
                         remainingPlayers.remove(ctx.author)
             
-            if interacted.user == opponent:
-                    if interacted.data['custom_id'] == 'view':
-                        content = "Viewing Hand"
-                        embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[0]}]`\n\n{printCards(opponentHand)}')
-                        await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
-
-                    elif interacted.data['custom_id'] == 'hit':
-                        drawCard(opponentHand)
-                        if printValue(opponentHand)[1] > 21:
-                            content = "Bust! Please wait for your opponent to complete their hand..."
-                            embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[1]}]`\n\n{printCards(opponentHand)}')
-                            remainingPlayers.remove(opponent)
-                        else:
-                            content = "Drew a card"
+                if interacted.user == opponent:
+                        if interacted.data['custom_id'] == 'view':
+                            content = "Viewing Hand"
                             embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[0]}]`\n\n{printCards(opponentHand)}')
+                            await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
 
-                        await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
-                        gameBoardEmbed.set_field_at(index=1, name=f'> {opponent.display_name}', value=cardback*len(opponentHand), inline=True)
-                        await mymsg.edit(embed=gameBoardEmbed)
-                        
-                    elif interacted.data['custom_id'] == 'stand':
-                        content = "Waiting for opponent to complete their hand..."
-                        embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[1]}]`\n\n{printCards(opponentHand)}')
-                        await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
-                        remainingPlayers.remove(opponent)
+                        elif interacted.data['custom_id'] == 'hit':
+                            drawCard(opponentHand)
+                            if printValue(opponentHand)[1] > 21:
+                                content = "Bust! Please wait for your opponent to complete their hand..."
+                                embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[1]}]`\n\n{printCards(opponentHand)}')
+                                remainingPlayers.remove(opponent)
+                            else:
+                                content = "Drew a card"
+                                embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[0]}]`\n\n{printCards(opponentHand)}')
+
+                            await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
+                            gameBoardEmbed.set_field_at(index=1, name=f'> {opponent.display_name}', value=cardback*len(opponentHand), inline=True)
+                            await mymsg.edit(embed=gameBoardEmbed)
+                            
+                        elif interacted.data['custom_id'] == 'stand':
+                            content = "Waiting for opponent to complete their hand..."
+                            embed = discord.Embed(title="Current Hand", description=f'Value: `[{printValue(opponentHand)[1]}]`\n\n{printCards(opponentHand)}')
+                            await interacted.response.send_message(content=content, embed=embed, ephemeral=True)
+                            remainingPlayers.remove(opponent)
         
         await mymsg.edit(view=None)
 
