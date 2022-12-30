@@ -10,10 +10,21 @@ def setup(client):
         async def checkFunc():
             await timedCheck(client)
 
-        print("Timed checker initialized")
         scheduler = AsyncIOScheduler()
         scheduler.add_job(checkFunc, 'interval', minutes=1)
         scheduler.start()
+        print("Timed checker initialized")
+
+        sqlCursor.execute('SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME = \'botSettings\'', (os.getenv('SQL_DATABASE'),))
+        data = sqlCursor.fetchall()
+        headerList = list(map(lambda x: x[3], data))
+        sqlCursor.execute('SELECT * FROM botSettings')
+        settings = sqlCursor.fetchone()
+
+        settingsList = {}
+        for x in range(len(headerList)):
+            settingsList[headerList[x]] = settings[x]
+        client.settings = settingsList
 
         print(f'{client.user} is connected to the following guilds:\n')
         for guild in client.guilds:

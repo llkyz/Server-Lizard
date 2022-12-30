@@ -36,6 +36,9 @@ def setup(client):
                         await adminPingChannel.send(embed=embed)
                         await message.reply(embed=discord.Embed(title="Mods pinged!", color=0xaacbeb))
 
+            if (message.content.lower().startswith('owo owo') or message.content.lower().startswith('owoowo')) and client.settings["owo"]:
+                await message.reply(f'{message.author.mention} used owo owo <:bonk:687841666182414413>')
+
             await client.process_commands(message)
 
         print(f"[{prefix}] " + str(message.author) + ": " + str(message.content))

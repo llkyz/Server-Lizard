@@ -17,7 +17,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['report', 'reportchannel', 'reportChannel', 'reportschannel', 'reportsChannel'])
+    @client.command(aliases=['report', 'reportChannel', 'reportsChannel'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def reports(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):

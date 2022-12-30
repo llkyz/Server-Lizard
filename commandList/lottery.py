@@ -7,7 +7,7 @@ from functions import *
 
 docs = {
 
-    "aliases":['4D', '4d'],
+    "aliases":['4D'],
 
     "usage":"!lottery [bet] [4-digit number]",
 
@@ -18,7 +18,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['4D','4d'])
+    @client.command(aliases=['4D'])
     @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def lottery(ctx, arg=None, arg2=None):

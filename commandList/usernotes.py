@@ -17,7 +17,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['userNotes', 'usernote', 'userNote'])
+    @client.command(aliases=['usernote'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def usernotes(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):

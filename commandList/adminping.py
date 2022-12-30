@@ -18,7 +18,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['adminPing', 'adminpings', 'adminPings'])
+    @client.command(aliases=['adminpings'])
     async def adminping(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT adminPingChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

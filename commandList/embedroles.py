@@ -18,7 +18,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['embedRoles', 'embedrole', 'embedRole'])
+    @client.command(aliases=['embedrole'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def embedroles(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):

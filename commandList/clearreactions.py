@@ -14,7 +14,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['clearreactions', 'clearReaction', 'clearreaction', 'removeReactions', 'removereactions', 'removeReaction', 'removereaction'])
+    @client.command(aliases=['clearReaction', 'removeReactions', 'removeReaction'])
     async def clearReactions(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             if ctx.message.reference is not None:

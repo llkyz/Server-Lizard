@@ -18,7 +18,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['adminRoles', 'adminrole', 'adminRole'])
+    @client.command(aliases=['adminrole'])
     async def adminroles(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):
             sqlCursor.execute('SELECT adminRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))

@@ -17,7 +17,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['userProfiles', 'userprofile', 'userProfile'])
+    @client.command(aliases=['userprofile'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def userprofiles(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):

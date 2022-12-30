@@ -33,7 +33,7 @@ def setup(client):
                         try:
                             deleted = await ctx.channel.purge(limit=int(arg))
                             embed=discord.Embed(title=f'{len(deleted)} {plural} deleted.', color=0x00FF00)
-                            await ctx.send(embed=embed, delete_after=60)
+                            await ctx.send(embed=embed, delete_after=30)
                         except:
                             await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
                     else:

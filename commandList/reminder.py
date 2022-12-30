@@ -17,7 +17,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['remind', 'setreminder', 'setReminder'])
+    @client.command(aliases=['remind', 'setreminder'])
     async def reminder(ctx):
         try:
             msgData = ctx.message.content.replace("\n", " ").split(" ")

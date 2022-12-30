@@ -17,7 +17,7 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['battleRps', 'battleRPS']) #!battle
+    @client.command() #!battle
     async def battlerps(ctx, arg=None, arg2=None):
         if arg == None:
             await ctx.reply('Invalid syntax! Please use `!battlerps [@user] [optional: bet]`', delete_after=20)
