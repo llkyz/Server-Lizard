@@ -3,15 +3,6 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import glob
-import asyncio
-
-# from discord import Button, ButtonStyle
-# import random
-# import requests
-# import json
-# from datetime import datetime, timedelta
-# import time
-# import math
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
