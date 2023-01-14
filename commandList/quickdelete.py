@@ -25,8 +25,8 @@ def setup(client):
         else:
             if hasAdminRole(ctx) or checkOwner(ctx):
                 try:
-                    if arg and arg > 0:
-                        if arg == 1:
+                    if arg and int(arg) > 0:
+                        if int(arg) == 1:
                             plural = "message"
                         else:
                             plural = "messages"
@@ -38,5 +38,6 @@ def setup(client):
                             await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
                     else:
                         await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
-                except:
+                except Exception as e:
+                    print(e)
                     await ctx.send("Please use the following format: `!quickdelete [number]`", delete_after=20)
