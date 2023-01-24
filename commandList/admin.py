@@ -19,9 +19,10 @@ docs = {
 def setup(client):
     @client.command() #!admin
     async def admin(ctx, arg=None):
-        if hasAdminRole(ctx) or checkOwner(ctx):
-            
+        if not hasAdminRole(ctx) and not checkOwner(ctx):
+        
             categories = {
+                "admin-features": {'field': "⭐ **Features**", 'modules':[]},
                 "admin-messages": {'field': "📰 **Message Management**", 'modules':[]},
                 "admin-administrative": {'field': "👓 **Administrative**", 'modules':[]},
                 "admin-disciplinary": {'field': "❌ **Disciplinary**", 'modules':[]},

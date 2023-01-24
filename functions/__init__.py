@@ -10,4 +10,5 @@ from .hasAdminRole import hasAdminRole
 from .hasEmbedRole import hasEmbedRole
 from .fetchUserData import fetchUserData
 from .timedCheck import timedCheck
+from .announcementCheck import announcementCheck
 from .sql_start import *
