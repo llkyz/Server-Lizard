@@ -10,8 +10,12 @@ def setup(client):
         async def checkFunc():
             await timedCheck(client)
 
+        async def announcementFunc():
+            await announcementCheck(client)
+
         scheduler = AsyncIOScheduler()
         scheduler.add_job(checkFunc, 'interval', minutes=1)
+        scheduler.add_job(announcementFunc, 'interval', minutes=60)
         scheduler.start()
         print("Timed checker initialized")
 
