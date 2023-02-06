@@ -218,7 +218,7 @@ def setup(client):
                         return m.message == embedController and m.user == ctx.author
 
                     try:
-                        interacted = await client.wait_for('interaction', timeout=1800, check=checkButton)
+                        interacted = await client.wait_for('interaction', timeout=3600, check=checkButton)
                     except asyncio.TimeoutError:
                         view.clear_items()
                         await embedController.edit(embed=discord.Embed(title="TIMED OUT"), view=view)
@@ -302,7 +302,7 @@ def setup(client):
                                     def check(m):
                                         return m.channel.type is discord.ChannelType.private and m.author == ctx.author
                                     try:
-                                        interacted = await client.wait_for('message', timeout=300, check=check)
+                                        interacted = await client.wait_for('message', timeout=3600, check=check)
                                     except asyncio.TimeoutError:
                                         await embedController.edit(embed=discord.Embed(title="TIMED OUT"), view=view)
                                     else:
@@ -399,7 +399,7 @@ def setup(client):
                     return m.message == msg1 and m.user == ctx.author
 
                 try:
-                    interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+                    interacted = await client.wait_for('interaction', timeout=3600, check=checkButton)
                 except asyncio.TimeoutError:
                     view.clear_items()
                     await msg1.edit(embed=discord.Embed(title="TIMED OUT"), view=view)

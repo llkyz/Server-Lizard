@@ -54,77 +54,101 @@ def setup(client):
             await msg1.edit(content='Timed out!', view=None)
         else:
             await interacted.response.defer()
-            await msg1.edit(view=None)
             
             if interacted.data['custom_id'] == 'done':
+                await msg1.edit(view=None)
                 return
             elif interacted.data['custom_id'] == 'add':
-                optionsList = list(filter(lambda data: data.id not in roleData, ctx.guild.roles))
-                if len(optionsList) == 0:
+                allRoleOptions = list(filter(lambda data: data.id not in roleData, ctx.guild.roles))
+                if len(allRoleOptions) == 0:
                     await ctx.send(embed=discord.Embed(title='There are no more roles left to add!'))
+                    return
                 else:
-                    options = list(map(lambda data: discord.SelectOption(label=f'{data[1].name}', value=f'{data[0]}') , list(enumerate(optionsList, start=1))))
-                    options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
-                    
-                    view = discord.ui.View()
-                    myMenu = discord.ui.Select(placeholder="Select a role to add", options=options)
-                    view.add_item(myMenu)
-                    msg2 = await ctx.send(view=view)
+                    options = list(map(lambda data: discord.SelectOption(label=f'{data[1].name}', value=f'{data[0]}') , list(enumerate(allRoleOptions, start=1))))
+                    optionStart = 0
+                    while True:
+                        showOptions = options[optionStart:optionStart+22]
+                        if optionStart != 0:
+                            showOptions.append(discord.SelectOption(emoji='⬅️', label=f'Previous', value=f'previous'))
+                        if len(options) - optionStart > 22:
+                            showOptions.append(discord.SelectOption(emoji='➡️', label=f'Next', value=f'next'))
+                        showOptions.append(discord.SelectOption(emoji='❌', label=f'Cancel', value=f'cancel'))
 
-                    def checkButton(m):
-                        return m.message == msg2 and m.user == ctx.author
+                        view = discord.ui.View()
+                        myMenu = discord.ui.Select(placeholder="Select a role to add", options=showOptions)
+                        view.add_item(myMenu)
+                        await msg1.edit(view=view)
+
+                        try:
+                            interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+                        except asyncio.TimeoutError:
+                            await msg1.edit(content='Timed out!', view=None)
+                            return
+                        await interacted.response.defer()
+                        if interacted.data["values"][0] == 'cancel':
+                            await msg1.edit(embed=discord.Embed(title="Cancelled"), view=None)
+                            return
+                        elif interacted.data["values"][0] == 'next':
+                            optionStart += 22
+                        elif interacted.data["values"][0] == 'previous':
+                            optionStart -= 22
+                            if optionStart < 0:
+                                optionStart = 0
+                        else:
+                            roleSelected = allRoleOptions[int(interacted.data["values"][0]) - 1]
+                            break
+
+                    roleData.append(roleSelected.id)
+                    sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
+                    val = (json.dumps(roleData), ctx.guild.id)
+                    sqlCursor.execute(sql, val)
+                    sqlDb.commit()
+
+                    embed=discord.Embed(title=f'`{roleSelected.name}` added as an embed role')
+                    await msg1.edit(embed=embed, view=None)
+
+            elif interacted.data['custom_id'] == 'remove':
+                allRoleOptions = list(map(lambda data: discord.SelectOption(label=f'{ctx.guild.get_role(data[1]).name}', value=f'{data[0]}') , list(enumerate(roleData, start=1))))
+                optionStart = 0
+                while True:
+                    showOptions = allRoleOptions[optionStart:optionStart+22]
+                    if optionStart != 0:
+                        showOptions.append(discord.SelectOption(emoji='⬅️', label=f'Previous', value=f'previous'))
+                    if len(allRoleOptions) - optionStart > 22:
+                        showOptions.append(discord.SelectOption(emoji='➡️', label=f'Next', value=f'next'))
+                    showOptions.append(discord.SelectOption(emoji='❌', label=f'Cancel', value=f'cancel'))
+
+                    view = discord.ui.View()
+                    myMenu = discord.ui.Select(placeholder="Select a role to remove", options=showOptions)
+                    view.add_item(myMenu)
+                    await msg1.edit(view=view)
+
                     try:
                         interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
                     except asyncio.TimeoutError:
-                        await msg2.edit(content='Timed out!', view=None)
-                    else:
-                        await interacted.response.defer()
-                        optionSelected = int(interacted.data["values"][0])
-                        await msg2.delete()
-
-                        if optionSelected == 0:
-                            await ctx.send(embed=discord.Embed(title="Set Role cancelled"))
-                        else:
-                            roleSelected = optionsList[optionSelected-1]
-                            roleData.append(roleSelected.id)
-                            sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
-                            val = (json.dumps(roleData), ctx.guild.id)
-                            sqlCursor.execute(sql, val)
-                            sqlDb.commit()
-
-                            embed=discord.Embed(title=f'`{roleSelected.name}` added as an embed role')
-                            await ctx.send(embed=embed)
-
-            elif interacted.data['custom_id'] == 'remove':
-                options = list(map(lambda data: discord.SelectOption(label=f'{ctx.guild.get_role(data[1]).name}', value=f'{data[0]}') , list(enumerate(roleData, start=1))))
-                options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
-
-                view = discord.ui.View()
-                myMenu = discord.ui.Select(placeholder="Select a role to remove", options=options)
-                view.add_item(myMenu)
-                msg2 = await ctx.send(view=view)
-
-                def checkButton(m):
-                    return m.message == msg2 and m.user == ctx.author
-                try:
-                    interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
-                except asyncio.TimeoutError:
-                    await msg2.edit(content='Timed out!', view=None)
-                else:
+                        await msg1.edit(content='Timed out!', view=None)
+                        return
                     await interacted.response.defer()
-                    optionSelected = int(interacted.data["values"][0])
-                    await msg2.delete()
-
-                    if optionSelected == 0:
-                        await ctx.send(embed=discord.Embed(title="Remove Role cancelled"))
+                    if interacted.data["values"][0] == 'cancel':
+                        await msg1.edit(embed=discord.Embed(title="Cancelled"), view=None)
+                        return
+                    elif interacted.data["values"][0] == 'next':
+                        optionStart += 22
+                    elif interacted.data["values"][0] == 'previous':
+                        optionStart -= 22
+                        if optionStart < 0:
+                            optionStart = 0
                     else:
-                        roleSelected = roleData[optionSelected-1]
-                        roleData.pop(optionSelected-1)
+                        roleSelected = int(interacted.data["values"][0]) - 1
+                        break
 
-                        sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
-                        val = (json.dumps(roleData), ctx.guild.id)
-                        sqlCursor.execute(sql, val)
-                        sqlDb.commit()
+                removedRole = ctx.guild.get_role(roleData[roleSelected]).name
+                roleData.pop(roleSelected)
 
-                        embed=discord.Embed(title=f'`{ctx.guild.get_role(roleSelected).name}` removed as an embed role')
-                        await ctx.send(embed=embed)
+                sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
+                val = (json.dumps(roleData), ctx.guild.id)
+                sqlCursor.execute(sql, val)
+                sqlDb.commit()
+
+                embed=discord.Embed(title=f'`{removedRole}` removed as an embed role')
+                await msg1.edit(embed=embed, view=None)

@@ -72,28 +72,44 @@ def setup(client):
         elif interacted.data['custom_id'] == 'add':
             def makeOptions(myList):
                 return discord.SelectOption(label=f'#{myList[1][0]}', value=f'{myList[1][1]}')
-            options = list(map(makeOptions, list(enumerate(list(map(lambda data: (data.name, data.id) ,ctx.guild.text_channels)), start=1))))
-            options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
-            view = discord.ui.View()
-            myMenu = discord.ui.Select(placeholder="Choose a channel to send", options=options)
-            view.add_item(myMenu)
-            embed = discord.Embed(title="Adding new announcement")
-            await msg1.edit(embed=embed, view=view)
+            allChannelOptions = list(enumerate(list(map(lambda data: (data.name, data.id) ,ctx.guild.text_channels)), start=1))
+            options = list(map(makeOptions, allChannelOptions))
+            optionStart = 0
+            while True:
+                showOptions = options[optionStart:optionStart+22]
+                if optionStart != 0:
+                    showOptions.append(discord.SelectOption(emoji='⬅️', label=f'Previous', value=f'previous'))
+                if len(options) - optionStart > 22:
+                    showOptions.append(discord.SelectOption(emoji='➡️', label=f'Next', value=f'next'))
+                showOptions.append(discord.SelectOption(emoji='❌', label=f'Cancel', value=f'cancel'))
+                view = discord.ui.View()
+                myMenu = discord.ui.Select(placeholder="Choose a channel to send", options=showOptions)
+                view.add_item(myMenu)
+                embed = discord.Embed(title="Adding new announcement")
+                await msg1.edit(embed=embed, view=view)
 
-            def checkButton(m):
-                return m.message == msg1 and m.user == ctx.author
-            try:
-                interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
-            except asyncio.TimeoutError:
-                await msg1.edit(content='Timed out!', view=None)
-                return
-            
-            await interacted.response.defer()
-            channelId = int(interacted.data["values"][0])
-            if channelId == 0:
-                await msg1.edit(embed=discord.Embed(title="Cancelled"), view=None)
-                return
-            channelName = ctx.guild.get_channel(channelId)
+                def checkButton(m):
+                    return m.message == msg1 and m.user == ctx.author
+                try:
+                    interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+                except asyncio.TimeoutError:
+                    await msg1.edit(content='Timed out!', view=None)
+                    return
+                
+                await interacted.response.defer()
+                if interacted.data["values"][0] == 'cancel':
+                    await msg1.edit(embed=discord.Embed(title="Cancelled"), view=None)
+                    return
+                elif interacted.data["values"][0] == 'next':
+                    optionStart += 22
+                elif interacted.data["values"][0] == 'previous':
+                    optionStart -= 22
+                    if optionStart < 0:
+                        optionStart = 0
+                else:
+                    channelId = int(interacted.data["values"][0])
+                    channelName = ctx.guild.get_channel(channelId)
+                    break
 
             await msg1.edit(embed=discord.Embed(title=f'Adding announcement to {channelName}', description='Please enter the announcement date in the following format: dd-mm-yyyy'), view=None)
 
@@ -105,9 +121,7 @@ def setup(client):
             except asyncio.TimeoutError:
                 await msg1.edit(content='Timed out!', view=None)
                 return
-
             splitDate = interacted.content.split('-')
-            await interacted.delete()
             try:
                 year = int(splitDate[2])
                 month = int(splitDate[1])
@@ -115,13 +129,15 @@ def setup(client):
                 myDate = datetime.datetime(year, month, day)
             except Exception as e:
                 print(e)
-                await interacted.reply("Invalid date")
-                return
-            
-            if myDate.date() < datetime.datetime.now().date():
-                await interacted.reply("Cannot set a date before today!")
+                await interacted.reply(content="Invalid date")
                 return
 
+            if myDate.date() < datetime.datetime.now().date():
+                print("running")
+                await interacted.reply(content="Cannot set a date before today!")
+                return
+
+            await interacted.delete()
             await msg1.edit(embed=discord.Embed(title=f'Creating announcement on #{channelName}\nDate: {myDate.date().strftime("%d %B %Y")}', description='Please enter the hour in 24-hour format (UTC time): 0 to 23'))
 
             try:
