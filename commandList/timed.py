@@ -19,6 +19,7 @@ docs = {
 
 def setup(client):
     @client.command(aliases=['timer'])
+    @commands.cooldown(1,600,commands.BucketType.user)
     async def timed(ctx):
         try:
             msgData = ctx.message.content.replace("\n", " ").split(" ")
