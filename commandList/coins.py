@@ -20,4 +20,4 @@ def setup(client):
     async def coin(ctx):
         userData = await fetchUserData(ctx.author)
         coinEmoji = checkGoldenLizard(userData)
-        await ctx.send(f'**{coinEmoji} | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** coins')
+        await ctx.send(f'**{coinEmoji} | {ctx.author.display_name}** You have **{"{:,}".format(userData["coins"])}** {"coins" if userData["coins"] != 1 else "coin"}')

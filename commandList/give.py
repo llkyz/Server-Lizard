@@ -76,7 +76,4 @@ def setup(client):
                         sqlCursor.execute(sql, val)
                         sqlDb.commit()
 
-                        if giveAmount == 1:
-                            await ctx.send(f'{coinEmoji} | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coin to **{getUser.display_name}**! Stingy...')
-                        else:
-                            await ctx.send(f'{coinEmoji} | ** {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** coins to **{getUser.display_name}**!')
+                        await ctx.send(f'**{coinEmoji} | {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** {"coin" if giveAmount == 1 else "coins"} to **{getUser.display_name}**!{" Stingy..." if giveAmount == 1 else ""}')
