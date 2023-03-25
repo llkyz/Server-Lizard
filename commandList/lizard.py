@@ -68,13 +68,13 @@ def setup(client):
             sql = 'UPDATE userDB SET goldenLizard = (goldenLizard - 1), coins = LEAST(coins + 900000000, 2147483647) WHERE userId = %s'
             val = (ctx.author.id,)
             sqlCursor.execute(sql, val)
-            await ctx.send(f"{goldenLizard} | You sold a golden lizard for **900,000,000** coins!")
+            await ctx.send(f"{goldenLizard} | {ctx.author.display_name} You sold a golden lizard for **900,000,000** coins!")
             return
 
         else:
             if userData["goldenLizard"] == None or userData["goldenLizard"] == 0:
-                await ctx.send(f"{goldenLizard} | You have **0** golden lizards!")
+                await ctx.send(f"**{goldenLizard} | {ctx.author.display_name}** You have **0** golden lizards!")
             elif userData["goldenLizard"] == 1:
-                await ctx.send(f'{goldenLizard} | You have **1** golden lizard!')
+                await ctx.send(f'**{goldenLizard} | {ctx.author.display_name}** You have **1** golden lizard!')
             else:
-                await ctx.send(f'{goldenLizard} | You have **{userData["goldenLizard"]}** golden lizards!')
+                await ctx.send(f'**{goldenLizard} | {ctx.author.display_name}** You have **{userData["goldenLizard"]}** golden lizards!')
