@@ -60,34 +60,50 @@ def setup(client):
             elif interacted.data['custom_id'] == 'add':
                 def makeOptions(myList):
                     return discord.SelectOption(label=f'#{myList[1][0]}', value=f'{myList[1][1]}')
+                channelList = list(enumerate(list(map(lambda data: (data.name, data.id) ,ctx.guild.text_channels)), start=1))
+                start = 0
+                end = 21
+                while True:
+                    slicedChannelList = channelList[start:end]
+                    options = list(map(makeOptions, slicedChannelList))
+                    if start > 0:
+                        options.append(discord.SelectOption(label=f'Previous Page', value=f'-1'))
+                    if len(channelList) > end + 1:
+                        options.append(discord.SelectOption(label=f'Next Page', value=f'-2'))
+                    options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
+                    view = discord.ui.View()
+                    myMenu = discord.ui.Select(placeholder="Choose a channel to set", options=options)
+                    view.add_item(myMenu)
+                    msg2 = await ctx.send(view=view)
 
-                options = list(map(makeOptions, list(enumerate(list(map(lambda data: (data.name, data.id) ,ctx.guild.text_channels)), start=1))))
-                options.append(discord.SelectOption(label=f'Cancel', value=f'0'))
-                view = discord.ui.View()
-                myMenu = discord.ui.Select(placeholder="Choose a channel to set", options=options)
-                view.add_item(myMenu)
-                msg2 = await ctx.send(view=view)
-
-                def checkButton(m):
-                    return m.message == msg2 and m.user == ctx.author
-                try:
-                    interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
-                except asyncio.TimeoutError:
-                    await msg2.edit(content='Timed out!', view=None)
-                else:
-                    await interacted.response.defer()
-                    optionSelected = int(interacted.data["values"][0])
-                    await msg2.delete()
-
-                    if optionSelected == 0:
-                        await ctx.send(embed=discord.Embed(title="Set Channel cancelled"))
+                    def checkButton(m):
+                        return m.message == msg2 and m.user == ctx.author
+                    try:
+                        interacted = await client.wait_for('interaction', timeout=300, check=checkButton)
+                    except asyncio.TimeoutError:
+                        await msg2.edit(content='Timed out!', view=None)
                     else:
-                        sql = 'UPDATE serverDB SET userProfilesChannel = %s WHERE serverId = %s'
-                        val = (optionSelected, ctx.guild.id)
-                        sqlCursor.execute(sql, val)
-                        sqlDb.commit()
+                        await interacted.response.defer()
+                        optionSelected = int(interacted.data["values"][0])
+                        await msg2.delete()
 
-                        await ctx.send(embed=discord.Embed(title=f'#{client.get_channel(optionSelected).name} set as User Profile channel.'))
+                        if optionSelected == 0:
+                            await ctx.send(embed=discord.Embed(title="Set Channel cancelled"))
+                            break
+                        elif optionSelected == -1: #Go back 1 page
+                            start -= 22
+                            end -= 22
+                        elif optionSelected == -2: #Go forward 1 page
+                            start += 22
+                            end += 22
+                        else:
+                            sql = 'UPDATE serverDB SET userProfilesChannel = %s WHERE serverId = %s'
+                            val = (optionSelected, ctx.guild.id)
+                            sqlCursor.execute(sql, val)
+                            sqlDb.commit()
+
+                            await ctx.send(embed=discord.Embed(title=f'#{client.get_channel(optionSelected).name} set as User Profile channel.'))
+                            break
 
             elif interacted.data['custom_id'] == 'remove':
                 sql = 'UPDATE serverDB SET userProfilesChannel = %s WHERE serverId = %s'
@@ -133,7 +149,7 @@ def setup(client):
                             for x in member.roles:
                                 roleList.append(x.name)
 
-                            embed = discord.Embed(title=f'{member.display_name} ({userName})', description=f'**User ID**: {member.id}\n**User Roles**: {roleList}\n**Infractions**:')
+                            embed = discord.Embed(title=f'{member.display_name} ({userName})', description=f'**User ID**: {member.id}\n**User Roles**: {roleList}\n**Notes**:\n**Infractions**:')
                             embed.set_thumbnail(url=member.display_avatar.url)
                             await channel.send(embed=embed)
                         await msg2.reply(embed=discord.Embed(title="All done!"))

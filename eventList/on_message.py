@@ -4,6 +4,17 @@ import random
 from functions import *
 import json
 
+def listAttachments(myList):
+    myStr = "\n"
+    if len(myList) == 0:
+        return ""
+    for x in range(len(myList)):
+        if x != len(myList) - 1:
+            myStr += myList[x].url + "\n"
+        else:
+            myStr += myList[x].url
+    return myStr
+
 def setup(client):
     @client.event
     async def on_message(message):
@@ -70,4 +81,4 @@ def setup(client):
 
             await client.process_commands(message)
 
-        print(f"[{prefix}] " + str(message.author) + ": " + str(message.content))
+        print(f"[{prefix}] " + str(message.author) + ": " + str(message.content) + listAttachments(message.attachments))

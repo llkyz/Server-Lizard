@@ -23,24 +23,7 @@ def setup(client):
         storeList = ['Tampines', 'Alexandra', 'Jurong', 'Online']
 
         url = 'https://api.ingka.ikea.com/cia/availabilities/ru/sg?itemNos=10373589&expand=StoresList,Restocks,SalesLocations'
-        session = requests.Session()
-        headers = {'authority': 'api.ingka.ikea.com',
-        'method': 'GET',
-        'path': '/cia/availabilities/ru/sg?itemNos=10373589&expand=StoresList,Restocks,SalesLocations',
-        'scheme': 'https',
-        'accept': 'application/json;version=2',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'en-US,en;q=0.9,ja;q=0.8',
-        'dnt': '1',
-        'origin': 'https://www.ikea.com',
-        'referer': 'https://www.ikea.com/',
-        'sec-ch-ua': '"Chromium";v="106", "Microsoft Edge";v="106", "Not;A=Brand";v="99"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': "Windows",
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.52',
+        headers = {'accept': 'application/json;version=2',
         'x-client-id': 'b6c117e5-ae61-4ef5-b4cc-e0b1e37f0631',
         }
 
@@ -53,11 +36,9 @@ def setup(client):
         blahajStock[storeList[3]] = mydict['availabilities'][3]['buyingOption']['homeDelivery']['availability']['probability']['thisDay']['messageType'].replace('_',' ')
 
         url2 = 'https://api.ingka.ikea.com/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
-        headers['path'] = '/cia/availabilities/ru/sg?itemNos=00540664&expand=StoresList,Restocks,SalesLocations'
 
         response = requests.get(url2, headers=headers)
         mydict = json.loads(response.content.decode('utf-8'))
-
 
         smohajStock = {}
         for x in range(3):

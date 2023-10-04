@@ -16,6 +16,6 @@ def setup(client):
                     if message.embeds[0].description and f'**User ID**: {member.id}' in message.embeds[0].description:
                         mystr = message.embeds[0].description.replace("\n**Infractions**:","")
                         mystr = mystr.split("**User Roles**: ")
-                        embed = discord.Embed(title=f'{member.display_name} rejoined the server', description=f'Their roles were: {mystr[1]}')
+                        embed = discord.Embed(title=f'{member.display_name} rejoined the server', description=f'{member.mention}\'s roles were: {mystr[1]}')
                         await newcomerChannel.send(embed=embed)
                         break

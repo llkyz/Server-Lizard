@@ -19,7 +19,7 @@ docs = {
 def setup(client):
     @client.command(aliases=['usernote'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
-    async def usernotes(ctx):
+    async def usernotes(ctx, arg=None):
         if not hasAdminRole(ctx) and not checkOwner(ctx):
             await ctx.send(embed=discord.Embed(title=f'You do not have permission to use that command'), delete_after=20)
             return
@@ -29,9 +29,13 @@ def setup(client):
 
         if channelData == None:
             await ctx.reply("A User Profile channel has not been set yet. Please set one up using `!userprofiles` and generate the profiles first.")
+            return
         else:
             profileChannel = client.get_channel(channelData[0])
-            userId = ctx.message.content.split(' ')[1].replace("<@","").replace(">","")
+            if arg == None:
+                await ctx.reply("Please enter a user or userID. Format: !usernotes [userID], !usernotes [@user]")
+                return
+            userId = arg.replace("<@","").replace(">","")
             try:
                 user = await client.fetch_user(userId)
             except:
@@ -44,6 +48,7 @@ def setup(client):
                         embed = discord.Embed(title=message.embeds[0].title, description=message.embeds[0].description)
                         embed.set_thumbnail(url=user.display_avatar.url)
                         break
+                print(targetMessage)
                 if targetMessage == "":
                     embed = discord.Embed(title=f'Profile can\'t be found?! Contact your local lizard support')
                     await ctx.send(embed=embed)

@@ -7,7 +7,7 @@ from datetime import datetime
 
 docs = {
 
-    "aliases":['timer'],
+    "aliases":['timer', 'time'],
 
     "usage":"!timed [minutes]",
 
@@ -18,8 +18,8 @@ docs = {
     }
 
 def setup(client):
-    @client.command(aliases=['timer'])
-    @commands.cooldown(1,600,commands.BucketType.user)
+    @client.command(aliases=['timer', 'time'])
+    @commands.cooldown(1,300,commands.BucketType.user)
     async def timed(ctx):
         try:
             msgData = ctx.message.content.replace("\n", " ").split(" ")
