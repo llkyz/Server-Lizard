@@ -20,7 +20,7 @@ docs = {
 def setup(client):
     @client.command(aliases=['adminpings'])
     async def adminping(ctx):
-        if not hasAdminRole(ctx) and checkOwner(ctx):
+        if not hasAdminRole(ctx) and not checkOwner(ctx):
             await ctx.reply("You do not have permission to use this command!", delete_after=20)
             return
 

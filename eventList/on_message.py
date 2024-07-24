@@ -39,7 +39,7 @@ def setup(client):
                     sqlCursor.execute(sql, val)
                     sqlDb.commit()
         
-        #@mod ping
+            #@mod ping
             sqlCursor.execute('SELECT adminPingChannel, adminRoles FROM serverDB WHERE serverId = %s', (message.guild.id,))
             channelData = sqlCursor.fetchone()
             if channelData[0] != None and channelData[1] != None and message.author.id != 1032276665092538489:
@@ -52,33 +52,11 @@ def setup(client):
                         await adminPingChannel.send(embed=embed)
                         await message.reply(embed=discord.Embed(title="Mods pinged!", color=0xaacbeb))
 
-            if (message.content.lower().startswith('owo owo') or message.content.lower().startswith('owoowo') or message.content.lower().startswith('owoify')) and client.settings["owo"] and message.author.id != 408785106942164992:
-                await message.reply(f'{message.author.mention} used owo owo <:bonk:687841666182414413>')
+            #Bonk owo messages
+            # if (message.content.lower().startswith('owo owo') or message.content.lower().startswith('owoowo') or message.content.lower().startswith('owoify')) and client.settings["owo"] and message.author.id != 408785106942164992:
+            #     await message.reply(f'{message.author.mention} used owo owo <:bonk:687841666182414413>')
 
-            # Sunflower dailies
-            if (message.content.lower().startswith('owo sunflower <@262909760255426570>')):
-                receiverId = message.author.id
-                guild = await client.fetch_guild(message.guild.id)
-                getUser = await guild.fetch_member(receiverId)
-                receiverData = await fetchUserData(getUser)
-                
-                if receiverData == None:
-                    sql = "INSERT INTO userDB (userId, userName, coins, daily) VALUES (%s, %s, %s, %s)"
-                    val = (receiverId, getUser.name + "#" + getUser.discriminator, 20000000, "0")
-                    sqlCursor.execute(sql, val)
-
-                    await message.reply(f'<:lizard_coin:1047527590677712896> | **{getUser.display_name}** received **{"{:,}".format(20000000)}** coins!')
-                else:
-                    sqlCursor.execute('SELECT CURDATE()')
-                    currentDate = sqlCursor.fetchone()[0]
-                    if str(currentDate) != receiverData["daily"]:                        
-                        sql = 'UPDATE userDB SET coins = LEAST(coins + %s, 2147483647), daily = %s WHERE userId = %s'
-                        val = (20000000,  str(currentDate), receiverId)
-                        sqlCursor.execute(sql, val)
-                        sqlDb.commit()
-
-                        await message.reply(f'<:lizard_coin:1047527590677712896> | **{getUser.display_name}** received **{"{:,}".format(20000000)}** coins!')
-
+            message.content = message.content.lower()
             await client.process_commands(message)
 
         print(f"[{prefix}] " + str(message.author) + ": " + str(message.content) + listAttachments(message.attachments))

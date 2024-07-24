@@ -54,6 +54,7 @@ def setup(client):
                         await ctx.author.send(embed=embed)
 
                     elif interacted.data['custom_id'] == 'confirm':
+                        myGuild = ctx.guild
                         embed = discord.Embed(title=f'Please enter the URL link to the first message to start from', description=f'example: <https://discord.com/channels/123456789012345678/1234567890123456789/1234567890123456789>', color=0xFF5733)
                         msg2 = await ctx.author.send(embed=embed)
 
@@ -72,11 +73,13 @@ def setup(client):
                                     getLink = msg3.content.replace("https://discord.com/channels/","")
                                     idList = getLink.split("/")
                                     myChannel = client.get_channel(int(idList[1]))
-                                    fetched = await myChannel.fetch_message(int(idList[2]))
+                                    if myChannel.guild is not myGuild:
+                                        await ctx.author.send(embed=discord.Embed(title="This message is from another server. Please try again"))
+                                    else:
+                                        fetched = await myChannel.fetch_message(int(idList[2]))
+                                        checkFirstMessage = 1
                                 except:
                                     await ctx.author.send(embed=discord.Embed(title="Error, could not retrieve message. Please try again"))
-                                else:
-                                    checkFirstMessage = 1
 
                         if checkFirstMessage == 1:
                             embed=discord.Embed(title=f"Bulk Delete [Start]", description="**Server**: " + str(fetched.guild) + "\n**Channel**: #" + str(fetched.channel) + "\n**Author**: " + str(fetched.author) + "\n**Time**: " + timeConvertShort(fetched.created_at), color=0xFF5733)
