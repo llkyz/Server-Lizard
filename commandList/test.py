@@ -18,5 +18,5 @@ docs = {
 def setup(client):
     @client.command()
     @commands.cooldown(1,15,commands.BucketType.user)
-    async def test(ctx):     
+    async def test(ctx):
         await ctx.send("owo", delete_after=60)
