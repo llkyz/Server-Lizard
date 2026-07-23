@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 import asyncio
 from discord import Button, ButtonStyle
 
@@ -16,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['userprofile'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def userprofiles(ctx):
@@ -24,8 +25,8 @@ def setup(client):
             await ctx.reply("You do not have permission to use this command!", delete_after=20)
             return
             
-        sqlCursor.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
-        channelData = sqlCursor.fetchone()[0]
+        SQLObject.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
+        channelData = SQLObject.fetchone()[0]
 
         view = discord.ui.View()
         button1 = discord.ui.Button(label="Set", style=ButtonStyle.green, custom_id='add')
@@ -99,8 +100,8 @@ def setup(client):
                         else:
                             sql = 'UPDATE serverDB SET userProfilesChannel = %s WHERE serverId = %s'
                             val = (optionSelected, ctx.guild.id)
-                            sqlCursor.execute(sql, val)
-                            sqlDb.commit()
+                            SQLObject.execute(sql, val)
+                            SQLObject.commit()
 
                             await ctx.send(embed=discord.Embed(title=f'#{client.get_channel(optionSelected).name} set as User Profile channel.'))
                             break
@@ -108,8 +109,8 @@ def setup(client):
             elif interacted.data['custom_id'] == 'remove':
                 sql = 'UPDATE serverDB SET userProfilesChannel = %s WHERE serverId = %s'
                 val = (None, ctx.guild.id)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
+                SQLObject.execute(sql, val)
+                SQLObject.commit()
 
                 embed=discord.Embed(title=f'`#{ctx.guild.get_channel(channelData)}` removed as the User Profile channel')
                 await ctx.send(embed=embed)

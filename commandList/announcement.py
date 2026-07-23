@@ -5,6 +5,7 @@ import asyncio
 from datetime import datetime
 import datetime
 from functions import *
+from functions.sql_start import SQLObject
 
 docs = {
 
@@ -18,7 +19,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['announcements', 'anc']) #!battle
     async def announcement(ctx):
         if not hasAdminRole(ctx) and not checkOwner(ctx):
@@ -27,8 +28,8 @@ def setup(client):
 
         intervalOptions = {'1': 'Every hour', '6': 'Every 6 hours', '12': 'Every 12 hours', '24': 'Every day', '48': 'Every 2 days', '72': 'Every 3 days', '96': 'Every 4 days', '120': 'Every 5 days', '144': 'Every 6 days', '168': 'Every week', '336': 'Every 2 weeks', '504': 'Every 3 weeks', '672': 'Every month'}
 
-        sqlCursor.execute('SELECT * FROM announcements WHERE guildId = %s', (ctx.guild.id,))
-        announcementList = sqlCursor.fetchall()
+        SQLObject.execute('SELECT * FROM announcements WHERE guildId = %s', (ctx.guild.id,))
+        announcementList = SQLObject.fetchall()
 
         if len(announcementList) == 0:
             announcementListText = 'No announcements found'
@@ -214,8 +215,8 @@ def setup(client):
             if interacted.data['custom_id'] == 'confirm':
                 sql = "INSERT INTO announcements (guildId, channelId, waitTime, year, month, day, hour, message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                 val = (ctx.guild.id, channelId, interval, year, month, day, hour, myModal.children[0].value)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
+                SQLObject.execute(sql, val)
+                SQLObject.commit()
 
                 await msg1.edit(embed=discord.Embed(title='Announcement scheduled'), view=None)
             elif interacted.data['custom_id'] == 'cancel':
@@ -298,8 +299,8 @@ def setup(client):
             await interacted.response.defer()
 
             if interacted.data['custom_id'] == 'confirm':
-                sqlCursor.execute('DELETE FROM announcements WHERE guildId = %s AND channelId = %s AND waitTime = %s AND year = %s AND month = %s AND day = %s AND hour = %s AND message = %s', (y[0], y[1], y[2], y[3], y[4], y[5], y[6], y[7]))
-                sqlDb.commit()
+                SQLObject.execute('DELETE FROM announcements WHERE guildId = %s AND channelId = %s AND waitTime = %s AND year = %s AND month = %s AND day = %s AND hour = %s AND message = %s', (y[0], y[1], y[2], y[3], y[4], y[5], y[6], y[7]))
+                SQLObject.commit()
                 await msg1.edit(embed=discord.Embed(title="Announcement deleted"), view=None)
                 return
             elif interacted.data['custom_id'] == 'cancel':

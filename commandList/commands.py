@@ -15,7 +15,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     client.remove_command('help')
     @client.command(aliases=['command','help']) #!commands            
     async def commands(ctx, arg=None):

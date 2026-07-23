@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import Button, ButtonStyle
 import json
 from functions import *
+from functions.sql_start import SQLObject
 import asyncio
 
 docs = {
@@ -17,7 +18,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['embedrole'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def embedroles(ctx):
@@ -25,8 +26,8 @@ def setup(client):
             await ctx.reply("You do not have permission to use this command!", delete_after=20)
             return
             
-        sqlCursor.execute('SELECT embedRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
-        roleData = json.loads(sqlCursor.fetchone()[0])
+        SQLObject.execute('SELECT embedRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
+        roleData = json.loads(SQLObject.fetchone()[0])
 
         roleList = []
         for role in roleData:
@@ -101,8 +102,8 @@ def setup(client):
                     roleData.append(roleSelected.id)
                     sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
                     val = (json.dumps(roleData), ctx.guild.id)
-                    sqlCursor.execute(sql, val)
-                    sqlDb.commit()
+                    SQLObject.execute(sql, val)
+                    SQLObject.commit()
 
                     embed=discord.Embed(title=f'`{roleSelected.name}` added as an embed role')
                     await msg1.edit(embed=embed, view=None)
@@ -147,8 +148,8 @@ def setup(client):
 
                 sql = 'UPDATE serverDB SET embedRoles = %s WHERE serverId = %s'
                 val = (json.dumps(roleData), ctx.guild.id)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
+                SQLObject.execute(sql, val)
+                SQLObject.commit()
 
                 embed=discord.Embed(title=f'`{removedRole}` removed as an embed role')
                 await msg1.edit(embed=embed, view=None)

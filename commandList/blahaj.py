@@ -17,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() #!blahaj
     async def blahaj(ctx):
         storeList = ['Tampines', 'Alexandra', 'Jurong', 'Online']

@@ -2,9 +2,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import discord
 from discord.ext import commands
 import asyncio
+import os
 from functions import *
+from functions.sql_start import SQLObject
 
-def setup(client):
+async def setup(client):
     @client.event
     async def on_ready():
         async def checkFunc():
@@ -19,11 +21,11 @@ def setup(client):
         scheduler.start()
         print("Timed checker initialized")
 
-        sqlCursor.execute('SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME = \'botSettings\'', (os.getenv('SQL_DATABASE'),))
-        data = sqlCursor.fetchall()
+        SQLObject.execute('SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME = \'botSettings\'', (os.getenv('SQL_DATABASE'),))
+        data = SQLObject.fetchall()
         headerList = list(map(lambda x: x[3], data))
-        sqlCursor.execute('SELECT * FROM botSettings')
-        settings = sqlCursor.fetchone()
+        SQLObject.execute('SELECT * FROM botSettings')
+        settings = SQLObject.fetchone()
 
         settingsList = {}
         for x in range(len(headerList)):

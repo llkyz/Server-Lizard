@@ -17,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     @commands.has_permissions(administrator = True)
     async def masskick(ctx):

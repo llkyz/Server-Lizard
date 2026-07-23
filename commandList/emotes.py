@@ -50,7 +50,7 @@ async def emoteAction(client, ctx, arg, emoteCommand):
     await ctx.send(embed=embed)
 
 
-def setup(client):
+async def setup(client):
     @client.command()
     async def hug(ctx, arg):
         await emoteAction(client, ctx, arg, 'hug')

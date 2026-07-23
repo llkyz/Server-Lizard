@@ -14,7 +14,7 @@ docs = {
 
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['money','currency', 'coins', 'balance', 'wallet']) # Checks your coin balance
     @commands.cooldown(1,10,commands.BucketType.user)
     async def coin(ctx):

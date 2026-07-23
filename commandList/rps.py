@@ -17,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     @commands.cooldown(1,5,commands.BucketType.user)
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)

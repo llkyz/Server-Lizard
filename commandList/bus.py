@@ -19,7 +19,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() #!bus
     async def bus(ctx):
         msgData = ctx.message.content.split(" ")

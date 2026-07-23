@@ -14,7 +14,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     async def quickdelete(ctx, arg=None):
         try:

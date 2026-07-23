@@ -17,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['battleblackjack']) #!battle
     async def battlebj(ctx, arg=None, arg2=None):
         if arg == None:

@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 import asyncio
 from functions import *
+from functions.sql_start import SQLObject
 
-def setup(client):
+async def setup(client):
     @client.event #update user profiles to a channel whenever there's a change
     async def on_member_update(before, after):
         '''
@@ -15,11 +16,11 @@ def setup(client):
         
         > does not activate when member joins server
         '''
-        sqlCursor.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (after.guild.id,))
-        channelData = sqlCursor.fetchone()[0]
+        SQLObject.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (after.guild.id,))
+        channelData = SQLObject.fetchone()[0]
         if channelData != None:
             channel = client.get_channel(channelData) #user profiles channel
-        
+
             await asyncio.sleep(5)
 
             if after.guild.get_member(after.id) is not None and checkRoles(after, [454948280825282560]) == False: #update if member still in server, and does not have the new member role

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-def setup(client):
+async def setup(client):
     @client.event
     async def on_raw_reaction_add(payload):
         if str(payload.emoji) == '⭐':

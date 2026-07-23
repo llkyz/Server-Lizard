@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
 import json
-from .sql_start import sqlCursor
+from functions.sql_start import SQLObject
 
 def hasEmbedRole(ctx):
-    sqlCursor.execute('SELECT embedRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
-    roleData = json.loads(sqlCursor.fetchone()[0])
+    SQLObject.execute('SELECT embedRoles FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
+    roleData = json.loads(SQLObject.sqlCursor.fetchone()[0])
 
     for role in ctx.author.roles:
         if role.id in roleData:

@@ -14,7 +14,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['dice']) #!roll
     async def roll(ctx, arg=None):
         if arg == None:

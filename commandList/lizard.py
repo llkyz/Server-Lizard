@@ -2,6 +2,7 @@ import discord
 from discord import Button, ButtonStyle
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 import asyncio
 
 docs = {
@@ -16,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() # Give another user some coins
     async def lizard(ctx, arg=None):
         goldenLizard = "<:golden_lizard:1055859182319968376>"
@@ -29,7 +30,7 @@ def setup(client):
                     lizardCount = userData["goldenLizard"] + 1
                 sql = 'UPDATE userDB SET goldenLizard = %s, coins = (coins - 1000000000) WHERE userId = %s'
                 val = (lizardCount, ctx.author.id)
-                sqlCursor.execute(sql, val)
+                SQLObject.execute(sql, val)
                 await ctx.send(f"{goldenLizard} | You bought a golden lizard for **1,000,000,000** coins!")
                 return
             else:
@@ -67,7 +68,7 @@ def setup(client):
 
             sql = 'UPDATE userDB SET goldenLizard = (goldenLizard - 1), coins = LEAST(coins + 900000000, 2147483647) WHERE userId = %s'
             val = (ctx.author.id,)
-            sqlCursor.execute(sql, val)
+            SQLObject.execute(sql, val)
             await ctx.send(f"{goldenLizard} | {ctx.author.display_name} You sold a golden lizard for **900,000,000** coins!")
             return
 

@@ -19,7 +19,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     async def getroleusers(ctx, role: discord.Role):
         if not hasAdminRole(ctx) and not checkOwner(ctx):

@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 import json
 from functions import *
+from functions.sql_start import SQLObject
 
-def setup(client):
+async def setup(client):
     @client.event
     async def on_guild_join(guild):
         channel = guild.system_channel #getting system channel
@@ -11,8 +12,8 @@ def setup(client):
             await channel.send("🦎 **|** Server Lizard is here! Please use `!commands` to see a list of my commands.")
 
 
-        sqlCursor.execute('SELECT * FROM serverDB WHERE serverId = %s', (guild.id,))
-        serverData = sqlCursor.fetchone()
+        SQLObject.execute('SELECT * FROM serverDB WHERE serverId = %s', (guild.id,))
+        serverData = SQLObject.fetchone()
         if serverData == None:
             adminList = []
             for role in guild.roles:
@@ -21,8 +22,8 @@ def setup(client):
 
             sql = "INSERT INTO serverDB (serverId, serverName, adminRoles, embedRoles) VALUES (%s, %s, %s, %s)"
             val = (guild.id, guild.name, json.dumps(adminList), json.dumps(adminList))
-            sqlCursor.execute(sql, val)
-            sqlDb.commit()
+            SQLObject.execute(sql, val)
+            SQLObject.commit()
             print(f'Server data added for {guild.name}(id: {guild.id}')
         else:
             print(f'Server data already exists for {guild.name}(id: {guild.id}')

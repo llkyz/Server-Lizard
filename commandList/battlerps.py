@@ -16,7 +16,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() #!battle
     async def battlerps(ctx, arg=None, arg2=None):
         if arg == None:

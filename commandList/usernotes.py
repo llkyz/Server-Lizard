@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 import asyncio
 from discord import Button, ButtonStyle
 
@@ -16,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['usernote'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def usernotes(ctx, arg=None):
@@ -24,8 +25,8 @@ def setup(client):
             await ctx.send(embed=discord.Embed(title=f'You do not have permission to use that command'), delete_after=20)
             return
 
-        sqlCursor.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
-        channelData = sqlCursor.fetchone()
+        SQLObject.execute('SELECT userProfilesChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
+        channelData = SQLObject.fetchone()
 
         if channelData == None:
             await ctx.reply("A User Profile channel has not been set yet. Please set one up using `!userprofiles` and generate the profiles first.")

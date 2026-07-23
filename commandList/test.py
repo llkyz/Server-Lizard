@@ -15,7 +15,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     @commands.cooldown(1,15,commands.BucketType.user)
     async def test(ctx):

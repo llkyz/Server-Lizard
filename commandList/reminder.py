@@ -16,7 +16,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['remind', 'setreminder'])
     async def reminder(ctx):
         try:

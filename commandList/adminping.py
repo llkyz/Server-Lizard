@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 import json
 import asyncio
 from discord import Button, ButtonStyle
@@ -17,15 +18,15 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['adminpings'])
     async def adminping(ctx):
         if not hasAdminRole(ctx) and not checkOwner(ctx):
             await ctx.reply("You do not have permission to use this command!", delete_after=20)
             return
 
-        sqlCursor.execute('SELECT adminPingChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
-        channelData = sqlCursor.fetchone()[0]
+        SQLObject.execute('SELECT adminPingChannel FROM serverDB WHERE serverId = %s', (ctx.guild.id,))
+        channelData = SQLObject.fetchone()[0]
 
         view = discord.ui.View()
         button1 = discord.ui.Button(label="Set", style=ButtonStyle.green, custom_id='add')
@@ -98,8 +99,8 @@ def setup(client):
                         else:
                             sql = 'UPDATE serverDB SET adminPingChannel = %s WHERE serverId = %s'
                             val = (optionSelected, ctx.guild.id)
-                            sqlCursor.execute(sql, val)
-                            sqlDb.commit()
+                            SQLObject.execute(sql, val)
+                            SQLObject.commit()
 
                             await ctx.send(embed=discord.Embed(title=f'#{client.get_channel(optionSelected).name} set as Admin Ping channel.'))
                             break
@@ -107,8 +108,8 @@ def setup(client):
             elif interacted.data['custom_id'] == 'remove':
                 sql = 'UPDATE serverDB SET adminPingChannel = %s WHERE serverId = %s'
                 val = (None, ctx.guild.id)
-                sqlCursor.execute(sql, val)
-                sqlDb.commit()
+                SQLObject.execute(sql, val)
+                SQLObject.commit()
 
                 embed=discord.Embed(title=f'`#{ctx.guild.get_channel(channelData)}` removed as the Admin Ping channel')
                 await ctx.send(embed=embed)

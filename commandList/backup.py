@@ -15,7 +15,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command()
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def backup(ctx, arg=None,):

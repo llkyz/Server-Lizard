@@ -14,7 +14,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() #!change
     async def change(ctx):
         roll = random.randint(1, 20)

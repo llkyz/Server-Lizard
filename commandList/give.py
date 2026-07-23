@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 
 docs = {
 
@@ -14,7 +15,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() # Give another user some coins
     async def give(ctx, arg=None, arg2=None):
         userData = await fetchUserData(ctx.author)
@@ -60,20 +61,20 @@ def setup(client):
                         await ctx.send(f'{getUser.display_name} cannot receive any more coins.', delete_after=20)
                         return
                     else:
-                        sqlCursor.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
-                        receiverData = sqlCursor.fetchone()
+                        SQLObject.execute('SELECT * FROM userDB WHERE userId = %s', (receiverId,))
+                        receiverData = SQLObject.fetchone()
                         if receiverData == None:
                             sql = "INSERT INTO userDB (userId, userName, coins, daily) VALUES (%s, %s, %s, %s)"
                             val = (receiverId, getUser.name + "#" + getUser.discriminator, giveAmount, "0")
-                            sqlCursor.execute(sql, val)
+                            SQLObject.execute(sql, val)
                         else:
                             sql = 'UPDATE userDB SET coins = (coins + %s), userName = %s WHERE userId = %s'
                             val = (giveAmount, getUser.name + "#" + getUser.discriminator, receiverId)
-                            sqlCursor.execute(sql, val)
+                            SQLObject.execute(sql, val)
 
                         sql = 'UPDATE userDB SET coins = (coins - %s), userName = %s WHERE userId = %s'
                         val = (giveAmount, ctx.author.name + "#" + ctx.author.discriminator, userData["userId"])
-                        sqlCursor.execute(sql, val)
-                        sqlDb.commit()
+                        SQLObject.execute(sql, val)
+                        SQLObject.commit()
 
                         await ctx.send(f'**{coinEmoji} | {ctx.author.display_name}** gave **{"{:,}".format(giveAmount)}** {"coin" if giveAmount == 1 else "coins"} to **{getUser.display_name}**!{" Stingy..." if giveAmount == 1 else ""}')

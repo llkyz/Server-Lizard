@@ -17,7 +17,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['cf'])
     @commands.max_concurrency(number=1, per=commands.BucketType.user, wait=False)
     async def coinflip(ctx, arg=None):

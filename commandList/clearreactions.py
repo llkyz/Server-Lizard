@@ -13,7 +13,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command(aliases=['clearReaction', 'removeReactions', 'removeReaction'])
     async def clearReactions(ctx):
         if hasAdminRole(ctx) or checkOwner(ctx):

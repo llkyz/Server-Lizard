@@ -16,7 +16,7 @@ docs = {
     
     }
 
-def setup(client):
+async def setup(client):
     @client.command() #!admin
     async def admin(ctx, arg=None):
         if not hasAdminRole(ctx) and not checkOwner(ctx):

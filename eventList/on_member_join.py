@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
 from functions import *
+from functions.sql_start import SQLObject
 
-def setup(client):
+async def setup(client):
     @client.event #if a user profile already exists, posts user's previous roles to the notice channel
     async def on_member_join(member):
-        sqlCursor.execute('SELECT userProfilesChannel, saveRoleChannel FROM serverDB WHERE serverId = %s', (member.guild.id,))
-        channelData = sqlCursor.fetchone()
+        SQLObject.execute('SELECT userProfilesChannel, saveRoleChannel FROM serverDB WHERE serverId = %s', (member.guild.id,))
+        channelData = SQLObject.fetchone()
 
         if channelData[0] != None and channelData[1] != None:
             profileChannel = client.get_channel(channelData[0])
